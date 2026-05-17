@@ -1,26 +1,123 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap");
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Brand / primary */
+  --color-primary: #630ed4;
+  --color-primary-container: #7c3aed;
+  --color-primary-hover: #6d28d9;
+  --color-primary-fixed: #eaddff;
+  --color-primary-fixed-dim: #d2bbff;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #ede0ff;
+  --color-on-primary-fixed: #25005a;
+  --color-on-primary-fixed-variant: #5a00c6;
+
+  /* Backgrounds */
+  --color-bg-dark: #0f172a;
+  --color-bg-light: #ffffff;
+  --color-surface: #fef7ff;
+  --color-surface-gray-light: #f8fafc;
+  --color-surface-gray-dark: #1e293b;
+  --color-surface-container: #f3ebfa;
+  --color-surface-container-low: #f9f1ff;
+  --color-surface-container-high: #ede5f4;
+
+  /* Text */
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-text-muted: #94a3b8;
+
+  /* Borders */
+  --color-border-light: #e2e8f0;
+  --color-border-dark: #334155;
+
+  /* Semantic */
+  --color-success: #10b981;
+  --color-success-light: #d1fae5;
+  --color-error: #dc2626;
+  --color-error-light: #fee2e2;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fef3c7;
+  --color-info: #3b82f6;
+  --color-design-accent: #be185d;
+  --color-design-accent-light: #fce7f3;
+  --color-secondary: #006b5f;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-fixed-variant: #005048;
+  --color-outline: #7b7487;
+
+  /* Custom spacing tokens */
+  --spacing-sidebar: 260px;
+  --spacing-topbar: 64px;
+
+  /* Font family */
+  --font-family-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --font-family-mono: "SF Mono", Monaco, "Cascadia Mono", monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-family-sans);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
+
+/* Prose override for homework */
+.prose p {
+  margin-bottom: 0.75rem;
+}
+.prose ul {
+  margin-bottom: 1rem;
+}
+
+/* Orbit pulse animation */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.animate-pulse-dot {
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+/* Dashed orbit connector */
+.orbit-connector {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 2px;
+  transform-origin: left center;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(99, 14, 212, 0.35) 0px,
+    rgba(99, 14, 212, 0.35) 4px,
+    transparent 4px,
+    transparent 8px
+  );
 }
