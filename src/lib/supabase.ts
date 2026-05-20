@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import type { Student, Group, Lesson, Homework } from "./types";
+import type { Student, Group, Lesson, Homework, StudentHomeworkRecord } from "./types";
 
 export type Database = {
   public: {
@@ -8,6 +8,12 @@ export type Database = {
       groups: { Row: Group; Insert: Omit<Group, "id" | "created_at">; Update: Partial<Group>; Relationships: [] };
       lessons: { Row: Lesson; Insert: Omit<Lesson, "id">; Update: Partial<Lesson>; Relationships: [] };
       homework: { Row: Homework; Insert: Omit<Homework, "id">; Update: Partial<Homework>; Relationships: [] };
+      student_homework_records: {
+        Row: StudentHomeworkRecord;
+        Insert: Omit<StudentHomeworkRecord, "id" | "created_at">;
+        Update: Partial<StudentHomeworkRecord>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

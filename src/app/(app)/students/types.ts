@@ -27,7 +27,7 @@ export type StudentRow = {
   finished: string | null;
   githubUsername: string | null;
   notes: string | null;
-  homeworkScores: string | null;
+  homeworkRecords: import("@/lib/types").StudentHomeworkRecord[];
   statusRaw: string;
 };
 
@@ -77,7 +77,6 @@ export const EMPTY_FORM = {
   finished: "",
   github_username: "",
   notes: "",
-  homework_scores: "",
 };
 
 export type SortKey =

@@ -4,13 +4,14 @@ import { useState, useMemo, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { Lesson, Group } from "@/lib/types";
-import { PAGE_SIZE } from "./types";
+import { PAGE_SIZE, formatDisplayDate } from "./types";
 import LessonMenu from "./components/LessonMenu";
 import LessonModal from "./components/LessonModal";
 import LessonList from "./components/LessonList";
 import LessonsInsights from "./components/LessonsInsights";
 import CalendarView from "./components/CalendarView";
 import LessonPrepModal from "./components/LessonPrepModal";
+import LessonFilters from "./components/LessonFilters";
 
 export default function LessonsClient({
   initialLessons,
@@ -22,6 +23,9 @@ export default function LessonsClient({
   const [view, setView] = useState<"list" | "calendar">("list");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [lessons, setLessons] = useState<Lesson[]>(initialLessons);
+  const [search, setSearch] = useState("");
+  const [groupFilter, setGroupFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [calendarDate, setCalendarDate] = useState(new Date());
   const [aiLoading, setAiLoading] = useState(false);
   const [aiOptimized, setAiOptimized] = useState(false);
@@ -37,9 +41,40 @@ export default function LessonsClient({
     ? (lessons.find((l) => l.id === openMenu.id) ?? null)
     : null;
 
-  const sorted = useMemo(
-    () => [...lessons].sort((a, b) => b.date.localeCompare(a.date)),
+  const groupNames = useMemo(
+    () =>
+      [...new Set(lessons.map((l) => l.group_name).filter(Boolean))].sort((a, b) =>
+        a.localeCompare(b),
+      ),
     [lessons],
+  );
+
+  const typeNames = useMemo(
+    () =>
+      [...new Set(lessons.map((l) => l.type).filter(Boolean))].sort((a, b) =>
+        a.localeCompare(b),
+      ),
+    [lessons],
+  );
+
+  const filteredLessons = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return lessons.filter((lesson) => {
+      const matchesSearch =
+        query.length === 0 ||
+        lesson.title.toLowerCase().includes(query) ||
+        lesson.group_name.toLowerCase().includes(query) ||
+        lesson.date.toLowerCase().includes(query) ||
+        formatDisplayDate(lesson.date).toLowerCase().includes(query);
+      const matchesGroup = groupFilter === "all" || lesson.group_name === groupFilter;
+      const matchesType = typeFilter === "all" || lesson.type === typeFilter;
+      return matchesSearch && matchesGroup && matchesType;
+    });
+  }, [lessons, search, groupFilter, typeFilter]);
+
+  const sorted = useMemo(
+    () => [...filteredLessons].sort((a, b) => b.date.localeCompare(a.date)),
+    [filteredLessons],
   );
 
   const grouped = useMemo(() => {
@@ -52,6 +87,10 @@ export default function LessonsClient({
       return acc;
     }, []);
   }, [sorted, visibleCount]);
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [search, groupFilter, typeFilter]);
 
   const weeklyData = useMemo(() => {
     const counts = [0, 0, 0, 0, 0, 0, 0];
@@ -131,6 +170,12 @@ export default function LessonsClient({
     setOpenMenu((prev) => (prev?.id === id ? null : { id, top, right }));
   }
 
+  function resetFilters() {
+    setSearch("");
+    setGroupFilter("all");
+    setTypeFilter("all");
+  }
+
   return (
     <>
       {/* Dropdown: rendered outside cards to avoid backdrop-blur stacking context */}
@@ -164,7 +209,9 @@ export default function LessonsClient({
               Lessons
             </h2>
             <p className="text-[13px] sm:text-[14px] text-text-secondary mt-1 max-w-2xl">
-              {lessons.length} lessons across all groups.
+              {filteredLessons.length === lessons.length
+                ? `${lessons.length} lessons across all groups.`
+                : `${filteredLessons.length} of ${lessons.length} lessons match the filters.`}
             </p>
           </div>
           <div className="flex p-1 bg-surface-container rounded-lg border border-border-light w-full sm:w-auto">
@@ -184,6 +231,18 @@ export default function LessonsClient({
           </div>
         </div>
 
+        <LessonFilters
+          search={search}
+          onSearchChange={setSearch}
+          groupFilter={groupFilter}
+          onGroupChange={setGroupFilter}
+          typeFilter={typeFilter}
+          onTypeChange={setTypeFilter}
+          groups={groupNames}
+          types={typeNames}
+          onReset={resetFilters}
+        />
+
         {view === "list" ? (
         <LessonList
           grouped={grouped}
@@ -196,7 +255,7 @@ export default function LessonsClient({
         />
         ) : (
           <CalendarView
-            lessons={lessons}
+            lessons={filteredLessons}
             calendarDate={calendarDate}
             onPrev={() =>
               setCalendarDate(

@@ -12,6 +12,7 @@ import {
   GRADE_RANGES,
   PAGE_SIZE,
 } from "./types";
+import type { StudentHomeworkRecord, Homework } from "@/lib/types";
 import { StatIcon } from "./components/TablePrimitives";
 import StudentsFilters from "./components/StudentsFilters";
 import StudentsTable from "./components/StudentsTable";
@@ -25,9 +26,10 @@ interface Props {
   rows: StudentRow[];
   uniqueGroups: string[];
   stats: StatItem[];
+  homeworks: Homework[];
 }
 
-export default function StudentsClient({ rows, uniqueGroups, stats }: Props) {
+export default function StudentsClient({ rows, uniqueGroups, stats, homeworks }: Props) {
   const [search, setSearch] = useState("");
   const [groupFilter, setGroupFilter] = useState("All Groups");
   const [gradeFilter, setGradeFilter] = useState("All Grades");
@@ -39,6 +41,7 @@ export default function StudentsClient({ rows, uniqueGroups, stats }: Props) {
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [editingStudent, setEditingStudent] = useState<StudentRow | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [localRecords, setLocalRecords] = useState<Record<string, StudentHomeworkRecord[]>>({});
 
   function toggleCol(id: ColumnId) {
     setVisibleCols((prev) => {
@@ -54,6 +57,69 @@ export default function StudentsClient({ rows, uniqueGroups, stats }: Props) {
     else {
       setSortKey(key);
       setSortDir("asc");
+    }
+  }
+
+  async function handleHomeworkDelete(studentId: string, recordId: string) {
+    const current =
+      localRecords[studentId] ??
+      rows.find((r) => r.id === studentId)?.homeworkRecords ??
+      [];
+    setLocalRecords((prev) => ({
+      ...prev,
+      [studentId]: current.filter((r) => r.id !== recordId),
+    }));
+    try {
+      const res = await fetch(`/api/students/${studentId}/homework/${recordId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        setLocalRecords((prev) => ({ ...prev, [studentId]: current }));
+      }
+    } catch {
+      setLocalRecords((prev) => ({ ...prev, [studentId]: current }));
+    }
+  }
+
+  async function handleHomeworkAdd(id: string, completed: boolean, date: string, homeworkId: string | null) {
+    const tempId = `tmp-${id}-${Date.now()}`;
+    const tempRecord: StudentHomeworkRecord = {
+      id: tempId,
+      student_id: id,
+      homework_id: homeworkId,
+      date,
+      completed,
+      created_at: new Date().toISOString(),
+    };
+
+    setLocalRecords((prev) => ({
+      ...prev,
+      [id]: [...(prev[id] ?? rows.find((r) => r.id === id)?.homeworkRecords ?? []), tempRecord],
+    }));
+
+    try {
+      const res = await fetch(`/api/students/${id}/homework`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date, completed, homework_id: homeworkId }),
+      });
+      if (res.ok) {
+        const real = (await res.json()) as StudentHomeworkRecord;
+        setLocalRecords((prev) => ({
+          ...prev,
+          [id]: (prev[id] ?? []).map((r) => (r.id === tempId ? real : r)),
+        }));
+      } else {
+        setLocalRecords((prev) => ({
+          ...prev,
+          [id]: (prev[id] ?? []).filter((r) => r.id !== tempId),
+        }));
+      }
+    } catch {
+      setLocalRecords((prev) => ({
+        ...prev,
+        [id]: (prev[id] ?? []).filter((r) => r.id !== tempId),
+      }));
     }
   }
 
@@ -233,6 +299,10 @@ export default function StudentsClient({ rows, uniqueGroups, stats }: Props) {
         onPageChange={setPage}
         onEdit={setEditingStudent}
         onDelete={setDeletingId}
+        localRecords={localRecords}
+        onHomeworkAdd={handleHomeworkAdd}
+        onHomeworkDelete={handleHomeworkDelete}
+        homeworks={homeworks}
       />
 
       <button className="fixed bottom-10 right-10 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-50 group">

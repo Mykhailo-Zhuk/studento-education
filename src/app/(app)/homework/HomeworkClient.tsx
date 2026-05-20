@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   AlertTriangle,
@@ -17,6 +17,7 @@ import {
   Trash2,
   Pencil,
   Check,
+  FileText,
 } from "lucide-react";
 import TopBar from "@/components/layout/TopBar";
 import HomeworkFilters from "./components/HomeworkFilters";
@@ -447,6 +448,233 @@ function HomeworkActionMenu({
   );
 }
 
+type GitHubFile = { name: string; content: string };
+
+function fileTabLabel(name: string): string {
+  const base = name.replace(/\.md$/, "");
+  if (base === "What-to-read") return "What to Read";
+  if (base === "What-to-write") return "What to Write";
+  if (base === "Youtube-description") return "YouTube";
+  return base.replace(/-/g, " ");
+}
+
+function parseInline(text: string): React.ReactNode {
+  const parts = text.split(/(`[^`]+`)/g);
+  return parts.map((part, i) =>
+    part.startsWith("`") && part.endsWith("`") ? (
+      <code
+        key={i}
+        className="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[12px] font-mono"
+      >
+        {part.slice(1, -1)}
+      </code>
+    ) : (
+      <span key={i}>{part}</span>
+    ),
+  );
+}
+
+function MarkdownContent({ text }: { text: string }) {
+  let inCodeBlock = false;
+  const codeLines: string[] = [];
+  const nodes: React.ReactNode[] = [];
+
+  for (const [i, line] of text.split("\n").entries()) {
+    const t = line.trim();
+
+    if (t.startsWith("```")) {
+      if (inCodeBlock) {
+        nodes.push(
+          <pre
+            key={`code-${i}`}
+            className="bg-slate-100 rounded-lg p-3 text-[12px] font-mono overflow-x-auto my-2 whitespace-pre-wrap"
+          >
+            {codeLines.join("\n")}
+          </pre>,
+        );
+        codeLines.length = 0;
+        inCodeBlock = false;
+      } else {
+        inCodeBlock = true;
+      }
+      continue;
+    }
+    if (inCodeBlock) {
+      codeLines.push(line);
+      continue;
+    }
+
+    if (!t) {
+      nodes.push(<div key={i} className="h-1" />);
+    } else if (t.startsWith("### ")) {
+      nodes.push(
+        <h3 key={i} className="text-[15px] font-semibold text-text-primary mt-4 mb-1">
+          {t.slice(4)}
+        </h3>,
+      );
+    } else if (t.startsWith("## ")) {
+      nodes.push(
+        <h2 key={i} className="text-[16px] font-bold text-text-primary mt-5 mb-1.5">
+          {t.slice(3)}
+        </h2>,
+      );
+    } else if (t.startsWith("# ")) {
+      nodes.push(
+        <h1 key={i} className="text-[18px] font-bold text-text-primary mt-5 mb-2">
+          {t.slice(2)}
+        </h1>,
+      );
+    } else if (/^[-*] /.test(t)) {
+      nodes.push(
+        <div key={i} className="flex gap-2 pl-2">
+          <span className="text-text-muted shrink-0 mt-0.5">•</span>
+          <span>{parseInline(t.slice(2))}</span>
+        </div>,
+      );
+    } else if (/^\d+\. /.test(t)) {
+      const m = t.match(/^(\d+)\. (.*)/);
+      if (m) {
+        nodes.push(
+          <div key={i} className="flex gap-2 pl-2">
+            <span className="text-text-muted shrink-0 min-w-[1.5rem]">{m[1]}.</span>
+            <span>{parseInline(m[2])}</span>
+          </div>,
+        );
+      }
+    } else {
+      nodes.push(
+        <p key={i} className="text-[14px] leading-relaxed">
+          {parseInline(t)}
+        </p>,
+      );
+    }
+  }
+
+  return <div className="space-y-1 text-text-primary">{nodes}</div>;
+}
+
+function HomeworkDrawer({
+  row,
+  onClose,
+}: {
+  row: HomeworkRow;
+  onClose: () => void;
+}) {
+  const [status, setStatus] = useState<"loading" | "loaded" | "error">("loading");
+  const [files, setFiles] = useState<GitHubFile[]>([]);
+  const [activeFile, setActiveFile] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  useEffect(() => {
+    setStatus("loading");
+    setFiles([]);
+    setActiveFile("");
+    setErrorMsg("");
+
+    fetch(
+      `/api/homework/github-content?group_name=${encodeURIComponent(row.group_name)}&title=${encodeURIComponent(row.title)}`,
+    )
+      .then(async (res) => {
+        const data = (await res.json()) as
+          | { files: GitHubFile[] }
+          | { error: string };
+        if (!res.ok || "error" in data) {
+          setErrorMsg("error" in data ? data.error : "Failed to load content");
+          setStatus("error");
+          return;
+        }
+        setFiles(data.files);
+        setActiveFile(data.files[0]?.name ?? "");
+        setStatus("loaded");
+      })
+      .catch(() => {
+        setErrorMsg("Network error");
+        setStatus("error");
+      });
+  }, [row.id, row.group_name, row.title]);
+
+  const activeContent = files.find((f) => f.name === activeFile)?.content ?? "";
+
+  return createPortal(
+    <>
+      <div className="fixed inset-0 bg-black/30 z-40" onClick={onClose} />
+      <div className="fixed inset-y-0 right-0 z-50 w-full max-w-[560px] bg-white shadow-2xl flex flex-col">
+        {/* Header */}
+        <div className="flex items-start gap-3 px-5 py-4 border-b border-border-light shrink-0">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-0.5">
+              <FileText size={14} className="text-text-muted shrink-0" />
+              <span className="text-[11px] text-text-muted font-medium">
+                {row.group_name}
+              </span>
+            </div>
+            <h3 className="text-[15px] font-bold text-text-primary leading-tight truncate">
+              {row.title}
+            </h3>
+            <p className="text-[12px] text-text-muted mt-0.5">
+              {row.displayDate} · {row.type}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-surface-container text-text-muted hover:text-primary transition-colors shrink-0 mt-0.5"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* File tabs */}
+        {status === "loaded" && files.length > 1 && (
+          <div className="flex border-b border-border-light px-4 shrink-0 overflow-x-auto">
+            {files.map((f) => (
+              <button
+                key={f.name}
+                onClick={() => setActiveFile(f.name)}
+                className={`px-4 py-3 text-[13px] font-medium whitespace-nowrap border-b-2 transition-colors ${
+                  activeFile === f.name
+                    ? "border-primary text-primary"
+                    : "border-transparent text-text-muted hover:text-text-primary"
+                }`}
+              >
+                {fileTabLabel(f.name)}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto px-5 py-5">
+          {status === "loading" && (
+            <div className="flex items-center justify-center h-32 gap-2 text-text-muted">
+              <Loader2 size={18} className="animate-spin" />
+              <span className="text-[14px]">Loading from GitHub…</span>
+            </div>
+          )}
+
+          {status === "error" && (
+            <div className="flex flex-col items-center justify-center h-32 gap-2 text-center">
+              <AlertTriangle size={24} className="text-warning" />
+              <p className="text-[14px] font-semibold text-text-primary">
+                Content not found
+              </p>
+              <p className="text-[12px] text-text-muted max-w-64">
+                {errorMsg === "Folder not found"
+                  ? `No folder matching "${row.title}" in the GitHub repo for this group.`
+                  : errorMsg}
+              </p>
+            </div>
+          )}
+
+          {status === "loaded" && activeContent && (
+            <MarkdownContent text={activeContent} />
+          )}
+        </div>
+      </div>
+    </>,
+    document.body,
+  );
+}
+
 export default function HomeworkClient({
   initialHomework,
 }: {
@@ -460,6 +688,7 @@ export default function HomeworkClient({
   const [modalHomework, setModalHomework] = useState<Homework | null>(null);
   const [menuAnchor, setMenuAnchor] = useState<MenuAnchor | null>(null);
   const [actionBusyId, setActionBusyId] = useState<string | null>(null);
+  const [drawerRow, setDrawerRow] = useState<HomeworkRow | null>(null);
 
   const groups = useMemo(
     () =>
@@ -610,10 +839,10 @@ export default function HomeworkClient({
     <div className="min-h-screen bg-surface-gray-light">
       <TopBar breadcrumb={["Main Hub", "Homework"]} />
 
-      <main className="p-10">
-        <div className="flex justify-between items-end mb-6 gap-4">
+      <main className="p-4 sm:p-6 lg:p-10">
+        <div className="flex justify-between items-end mb-4 sm:mb-6 gap-4">
           <div>
-            <h1 className="text-[32px] font-bold text-text-primary tracking-tight">
+            <h1 className="text-2xl sm:text-[32px] font-bold text-text-primary tracking-tight">
               Homework Overview
             </h1>
             <p className="text-[14px] text-text-secondary mt-1">
@@ -622,20 +851,22 @@ export default function HomeworkClient({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <HomeworkFilters
-            search={search}
-            onSearchChange={setSearch}
-            groupFilter={groupFilter}
-            onGroupChange={setGroupFilter}
-            typeFilter={typeFilter}
-            onTypeChange={setTypeFilter}
-            statusFilter={statusFilter}
-            onStatusChange={setStatusFilter}
-            groups={groups}
-            types={types}
-            onReset={resetFilters}
-          />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
+          <div className="md:col-span-3">
+            <HomeworkFilters
+              search={search}
+              onSearchChange={setSearch}
+              groupFilter={groupFilter}
+              onGroupChange={setGroupFilter}
+              typeFilter={typeFilter}
+              onTypeChange={setTypeFilter}
+              statusFilter={statusFilter}
+              onStatusChange={setStatusFilter}
+              groups={groups}
+              types={types}
+              onReset={resetFilters}
+            />
+          </div>
 
           <div className="bg-primary text-white rounded-xl p-4 shadow-lg flex flex-col justify-center relative overflow-hidden md:col-span-1">
             <div className="relative z-10">
@@ -656,7 +887,7 @@ export default function HomeworkClient({
           </div>
         </div>
 
-        <div className="bg-white border border-border-light rounded-xl shadow-sm overflow-hidden mb-6">
+        <div className="bg-white border border-border-light rounded-xl shadow-sm overflow-hidden mb-4 sm:mb-6">
           <div className="overflow-x-auto">
             <table className="min-w-[1120px] w-full table-fixed text-left border-collapse">
               <thead>
@@ -686,7 +917,8 @@ export default function HomeworkClient({
                   filteredRows.map((row) => (
                     <tr
                       key={row.id}
-                      className="hover:bg-surface-gray-light transition-colors"
+                      onClick={() => setDrawerRow(row)}
+                      className="hover:bg-surface-gray-light transition-colors cursor-pointer"
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3 min-w-0">
@@ -731,7 +963,10 @@ export default function HomeworkClient({
                       <td className="px-6 py-4 text-right whitespace-nowrap">
                         <button
                           disabled={actionBusyId === row.id}
-                          onClick={(e) => openMenu(row, e.currentTarget)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openMenu(row, e.currentTarget);
+                          }}
                           className="p-2 text-text-muted hover:text-primary transition-colors disabled:opacity-50"
                         >
                           {actionBusyId === row.id ? (
@@ -775,7 +1010,7 @@ export default function HomeworkClient({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <div className="bg-white border border-border-light rounded-xl p-6 shadow-sm flex items-center gap-6">
             <div className="w-16 h-16 rounded-full bg-warning-light flex items-center justify-center text-warning shrink-0">
               <AlertTriangle size={28} />
@@ -815,7 +1050,7 @@ export default function HomeworkClient({
 
       <button
         onClick={() => setModalHomework({} as Homework)}
-        className="fixed bottom-10 right-10 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-50"
+        className="fixed bottom-6 right-6 lg:bottom-10 lg:right-10 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-50"
       >
         <Plus size={24} />
       </button>
@@ -844,6 +1079,10 @@ export default function HomeworkClient({
         onStatusChange={handleStatusChange}
         onClose={() => setMenuAnchor(null)}
       />
+
+      {drawerRow && (
+        <HomeworkDrawer row={drawerRow} onClose={() => setDrawerRow(null)} />
+      )}
     </div>
   );
 }

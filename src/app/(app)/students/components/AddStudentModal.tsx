@@ -31,7 +31,6 @@ export default function AddStudentModal({ uniqueGroups, onClose }: Props) {
       started: form.started || new Date().toISOString().split("T")[0],
       finished: form.finished || null,
       github_username: form.github_username.trim() || null,
-      homework_scores: form.homework_scores.trim() || null,
       notes: form.notes.trim() || null,
       }),
     });
@@ -103,11 +102,6 @@ export default function AddStudentModal({ uniqueGroups, onClose }: Props) {
           <div>
             <label className={label}>GitHub Username</label>
             <input value={form.github_username} onChange={(e) => setForm((f) => ({ ...f, github_username: e.target.value }))} placeholder="username" className={field()} />
-          </div>
-          <div>
-            <label className={label}>Homework Scores</label>
-            <input value={form.homework_scores} onChange={(e) => setForm((f) => ({ ...f, homework_scores: e.target.value }))} placeholder="1,0,1,1,0" className={field("font-mono")} />
-            <p className="mt-1 text-[11px] text-text-muted">Comma-separated: 1 = done, 0 = not done</p>
           </div>
           <div>
             <label className={label}>Notes</label>

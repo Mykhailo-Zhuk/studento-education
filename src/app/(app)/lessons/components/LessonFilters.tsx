@@ -9,22 +9,21 @@ interface Props {
   onGroupChange: (v: string) => void;
   typeFilter: string;
   onTypeChange: (v: string) => void;
-  statusFilter: string;
-  onStatusChange: (v: string) => void;
   groups: string[];
   types: string[];
   onReset: () => void;
 }
 
-export default function HomeworkFilters({
+const selectCls =
+  "px-3 py-2 border border-border-light rounded-lg text-[14px] text-text-primary focus:ring-primary focus:border-primary outline-none bg-white w-full sm:w-auto";
+
+export default function LessonFilters({
   search,
   onSearchChange,
   groupFilter,
   onGroupChange,
   typeFilter,
   onTypeChange,
-  statusFilter,
-  onStatusChange,
   groups,
   types,
   onReset,
@@ -37,7 +36,7 @@ export default function HomeworkFilters({
           type="text"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search by title or date..."
+          placeholder="Search by title, group or date…"
           className="bg-transparent border-none focus:ring-0 w-full text-[14px] outline-none placeholder:text-text-muted"
         />
       </div>
@@ -45,7 +44,7 @@ export default function HomeworkFilters({
         <select
           value={groupFilter}
           onChange={(e) => onGroupChange(e.target.value)}
-          className="px-3 py-2 border border-border-light rounded-lg text-[14px] text-text-primary focus:ring-primary focus:border-primary outline-none bg-white w-full sm:w-auto"
+          className={selectCls}
         >
           <option value="all">All Groups</option>
           {groups.map((g) => (
@@ -57,7 +56,7 @@ export default function HomeworkFilters({
         <select
           value={typeFilter}
           onChange={(e) => onTypeChange(e.target.value)}
-          className="px-3 py-2 border border-border-light rounded-lg text-[14px] text-text-primary focus:ring-primary focus:border-primary outline-none bg-white w-full sm:w-auto"
+          className={selectCls}
         >
           <option value="all">All Types</option>
           {types.map((t) => (
@@ -65,15 +64,6 @@ export default function HomeworkFilters({
               {t}
             </option>
           ))}
-        </select>
-        <select
-          value={statusFilter}
-          onChange={(e) => onStatusChange(e.target.value)}
-          className="px-3 py-2 border border-border-light rounded-lg text-[14px] text-text-primary focus:ring-primary focus:border-primary outline-none bg-white w-full sm:w-auto"
-        >
-          <option value="all">All Statuses</option>
-          <option value="planning">Planning</option>
-          <option value="completed">Completed</option>
         </select>
         <button
           onClick={onReset}

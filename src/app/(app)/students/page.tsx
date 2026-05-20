@@ -1,6 +1,6 @@
 import TopBar from "@/components/layout/TopBar";
-import { supabase } from "@/lib/supabase";
-import type { Student } from "@/lib/types";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import type { Student, StudentHomeworkRecord, Homework } from "@/lib/types";
 import StudentsClient, {
   type StudentRow,
   type StatItem,
@@ -30,41 +30,34 @@ const ENROLLMENT_STATUS: Record<
   { label: string; color: string; dot: string; online: string }
 > = {
   "Not Started": {
-    label: "Не розпочато",
+    label: "Not Started",
     color: "text-text-muted",
     dot: "bg-text-muted",
     online: "bg-text-muted",
   },
   "In progress": {
-    label: "В процесі",
+    label: "In progress",
     color: "text-success",
     dot: "bg-success",
     online: "bg-success",
   },
   Interrupted: {
-    label: "Перерване",
+    label: "Interrupted",
     color: "text-warning",
     dot: "bg-warning",
     online: "bg-warning",
   },
   "End course": {
-    label: "Завершене",
+    label: "End course",
     color: "text-info",
     dot: "bg-info",
     online: "bg-info",
   },
 };
 
-function calcGrade(scores: string | null): number {
-  if (!scores) return 0;
-  const parts = scores
-    .split(",")
-    .map((s) => s.trim())
-    .filter((s) => s !== "");
-  if (parts.length === 0) return 0;
-  return Math.round(
-    (parts.filter((s) => s === "1").length / parts.length) * 100,
-  );
+function calcGrade(records: StudentHomeworkRecord[]): number {
+  if (records.length === 0) return 0;
+  return Math.round((records.filter((r) => r.completed).length / records.length) * 100);
 }
 
 function gradeTrend(gradeNum: number): "up" | "down" | "flat" {
@@ -73,16 +66,42 @@ function gradeTrend(gradeNum: number): "up" | "down" | "flat" {
   return "down";
 }
 
-export default async function StudentsPage() {
-  const { data: students } = await supabase
-    .from("students")
-    .select("*")
-    .order("name");
+async function fetchAllHomeworkRecords(db: ReturnType<typeof getSupabaseAdmin>): Promise<StudentHomeworkRecord[]> {
+  const results: StudentHomeworkRecord[] = [];
+  const batchSize = 1000;
+  let from = 0;
+  while (true) {
+    const { data } = await (db.from("student_homework_records").select("*").range(from, from + batchSize - 1) as unknown as Promise<{ data: StudentHomeworkRecord[] | null }>);
+    if (!data || data.length === 0) break;
+    results.push(...data);
+    if (data.length < batchSize) break;
+    from += batchSize;
+  }
+  return results;
+}
 
-  const rows: StudentRow[] = (students ?? ([] as Student[])).map(
+export default async function StudentsPage() {
+  const db = getSupabaseAdmin();
+
+  const [{ data: students }, allRecords, { data: homeworks }] = await Promise.all([
+    db.from("students").select("*").order("name") as unknown as Promise<{ data: Student[] | null; error: unknown }>,
+    fetchAllHomeworkRecords(db),
+    db.from("homework").select("*").order("date", { ascending: false }) as unknown as Promise<{ data: Homework[] | null; error: unknown }>,
+  ]);
+
+  const recordsByStudent = allRecords.reduce<Record<string, StudentHomeworkRecord[]>>(
+    (acc, r) => {
+      (acc[r.student_id] ??= []).push(r);
+      return acc;
+    },
+    {},
+  );
+
+  const rows: StudentRow[] = (students ?? []).map(
     (s: Student, i: number) => {
       const gradient = GRADIENTS[i % GRADIENTS.length];
-      const gradeNum = calcGrade(s.homework_scores);
+      const records = recordsByStudent[s.id] ?? [];
+      const gradeNum = calcGrade(records);
       const enrollmentInfo = ENROLLMENT_STATUS[s.status] ?? {
         label: s.status,
         color: "text-text-muted",
@@ -121,7 +140,7 @@ export default async function StudentsPage() {
         finished: s.finished,
         githubUsername: s.github_username,
         notes: s.notes,
-        homeworkScores: s.homework_scores,
+        homeworkRecords: records,
         statusRaw: s.status,
       };
     },
@@ -170,15 +189,13 @@ export default async function StudentsPage() {
     },
   ];
 
-  const uniqueGroups = [
-    ...new Set((students ?? []).map((s: Student) => s.group_name)),
-  ];
+  const uniqueGroups = [...new Set((students ?? []).map((s) => s.group_name))];
 
   return (
     <div className="min-h-screen bg-surface">
       <TopBar breadcrumb={["Main Hub", "Students"]} />
       <section className="p-10">
-        <StudentsClient rows={rows} uniqueGroups={uniqueGroups} stats={stats} />
+        <StudentsClient rows={rows} uniqueGroups={uniqueGroups} stats={stats} homeworks={homeworks ?? []} />
       </section>
     </div>
   );

@@ -8,8 +8,16 @@ export interface Student {
   started: string;
   finished: string | null;
   github_username: string | null;
-  homework_scores: string | null;
   notes: string | null;
+  created_at: string;
+}
+
+export interface StudentHomeworkRecord {
+  id: string;
+  student_id: string;
+  homework_id: string | null;
+  date: string;
+  completed: boolean;
   created_at: string;
 }
 
