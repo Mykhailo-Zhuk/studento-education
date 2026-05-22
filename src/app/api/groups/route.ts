@@ -4,6 +4,19 @@ import type { Group } from "@/lib/types";
 
 type GroupPayload = Omit<Group, "id" | "created_at">;
 
+export async function GET() {
+  try {
+    const supabase = getSupabaseAdmin();
+    const table = supabase.from("groups") as unknown as AdminTable<Group>;
+    const { data, error } = await table.select("*").order("created_at", { ascending: false });
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json(data ?? []);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to fetch groups";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as GroupPayload & { id?: string };

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import type { StudentHomeworkRecord, Homework } from "@/lib/types";
 import {
+  CustomSelect,
   SortTh,
   TH_BASE,
   TrendIcon,
@@ -34,7 +35,7 @@ interface HwPopupState {
   studentGroup: string;
   completed: boolean;
   top: number;
-  right: number;
+  left: number;
 }
 
 interface HwListState {
@@ -48,25 +49,33 @@ interface HwDetailState {
   homework: Homework | null;
 }
 
+// ─── Custom select ────────────────────────────────────────────────────────────
+
+
+
 // ─── Add-homework popup ───────────────────────────────────────────────────────
+
+function formatHwDate(iso: string): string {
+  const [y, m, d] = iso.split("-");
+  return `${d}-${m}-${y}`;
+}
 
 function HomeworkPopup({
   homeworks,
   completed,
   top,
-  right,
+  left,
   onSubmit,
   onClose,
 }: {
   homeworks: Homework[];
   completed: boolean;
   top: number;
-  right: number;
+  left: number;
   onSubmit: (date: string, hwId: string | null) => void;
   onClose: () => void;
 }) {
   const today = new Date().toISOString().slice(0, 10);
-  const [date, setDate] = useState(today);
   const [hwId, setHwId] = useState(homeworks[0]?.id ?? "");
   const ref = useRef<HTMLDivElement>(null);
 
@@ -78,11 +87,17 @@ function HomeworkPopup({
     return () => document.removeEventListener("mousedown", handleOutside);
   }, [onClose]);
 
-  return (
+  function handleSubmit() {
+    const selectedHw = homeworks.find((h) => h.id === hwId);
+    const date = selectedHw?.date ?? today;
+    onSubmit(date, hwId || null);
+  }
+
+  return createPortal(
     <div
       ref={ref}
-      style={{ top, right }}
-      className="fixed z-50 bg-white border border-border-light rounded-xl shadow-xl p-3 w-60"
+      style={{ position: "absolute", top, left }}
+      className="z-50 bg-white border border-border-light rounded-xl shadow-xl p-3 w-80"
     >
       <div className="flex items-center justify-between mb-3">
         <span className={`text-[12px] font-semibold ${completed ? "text-success" : "text-error"}`}>
@@ -94,40 +109,29 @@ function HomeworkPopup({
       </div>
 
       <label className="block text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-1">
-        Date
-      </label>
-      <input
-        type="date"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-        className="w-full border border-border-light rounded-lg px-2 py-1.5 text-[13px] mb-3 focus:outline-none focus:ring-1 focus:ring-primary"
-      />
-
-      <label className="block text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-1">
         Homework
       </label>
-      <select
-        value={hwId}
-        onChange={(e) => setHwId(e.target.value)}
-        className="w-full border border-border-light rounded-lg px-2 py-1.5 text-[13px] mb-3 focus:outline-none focus:ring-1 focus:ring-primary bg-white"
-      >
-        <option value="">— No specific HW —</option>
-        {homeworks.map((hw) => (
-          <option key={hw.id} value={hw.id}>
-            {hw.title} ({hw.date})
-          </option>
-        ))}
-      </select>
+      <div className="mb-3">
+        <CustomSelect
+          value={hwId}
+          onChange={setHwId}
+          options={[
+            { value: "", label: "— No specific HW —" },
+            ...homeworks.map((hw) => ({ value: hw.id, label: `${hw.title} (${formatHwDate(hw.date)})` })),
+          ]}
+        />
+      </div>
 
       <button
-        onClick={() => onSubmit(date, hwId || null)}
+        onClick={handleSubmit}
         className={`w-full py-1.5 rounded-lg text-[13px] font-semibold text-white transition-colors ${
           completed ? "bg-success hover:bg-success/80" : "bg-error hover:bg-error/80"
         }`}
       >
         Confirm
       </button>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -164,7 +168,7 @@ function HomeworkListPopup({
     <div
       ref={ref}
       style={{ position: "absolute", top, left }}
-      className="z-9999 bg-white border border-border-light rounded-xl shadow-xl w-72 overflow-hidden"
+      className="z-9999 bg-white border border-border-light rounded-xl shadow-xl w-100 overflow-hidden"
     >
       <div className="flex items-center justify-between px-4 py-3 border-b border-border-light">
         <span className="text-[13px] font-semibold text-text-primary">Homework Records</span>
@@ -250,7 +254,7 @@ function HomeworkDetailDrawer({
   return (
     <>
       <div className="fixed inset-0 bg-black/20 z-40" onClick={onClose} />
-      <div className="fixed top-0 right-0 h-full w-full md:w-[440px] bg-white shadow-2xl z-50 flex flex-col">
+      <div className="fixed top-0 right-0 h-full w-full md:w-110 bg-white shadow-2xl z-50 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border-light shrink-0">
           <h2 className="text-[16px] font-semibold text-text-primary truncate pr-4">
@@ -406,14 +410,18 @@ export default function StudentsTable({
     e: React.MouseEvent<HTMLButtonElement>,
   ) {
     const rect = e.currentTarget.getBoundingClientRect();
-    setHwPopup({ studentId, studentGroup, completed, top: rect.bottom + 4, right: window.innerWidth - rect.right });
+    const popupW = 320; // w-80
+    const top = rect.bottom + window.scrollY + 4;
+    const rawLeft = rect.right + window.scrollX - popupW;
+    const left = Math.max(8, Math.min(rawLeft, window.scrollX + window.innerWidth - popupW - 8));
+    setHwPopup({ studentId, studentGroup, completed, top, left });
     setHwListPopup(null);
     setOpenMenuId(null);
   }
 
   function openHwListPopup(studentId: string, e: React.MouseEvent<HTMLButtonElement>) {
     const rect = e.currentTarget.getBoundingClientRect();
-    const popupW = 288; // w-72
+    const popupW = 400; // w-[400px]
     const top = rect.bottom + window.scrollY + 4;
     const rawLeft = rect.left + window.scrollX;
     const left = Math.max(8, Math.min(rawLeft, window.scrollX + window.innerWidth - popupW - 8));
@@ -796,7 +804,7 @@ export default function StudentsTable({
           homeworks={activePopupHomeworks}
           completed={hwPopup.completed}
           top={hwPopup.top}
-          right={hwPopup.right}
+          left={hwPopup.left}
           onSubmit={(date, hwId) => {
             onHomeworkAdd(hwPopup.studentId, hwPopup.completed, date, hwId);
             setHwPopup(null);

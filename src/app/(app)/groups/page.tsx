@@ -20,6 +20,8 @@ import {
   type MenuAnchor,
 } from "./types";
 import { UserPlus, Zap } from "lucide-react";
+import { downloadJSON, downloadCSV, downloadExcel } from "@/lib/import-export";
+import ImportExportButtons from "@/components/ui/ImportExportButtons";
 
 export default function GroupsPage() {
   const [groups, setGroups] = useState<Group[]>([]);
@@ -182,6 +184,44 @@ export default function GroupsPage() {
     }
   }
 
+  const GROUP_HEADERS = ["Name", "Type", "Status", "Members", "Started", "Finished", "Schedule", "Journal URL", "Telegram URL", "Notes"];
+
+  function getGroupRows() {
+    return groups.map((g) => [g.name, g.type, g.status, g.members ?? "", g.started, g.finished ?? "", g.schedule_time ?? "", g.journal_url ?? "", g.telegram_url ?? "", g.notes ?? ""]);
+  }
+
+  function handleExport(format: "json" | "csv" | "excel") {
+    if (format === "json") {
+      downloadJSON(groups, "groups");
+    } else if (format === "csv") {
+      downloadCSV(GROUP_HEADERS, getGroupRows(), "groups");
+    } else {
+      downloadExcel(GROUP_HEADERS, getGroupRows(), "groups", "Groups");
+    }
+  }
+
+  async function handleImport(importedRows: Record<string, string>[]) {
+    for (const row of importedRows) {
+      await fetch("/api/groups", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: row["Name"] ?? row["name"] ?? "",
+          type: row["Type"] ?? row["type"] ?? "",
+          status: row["Status"] ?? row["status"] ?? "active",
+          members: row["Members"] ?? row["members"] ?? null,
+          started: row["Started"] ?? row["started"] ?? new Date().toISOString().slice(0, 10),
+          finished: row["Finished"] ?? row["finished"] ?? null,
+          schedule_time: row["Schedule"] ?? row["schedule_time"] ?? null,
+          journal_url: row["Journal URL"] ?? row["journal_url"] ?? null,
+          telegram_url: row["Telegram URL"] ?? row["telegram_url"] ?? null,
+          notes: row["Notes"] ?? row["notes"] ?? null,
+        }),
+      });
+    }
+    await fetchGroups();
+  }
+
   return (
     <div className="min-h-screen bg-surface">
       <TopBar
@@ -201,13 +241,16 @@ export default function GroupsPage() {
               groups.
             </p>
           </div>
-          <button
-            onClick={openCreate}
-            className="bg-primary hover:bg-primary-hover text-white px-6 py-3 rounded-lg text-[14px] font-semibold flex items-center justify-center gap-2 shadow-lg transition-colors w-full lg:w-auto"
-          >
-            <UserPlus size={16} />
-            Create New Group
-          </button>
+          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            <ImportExportButtons onExport={handleExport} onImport={handleImport} />
+            <button
+              onClick={openCreate}
+              className="bg-primary hover:bg-primary-hover text-white px-6 py-3 rounded-lg text-[14px] font-semibold flex items-center justify-center gap-2 shadow-lg transition-colors"
+            >
+              <UserPlus size={16} />
+              Create New Group
+            </button>
+          </div>
         </div>
 
         <GroupFilters

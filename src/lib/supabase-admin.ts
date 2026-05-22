@@ -6,6 +6,16 @@ export type AdminSingleResponse<T> = Promise<{
   error: { message: string } | null;
 }>;
 
+export type AdminListResponse<T> = Promise<{
+  data: T[] | null;
+  error: { message: string } | null;
+}>;
+
+export type AdminQueryBuilder<T> = {
+  order: (column: string, options?: { ascending?: boolean }) => AdminListResponse<T>;
+  eq: (column: string, value: string) => AdminListResponse<T>;
+};
+
 export type AdminWriteBuilder<T> = {
   select: (columns?: string) => {
     single: () => AdminSingleResponse<T>;
@@ -13,6 +23,7 @@ export type AdminWriteBuilder<T> = {
 };
 
 export type AdminTable<T> = {
+  select: (columns?: string) => AdminQueryBuilder<T>;
   insert: (payload: Record<string, unknown>) => AdminWriteBuilder<T>;
   update: (payload: Record<string, unknown>) => {
     eq: (column: string, value: string) => AdminWriteBuilder<T>;

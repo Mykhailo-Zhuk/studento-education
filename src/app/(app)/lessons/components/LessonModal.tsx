@@ -4,6 +4,7 @@ import { useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import type { Lesson, Group } from "@/lib/types";
 import { EMPTY_FORM, type LessonForm } from "../types";
+import { CustomSelect } from "@/components/ui/CustomSelect";
 
 interface Props {
   lesson?: Lesson;
@@ -122,33 +123,45 @@ export default function LessonModal({ lesson, groups, onClose, onSaved }: Props)
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-[13px] font-semibold text-text-secondary mb-1">Group *</label>
-              <select required value={form.group_name} onChange={(e) => handleGroupChange(e.target.value)} className={inputCls}>
-                <option value="" disabled>Select group…</option>
-                {form.group_name && !groupNames.includes(form.group_name) && (
-                  <option value={form.group_name}>{form.group_name}</option>
-                )}
-                {groupNames.map((name) => <option key={name} value={name}>{name}</option>)}
-              </select>
+              <CustomSelect
+                value={form.group_name}
+                onChange={handleGroupChange}
+                options={[
+                  { value: "", label: "Select group…" },
+                  ...(form.group_name && !groupNames.includes(form.group_name)
+                    ? [{ value: form.group_name, label: form.group_name }]
+                    : []),
+                  ...groupNames.map((name) => ({ value: name, label: name })),
+                ]}
+              />
             </div>
             <div>
               <label className="block text-[13px] font-semibold text-text-secondary mb-1">Type</label>
-              <select value={form.type} onChange={(e) => set("type", e.target.value)} className={inputCls}>
-                <option value="" disabled>Select type…</option>
-                {form.type && !uniqueTypes.includes(form.type) && (
-                  <option value={form.type}>{form.type}</option>
-                )}
-                {uniqueTypes.map((t) => <option key={t} value={t}>{t}</option>)}
-              </select>
+              <CustomSelect
+                value={form.type}
+                onChange={(v) => set("type", v)}
+                options={[
+                  { value: "", label: "Select type…" },
+                  ...(form.type && !uniqueTypes.includes(form.type)
+                    ? [{ value: form.type, label: form.type }]
+                    : []),
+                  ...uniqueTypes.map((t) => ({ value: t, label: t })),
+                ]}
+              />
             </div>
           </div>
 
           <div>
             <label className="block text-[13px] font-semibold text-text-secondary mb-1">Status</label>
-            <select value={form.status} onChange={(e) => set("status", e.target.value)} className={inputCls}>
-              <option value="not started">Not Started</option>
-              <option value="planning">Planning</option>
-              <option value="completed">Completed</option>
-            </select>
+            <CustomSelect
+              value={form.status}
+              onChange={(v) => set("status", v)}
+              options={[
+                { value: "not started", label: "Not Started" },
+                { value: "planning", label: "Planning" },
+                { value: "completed", label: "Completed" },
+              ]}
+            />
           </div>
 
           <div className="flex gap-6">

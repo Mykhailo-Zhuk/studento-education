@@ -8,6 +8,7 @@ import {
   GROUP_TYPES,
   type GroupFormState,
 } from "../types";
+import { CustomSelect } from "@/components/ui/CustomSelect";
 
 interface Props {
   group: Group | null;
@@ -115,35 +116,25 @@ export default function GroupModal({ group, onClose, onSaved }: Props) {
               <label className="text-[12px] font-semibold text-text-secondary uppercase tracking-wide">
                 Type *
               </label>
-              <select
-                required
-                value={form.type}
-                onChange={(e) => set("type", e.target.value)}
-                className="mt-1 w-full border border-border-light rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                {GROUP_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
+              <div className="mt-1">
+                <CustomSelect
+                  value={form.type}
+                  onChange={(v) => set("type", v)}
+                  options={GROUP_TYPES.map((t) => ({ value: t, label: t }))}
+                />
+              </div>
             </div>
             <div>
               <label className="text-[12px] font-semibold text-text-secondary uppercase tracking-wide">
                 Status *
               </label>
-              <select
-                required
-                value={form.status}
-                onChange={(e) => set("status", e.target.value)}
-                className="mt-1 w-full border border-border-light rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                {GROUP_STATUSES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
+              <div className="mt-1">
+                <CustomSelect
+                  value={form.status}
+                  onChange={(v) => set("status", v)}
+                  options={GROUP_STATUSES.map((s) => ({ value: s, label: s }))}
+                />
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">

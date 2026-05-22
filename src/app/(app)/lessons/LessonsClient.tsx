@@ -5,6 +5,8 @@ import { Plus } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { Lesson, Group } from "@/lib/types";
 import { PAGE_SIZE, formatDisplayDate } from "./types";
+import { downloadJSON, downloadCSV, downloadExcel } from "@/lib/import-export";
+import ImportExportButtons from "@/components/ui/ImportExportButtons";
 import LessonMenu from "./components/LessonMenu";
 import LessonModal from "./components/LessonModal";
 import LessonList from "./components/LessonList";
@@ -176,6 +178,44 @@ export default function LessonsClient({
     setTypeFilter("all");
   }
 
+  const LESSON_HEADERS = ["Title", "Group", "Type", "Date", "Status", "Hours", "YouTube URL", "Has Homework", "Has Feedback", "Comment"];
+
+  function getLessonRows() {
+    return lessons.map((l) => [l.title, l.group_name, l.type, l.date, l.status, l.hours, l.youtube_url ?? "", l.has_homework ? "true" : "false", l.has_feedback ? "true" : "false", l.comment ?? ""]);
+  }
+
+  function handleExport(format: "json" | "csv" | "excel") {
+    if (format === "json") {
+      downloadJSON(lessons, "lessons");
+    } else if (format === "csv") {
+      downloadCSV(LESSON_HEADERS, getLessonRows(), "lessons");
+    } else {
+      downloadExcel(LESSON_HEADERS, getLessonRows(), "lessons", "Lessons");
+    }
+  }
+
+  async function handleImport(importedRows: Record<string, string>[]) {
+    for (const row of importedRows) {
+      await fetch("/api/lessons", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: row["Title"] ?? row["title"] ?? "",
+          group_name: row["Group"] ?? row["group_name"] ?? "",
+          type: row["Type"] ?? row["type"] ?? "",
+          date: row["Date"] ?? row["date"] ?? new Date().toISOString().slice(0, 10),
+          status: row["Status"] ?? row["status"] ?? "planned",
+          hours: Number(row["Hours"] ?? row["hours"] ?? 1),
+          youtube_url: row["YouTube URL"] ?? row["youtube_url"] ?? null,
+          has_homework: (row["Has Homework"] ?? row["has_homework"] ?? "false") === "true",
+          has_feedback: (row["Has Feedback"] ?? row["has_feedback"] ?? "false") === "true",
+          comment: row["Comment"] ?? row["comment"] ?? null,
+        }),
+      });
+    }
+    await fetchLessons();
+  }
+
   return (
     <>
       {/* Dropdown: rendered outside cards to avoid backdrop-blur stacking context */}
@@ -214,20 +254,23 @@ export default function LessonsClient({
                 : `${filteredLessons.length} of ${lessons.length} lessons match the filters.`}
             </p>
           </div>
-          <div className="flex p-1 bg-surface-container rounded-lg border border-border-light w-full sm:w-auto">
-            {(["list", "calendar"] as const).map((v) => (
-              <button
-                key={v}
-                onClick={() => setView(v)}
-                className={`flex-1 sm:flex-none px-4 py-2 rounded-md text-[13px] font-bold transition-all ${
-                  view === v
-                    ? "bg-white shadow-sm text-primary"
-                    : "text-text-muted hover:text-text-primary"
-                }`}
-              >
-                {v === "list" ? "List View" : "Calendar"}
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            <ImportExportButtons onExport={handleExport} onImport={handleImport} />
+            <div className="flex p-1 bg-surface-container rounded-lg border border-border-light sm:w-auto">
+              {(["list", "calendar"] as const).map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setView(v)}
+                  className={`flex-1 sm:flex-none px-4 py-2 rounded-md text-[13px] font-bold transition-all ${
+                    view === v
+                      ? "bg-white shadow-sm text-primary"
+                      : "text-text-muted hover:text-text-primary"
+                  }`}
+                >
+                  {v === "list" ? "List View" : "Calendar"}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 

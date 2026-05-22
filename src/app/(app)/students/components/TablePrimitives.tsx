@@ -9,6 +9,8 @@ import {
 import type { SortKey, SortDir } from "../types";
 import type { Homework } from "@/lib/types";
 
+export { CustomSelect } from "@/components/ui/CustomSelect";
+
 export function TrendIcon({ trend }: { trend: "up" | "down" | "flat" }) {
   if (trend === "up") return <ArrowUp size={14} className="text-success" />;
   if (trend === "down")

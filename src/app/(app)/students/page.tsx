@@ -19,10 +19,8 @@ const GRADIENTS = [
 
 const TYPE_COLOR: Record<string, string> = {
   React: "bg-blue-50 text-info border border-blue-100",
-  JavaScript: "bg-amber-50 text-warning border border-amber-100",
-  TypeScript: "bg-[#dbeafe] text-info border border-blue-200",
-  Python: "bg-success-light text-success border border-green-200",
-  Node: "bg-design-accent-light text-design-accent border border-pink-200",
+  "Front-End": "bg-amber-50 text-warning border border-amber-100",
+  "Web Workshop": "bg-success-light text-success border border-green-200",
 };
 
 const ENROLLMENT_STATUS: Record<

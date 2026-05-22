@@ -61,3 +61,18 @@ export interface Homework {
   notes: string | null;
   created_at: string;
 }
+
+export interface StudentToken {
+  id: string;
+  student_id: string;
+  expires_at: string;
+  created_at: string;
+}
+
+export interface StudentBundle {
+  student: Student;
+  group: Group | null;
+  lessons: Lesson[];
+  homework: Homework[];
+  studentHomeworkRecords: StudentHomeworkRecord[];
+}

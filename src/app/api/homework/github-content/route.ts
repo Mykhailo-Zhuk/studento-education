@@ -2,75 +2,84 @@ import { NextResponse } from "next/server";
 
 const OWNER = "Mykhailo-Zhuk";
 const REPO = "my-obsidian-vaults";
-const KNOWN_FILES = ["What-to-read.md", "What-to-write.md", "Youtube-description.md"];
+const KNOWN_FILES = ["what-to-read.md", "what-to-write.md", "youtube-description.md"];
 
-function resolveBasePath(groupName: string): string {
-  const lower = groupName.toLowerCase();
-  if (lower.includes("react")) return "Studento/React/Homeworks";
-  if (lower.includes("web") && lower.includes("workshop"))
+function resolveBasePath(type: string): string {
+  const t = type.toLowerCase();
+  if (t.includes("react")) return "Studento/React/Homeworks";
+  if (t.includes("web") && t.includes("workshop"))
     return "Studento/Web-Workshop-HTML-CSS/Homeworks";
   return "Studento/Front-End-Course-Content/Homeworks";
 }
 
-function tokenizeFolder(folder: string): Set<string> {
-  // Strip "L19-" or "L07-1-" prefix, then split remaining words by "-"
-  return new Set(
-    folder
-      .toLowerCase()
-      .replace(/^l\d+(-\d+)?-/, "")
-      .split("-")
-      .filter((w) => w.length > 1),
+// Derives the expected folder name from a slugified title + type.
+// "lesson-6-react-props-events-list" + "react" → "L06-props-events-list"
+function deriveFolder(titleSlug: string, typeSlug: string): string | null {
+  const lessonMatch = titleSlug.match(/lesson-(\d+)/i);
+  if (!lessonMatch) return null;
+
+  const n = parseInt(lessonMatch[1]);
+  const prefix = `L${String(n).padStart(2, "0")}`;
+
+  const courseWords = new Set(
+    typeSlug.split("-").filter((w) => w.length > 1),
   );
+  const excluded = new Set(["lesson", String(n), ...courseWords]);
+
+  const topicWords = titleSlug
+    .toLowerCase()
+    .split("-")
+    .filter((w) => w.length > 0 && !excluded.has(w) && !/^\d+$/.test(w));
+
+  return topicWords.length > 0 ? `${prefix}-${topicWords.join("-")}` : prefix;
 }
 
-function matchFolder(title: string, folderNames: string[]): string | null {
-  // Lesson number is required — "Lesson 19" → 19
-  const numMatch = title.match(/\b(\d+)\b/);
-  if (!numMatch) return null;
-  const lessonNum = parseInt(numMatch[1], 10);
+// Finds the real folder name in the listing (case-insensitive, then by lesson number + overlap).
+function findFolder(derived: string, folderNames: string[]): string | null {
+  const target = derived.toLowerCase();
 
-  // Step 1: keep only folders whose prefix matches the lesson number
-  // Accepts L19-… and L19-1-… (sub-numbers in folder are optional)
-  const candidates = folderNames.filter((f) =>
+  const exact = folderNames.find((f) => f.toLowerCase() === target);
+  if (exact) return exact;
+
+  const lessonNum = parseInt(derived.replace(/^L0*/i, ""));
+  const byNum = folderNames.filter((f) =>
     new RegExp(`^L0*${lessonNum}([^0-9]|$)`, "i").test(f),
   );
-  if (candidates.length === 0) return null;
+  if (byNum.length === 0) return null;
+  if (byNum.length === 1) return byNum[0];
 
-  // Step 2: extract words from parentheses — "(Scope, Loops)" → ["scope", "loops"]
-  const bracketWords = Array.from(title.matchAll(/\(([^)]+)\)/g))
-    .flatMap((m) => m[1].split(/[\s,]+/))
-    .map((w) => w.toLowerCase())
-    .filter((w) => w.length > 1);
+  const topicWords = target.replace(/^l\d+-?/, "").split("-").filter((w) => w.length > 1);
+  if (topicWords.length === 0) return byNum[0];
 
-  // No brackets → number match alone is sufficient; return the sole/first candidate
-  if (bracketWords.length === 0) return candidates[0];
-
-  // Step 3: rank candidates by bracket-word overlap (order-independent)
-  // Both parameters must match: number already filtered above,
-  // bracket words must have at least one hit in the folder tokens
   let best: string | null = null;
   let bestScore = 0;
-
-  for (const folder of candidates) {
-    const words = tokenizeFolder(folder);
-    const score = bracketWords.filter((w) => words.has(w)).length;
-    if (score > bestScore) {
-      bestScore = score;
-      best = folder;
-    }
+  let bestExtra = Infinity;
+  let bestHasSubNum = true;
+  for (const folder of byNum) {
+    const folderWords = new Set(
+      folder.toLowerCase().replace(/^l\d+(-\d+)?-/, "").split("-").filter((w) => w.length > 1),
+    );
+    const score = topicWords.filter((w) => folderWords.has(w)).length;
+    // Extra folder words not covered by the title (fewer = tighter match)
+    const extra = folderWords.size - score;
+    const hasSubNum = /^l\d+-\d+-/i.test(folder);
+    const better =
+      score > bestScore ||
+      (score === bestScore && extra < bestExtra) ||
+      (score === bestScore && extra === bestExtra && !hasSubNum && bestHasSubNum);
+    if (better) { best = folder; bestScore = score; bestExtra = extra; bestHasSubNum = hasSubNum; }
   }
 
-  // bestScore === 0 means no bracket word matched → return null (not found)
-  return best;
+  return best ?? byNum[0];
 }
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const groupName = searchParams.get("group_name");
-  const title = searchParams.get("title");
+  const raw_title = searchParams.get("title");
+  const raw_type = searchParams.get("type") ?? "";
 
-  if (!groupName || !title) {
-    return NextResponse.json({ error: "Missing group_name or title" }, { status: 400 });
+  if (!raw_title) {
+    return NextResponse.json({ error: "Missing title" }, { status: 400 });
   }
 
   const token = process.env.GITHUB_TOKEN;
@@ -84,7 +93,7 @@ export async function GET(req: Request) {
     "User-Agent": "studento-orchestrator",
   };
 
-  const basePath = resolveBasePath(groupName);
+  const basePath = resolveBasePath(raw_type);
   const baseSegments = basePath.split("/");
   const encodedBasePath = baseSegments.map(encodeURIComponent).join("/");
   const listUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${encodedBasePath}`;
@@ -97,7 +106,12 @@ export async function GET(req: Request) {
   const items = (await listRes.json()) as Array<{ name: string; type: string }>;
   const folderNames = items.filter((i) => i.type === "dir").map((i) => i.name);
 
-  const folder = matchFolder(title, folderNames);
+  const derived = deriveFolder(raw_title, raw_type);
+  if (!derived) {
+    return NextResponse.json({ error: "Could not parse lesson number from title" }, { status: 400 });
+  }
+
+  const folder = findFolder(derived, folderNames);
   if (!folder) {
     return NextResponse.json({ error: "Folder not found" }, { status: 404 });
   }
@@ -110,11 +124,87 @@ export async function GET(req: Request) {
       const fileUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${encodedPath}`;
       const res = await fetch(fileUrl, { headers, cache: "no-store" });
       if (!res.ok) return null;
-      const data = (await res.json()) as { content: string };
+      const data = (await res.json()) as { content: string; sha: string };
       const content = Buffer.from(data.content.replace(/\n/g, ""), "base64").toString("utf-8");
-      return { name: fileName, content };
+      return { name: fileName, content, sha: data.sha };
     }),
   );
 
-  return NextResponse.json({ files: files.filter(Boolean), folder });
+  return NextResponse.json({
+    files: files.filter(Boolean),
+    folder,
+    folderPath: folderSegments.join("/"),
+  });
+}
+
+export async function PUT(req: Request) {
+  const token = process.env.GITHUB_TOKEN;
+  if (!token)
+    return NextResponse.json({ error: "GITHUB_TOKEN not configured" }, { status: 500 });
+
+  const body = (await req.json()) as { path: string; content: string; sha?: string };
+  if (!body.path || body.content === undefined)
+    return NextResponse.json({ error: "Missing path or content" }, { status: 400 });
+
+  const encodedPath = body.path.split("/").map(encodeURIComponent).join("/");
+  const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${encodedPath}`;
+
+  const payload: Record<string, string> = {
+    message: `${body.sha ? "Update" : "Create"} ${body.path.split("/").pop() ?? "file"}`,
+    content: Buffer.from(body.content).toString("base64"),
+  };
+  if (body.sha) payload.sha = body.sha;
+
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/vnd.github.v3+json",
+      "Content-Type": "application/json",
+      "User-Agent": "studento-orchestrator",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const err = (await res.json()) as { message?: string };
+    return NextResponse.json({ error: err.message ?? "GitHub write failed" }, { status: res.status });
+  }
+
+  const data = (await res.json()) as { content: { sha: string } };
+  return NextResponse.json({ sha: data.content.sha });
+}
+
+export async function DELETE(req: Request) {
+  const token = process.env.GITHUB_TOKEN;
+  if (!token)
+    return NextResponse.json({ error: "GITHUB_TOKEN not configured" }, { status: 500 });
+
+  const body = (await req.json()) as { path: string; sha: string };
+  if (!body.path || !body.sha)
+    return NextResponse.json({ error: "Missing path or sha" }, { status: 400 });
+
+  const encodedPath = body.path.split("/").map(encodeURIComponent).join("/");
+  const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${encodedPath}`;
+
+  const res = await fetch(url, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/vnd.github.v3+json",
+      "Content-Type": "application/json",
+      "User-Agent": "studento-orchestrator",
+    },
+    body: JSON.stringify({
+      message: `Delete ${body.path.split("/").pop() ?? "file"}`,
+      sha: body.sha,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = (await res.json()) as { message?: string };
+    return NextResponse.json({ error: err.message ?? "GitHub delete failed" }, { status: res.status });
+  }
+
+  return NextResponse.json({ ok: true });
 }

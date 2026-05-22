@@ -1,6 +1,7 @@
 "use client";
 
 import { Search, RotateCcw } from "lucide-react";
+import { CustomSelect } from "@/components/ui/CustomSelect";
 
 interface Props {
   search: string;
@@ -13,9 +14,6 @@ interface Props {
   types: string[];
   onReset: () => void;
 }
-
-const selectCls =
-  "px-3 py-2 border border-border-light rounded-lg text-[14px] text-text-primary focus:ring-primary focus:border-primary outline-none bg-white w-full sm:w-auto";
 
 export default function LessonFilters({
   search,
@@ -41,30 +39,26 @@ export default function LessonFilters({
         />
       </div>
       <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
-        <select
-          value={groupFilter}
-          onChange={(e) => onGroupChange(e.target.value)}
-          className={selectCls}
-        >
-          <option value="all">All Groups</option>
-          {groups.map((g) => (
-            <option key={g} value={g}>
-              {g}
-            </option>
-          ))}
-        </select>
-        <select
-          value={typeFilter}
-          onChange={(e) => onTypeChange(e.target.value)}
-          className={selectCls}
-        >
-          <option value="all">All Types</option>
-          {types.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
+        <div className="min-w-36">
+          <CustomSelect
+            value={groupFilter}
+            onChange={onGroupChange}
+            options={[
+              { value: "all", label: "All Groups" },
+              ...groups.map((g) => ({ value: g, label: g })),
+            ]}
+          />
+        </div>
+        <div className="min-w-36">
+          <CustomSelect
+            value={typeFilter}
+            onChange={onTypeChange}
+            options={[
+              { value: "all", label: "All Types" },
+              ...types.map((t) => ({ value: t, label: t })),
+            ]}
+          />
+        </div>
         <button
           onClick={onReset}
           title="Reset filters"

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Search, Filter, Columns3 } from "lucide-react";
+import { Search, RotateCcw, Columns3 } from "lucide-react";
 import { COLUMN_DEFS, type ColumnId } from "../types";
+import { CustomSelect } from "@/components/ui/CustomSelect";
 
 interface Props {
   search: string;
@@ -58,32 +59,34 @@ export default function StudentsFilters({
         />
       </div>
       <div className="flex gap-3">
-        <select
-          value={groupFilter}
-          onChange={(e) => onGroupChange(e.target.value)}
-          className="px-3 py-2 border border-border-light rounded-lg text-[14px] text-text-primary focus:ring-primary focus:border-primary outline-none bg-white"
-        >
-          <option>All Groups</option>
-          {uniqueGroups.map((g) => (
-            <option key={g}>{g}</option>
-          ))}
-        </select>
-        <select
-          value={gradeFilter}
-          onChange={(e) => onGradeChange(e.target.value)}
-          className="px-3 py-2 border border-border-light rounded-lg text-[14px] text-text-primary focus:ring-primary focus:border-primary outline-none bg-white"
-        >
-          <option>All Grades</option>
-          <option>A (90-100)</option>
-          <option>B (80-89)</option>
-          <option>C (70-79)</option>
-        </select>
+        <div className="min-w-36">
+          <CustomSelect
+            value={groupFilter}
+            onChange={onGroupChange}
+            options={[
+              { value: "All Groups", label: "All Groups" },
+              ...uniqueGroups.map((g) => ({ value: g, label: g })),
+            ]}
+          />
+        </div>
+        <div className="min-w-36">
+          <CustomSelect
+            value={gradeFilter}
+            onChange={onGradeChange}
+            options={[
+              { value: "All Grades", label: "All Grades" },
+              { value: "A (90-100)", label: "A (90-100)" },
+              { value: "B (80-89)", label: "B (80-89)" },
+              { value: "C (70-79)", label: "C (70-79)" },
+            ]}
+          />
+        </div>
         <button
           onClick={onReset}
           title="Reset filters"
           className="p-2 border border-border-light rounded-lg hover:bg-surface-gray-light text-text-secondary"
         >
-          <Filter size={16} />
+          <RotateCcw size={16} />
         </button>
 
         <div className="relative" ref={colPickerRef}>

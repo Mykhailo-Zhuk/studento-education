@@ -5,23 +5,29 @@ import { createPortal } from "react-dom";
 import {
   AlertTriangle,
   BookOpen,
+  Check,
+  CheckCheck,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
-  X,
+  Copy,
+  Eye,
+  EyeOff,
+  FileText,
+  HelpCircle,
   Loader2,
   MoreVertical,
+  Pencil,
   Plus,
   Terminal,
-  TrendingUp,
   Trash2,
-  Pencil,
-  Check,
-  FileText,
+  TrendingUp,
+  X,
 } from "lucide-react";
 import TopBar from "@/components/layout/TopBar";
 import HomeworkFilters from "./components/HomeworkFilters";
 import type { Homework } from "@/lib/types";
+import { downloadJSON, downloadCSV, downloadExcel } from "@/lib/import-export";
+import ImportExportButtons from "@/components/ui/ImportExportButtons";
+import { CustomSelect } from "@/components/ui/CustomSelect";
 
 type HomeworkStatus = "planning" | "completed";
 
@@ -80,14 +86,9 @@ function formatDisplayDate(value: string | null): string {
   ).padStart(2, "0")}-${date.getFullYear()}`;
 }
 
-function getIconInfo(type: string): {
-  icon: LucideIcon;
-  bg: string;
-  color: string;
-} {
+function getIconInfo(type: string): { icon: LucideIcon; bg: string; color: string } {
   const t = type.toLowerCase();
-  if (t.includes("react"))
-    return { icon: Terminal, bg: "bg-[#dbeafe]", color: "text-info" };
+  if (t.includes("react")) return { icon: Terminal, bg: "bg-[#dbeafe]", color: "text-info" };
   if (t.includes("javascript") || t.includes("js"))
     return { icon: Terminal, bg: "bg-warning-light", color: "text-warning" };
   return { icon: BookOpen, bg: "bg-surface-container", color: "text-primary" };
@@ -119,20 +120,10 @@ function getStatusInfo(status: string): {
 }
 
 function sortByDateDesc(rows: Homework[]) {
-  return [...rows].sort((a, b) => {
-    const aTime = new Date(a.date).getTime();
-    const bTime = new Date(b.date).getTime();
-    return bTime - aTime;
-  });
+  return [...rows].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
-function HomeworkModal({
-  homework,
-  groups,
-  types,
-  onClose,
-  onSaved,
-}: HomeworkModalProps) {
+function HomeworkModal({ homework, groups, types, onClose, onSaved }: HomeworkModalProps) {
   const isEdit = !!homework;
   const [form, setForm] = useState<HomeworkFormState>(
     homework
@@ -149,10 +140,7 @@ function HomeworkModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  function setField<K extends keyof HomeworkFormState>(
-    key: K,
-    value: HomeworkFormState[K],
-  ) {
+  function setField<K extends keyof HomeworkFormState>(key: K, value: HomeworkFormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
   }
 
@@ -222,9 +210,7 @@ function HomeworkModal({
 
         <form onSubmit={handleSubmit} className="px-6 py-4 flex flex-col gap-4">
           {error && (
-            <p className="text-red-500 text-[13px] bg-red-50 px-3 py-2 rounded-lg">
-              {error}
-            </p>
+            <p className="text-red-500 text-[13px] bg-red-50 px-3 py-2 rounded-lg">{error}</p>
           )}
 
           <div>
@@ -257,14 +243,16 @@ function HomeworkModal({
               <label className="text-[12px] font-semibold text-text-secondary uppercase tracking-wide">
                 Status *
               </label>
-              <select
-                value={form.status}
-                onChange={(e) => setField("status", e.target.value as HomeworkStatus)}
-                className={`mt-1 ${inputCls}`}
-              >
-                <option value="planning">Planning</option>
-                <option value="completed">Completed</option>
-              </select>
+              <div className="mt-1">
+                <CustomSelect
+                  value={form.status}
+                  onChange={(v) => setField("status", v as HomeworkStatus)}
+                  options={[
+                    { value: "planning", label: "Planning" },
+                    { value: "completed", label: "Completed" },
+                  ]}
+                />
+              </div>
             </div>
           </div>
 
@@ -364,12 +352,7 @@ function HomeworkActionMenu({
     <>
       <div className="fixed inset-0 z-40" onClick={onClose} />
       <div
-        style={{
-          position: "fixed",
-          top: anchor.top,
-          right: anchor.right,
-          zIndex: 50,
-        }}
+        style={{ position: "fixed", top: anchor.top, right: anchor.right, zIndex: 50 }}
         className="bg-white border border-border-light rounded-xl shadow-lg py-1 w-44"
       >
         <button
@@ -385,10 +368,12 @@ function HomeworkActionMenu({
             Quick status
           </p>
           <div className="flex flex-col gap-0.5">
-            {[
-              { value: "planning" as const, label: "Planning" },
-              { value: "completed" as const, label: "Completed" },
-            ].map(({ value, label }) => {
+            {(
+              [
+                { value: "planning" as const, label: "Planning" },
+                { value: "completed" as const, label: "Completed" },
+              ] as const
+            ).map(({ value, label }) => {
               const active = anchor.homework.displayStatus === value;
               return (
                 <button
@@ -415,9 +400,7 @@ function HomeworkActionMenu({
 
         {confirmDelete ? (
           <div className="px-4 py-2 space-y-2">
-            <p className="text-[13px] text-error font-semibold">
-              Delete this homework?
-            </p>
+            <p className="text-[13px] text-error font-semibold">Delete this homework?</p>
             <div className="flex gap-2">
               <button
                 onClick={() => onDelete(anchor.homework)}
@@ -448,30 +431,89 @@ function HomeworkActionMenu({
   );
 }
 
-type GitHubFile = { name: string; content: string };
+type GitHubFile = { name: string; content: string; sha: string };
+
+const CONTENT_FILES = ["what-to-read.md", "what-to-write.md", "youtube-description.md"];
+
+function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function toFolderName(title: string, type: string): string {
+  const lessonMatch = title.match(/Lesson\s+(\d+)/i);
+  if (!lessonMatch) return slugify(title);
+
+  const n = parseInt(lessonMatch[1]);
+  const prefix = `L${String(n).padStart(2, "0")}`;
+
+  // Prefer topics from parentheses: "Lesson 6: React (Props, Events, List)" → "Props, Events, List"
+  const parenMatch = title.match(/\(([^)]+)\)/);
+  if (parenMatch) {
+    const topics = parenMatch[1]
+      .split(/[,\s]+/)
+      .map((w) => w.trim())
+      .filter((w) => w.length > 0)
+      .join("-");
+    return topics ? `${prefix}-${topics}` : prefix;
+  }
+
+  // Fallback: strip lesson prefix and type name, kebab the rest
+  let remainder = title.replace(/Lesson\s+\d+[:\s.]*/i, "").trim();
+  const typeWords = type.split(/[\s\-,]+/).filter((w) => w.length > 1);
+  for (const word of typeWords) {
+    remainder = remainder.replace(new RegExp(`\\b${word}\\b`, "gi"), "");
+  }
+  const topics = remainder
+    .replace(/[^a-zA-Z0-9]+/g, " ")
+    .trim()
+    .split(/\s+/)
+    .filter((w) => w.length > 0)
+    .join("-");
+  return topics ? `${prefix}-${topics}` : prefix;
+}
+
+function getBasePath(type: string): string {
+  const t = type.toLowerCase();
+  if (t.includes("react")) return "Studento/React/Homeworks";
+  if (t.includes("web") && t.includes("workshop"))
+    return "Studento/Web-Workshop-HTML-CSS/Homeworks";
+  return "Studento/Front-End-Course-Content/Homeworks";
+}
 
 function fileTabLabel(name: string): string {
-  const base = name.replace(/\.md$/, "");
-  if (base === "What-to-read") return "What to Read";
-  if (base === "What-to-write") return "What to Write";
-  if (base === "Youtube-description") return "YouTube";
+  const base = name.replace(/\.md$/, "").toLowerCase();
+  if (base === "what-to-read") return "What to Read";
+  if (base === "what-to-write") return "What to Write";
+  if (base === "youtube-description") return "YouTube";
   return base.replace(/-/g, " ");
 }
 
 function parseInline(text: string): React.ReactNode {
-  const parts = text.split(/(`[^`]+`)/g);
-  return parts.map((part, i) =>
-    part.startsWith("`") && part.endsWith("`") ? (
-      <code
-        key={i}
-        className="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[12px] font-mono"
-      >
-        {part.slice(1, -1)}
-      </code>
-    ) : (
-      <span key={i}>{part}</span>
-    ),
-  );
+  const parts = text.split(/(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*|\[[^\]]+\]\([^)]+\))/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("`") && part.endsWith("`"))
+      return (
+        <code key={i} className="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[12px] font-mono">
+          {part.slice(1, -1)}
+        </code>
+      );
+    if (part.startsWith("**") && part.endsWith("**"))
+      return <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>;
+    if (part.startsWith("*") && part.endsWith("*"))
+      return <em key={i}>{part.slice(1, -1)}</em>;
+    const link = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (link)
+      return (
+        <a key={i} href={link[2]} target="_blank" rel="noopener noreferrer"
+          className="text-primary underline underline-offset-2 hover:opacity-75 transition-opacity">
+          {link[1]}
+        </a>
+      );
+    return <span key={i}>{part}</span>;
+  });
 }
 
 function MarkdownContent({ text }: { text: string }) {
@@ -553,30 +595,76 @@ function MarkdownContent({ text }: { text: string }) {
   return <div className="space-y-1 text-text-primary">{nodes}</div>;
 }
 
-function HomeworkDrawer({
-  row,
-  onClose,
-}: {
-  row: HomeworkRow;
-  onClose: () => void;
-}) {
+function MarkdownHelpTooltip() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+      <button className="p-1.5 rounded-lg text-text-muted hover:text-primary hover:bg-surface-container transition-colors">
+        <HelpCircle size={16} />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-72 bg-white border border-border-light rounded-xl shadow-xl p-4 z-50">
+          <p className="text-[13px] font-bold text-text-primary mb-3">Markdown Cheatsheet</p>
+          <div className="space-y-2 text-[12px] font-mono">
+            {[
+              ["# H1", "## H2", "### H3"],
+              ["**bold**", "*italic*"],
+              ["`inline code`"],
+              ["``` code block ```"],
+              ["- list item", "1. ordered item"],
+              ["[link text](https://url)"],
+              ["> blockquote"],
+            ].map((group, i) => (
+              <div key={i} className="flex flex-wrap gap-1.5">
+                {group.map((item, j) => (
+                  <code key={j} className="bg-surface-container text-primary px-1.5 py-0.5 rounded text-[11px]">
+                    {item}
+                  </code>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ContentPanel({ row }: { row: HomeworkRow }) {
   const [status, setStatus] = useState<"loading" | "loaded" | "error">("loading");
   const [files, setFiles] = useState<GitHubFile[]>([]);
+  const [folderPath, setFolderPath] = useState("");
   const [activeFile, setActiveFile] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [editingFile, setEditingFile] = useState<string | null>(null);
+  const [addingFile, setAddingFile] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const [editPreview, setEditPreview] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [copyDone, setCopyDone] = useState(false);
+  const [addMenuOpen, setAddMenuOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState("");
 
   useEffect(() => {
     setStatus("loading");
     setFiles([]);
+    setFolderPath("");
     setActiveFile("");
     setErrorMsg("");
+    setEditingFile(null);
+    setAddingFile(null);
+    setCreating(false);
+    setCreateError("");
 
     fetch(
-      `/api/homework/github-content?group_name=${encodeURIComponent(row.group_name)}&title=${encodeURIComponent(row.title)}`,
+      `/api/homework/github-content?title=${slugify(row.title)}&type=${slugify(row.type)}`,
     )
       .then(async (res) => {
         const data = (await res.json()) as
-          | { files: GitHubFile[] }
+          | { files: GitHubFile[]; folderPath: string }
           | { error: string };
         if (!res.ok || "error" in data) {
           setErrorMsg("error" in data ? data.error : "Failed to load content");
@@ -584,6 +672,7 @@ function HomeworkDrawer({
           return;
         }
         setFiles(data.files);
+        setFolderPath(data.folderPath);
         setActiveFile(data.files[0]?.name ?? "");
         setStatus("loaded");
       })
@@ -591,46 +680,177 @@ function HomeworkDrawer({
         setErrorMsg("Network error");
         setStatus("error");
       });
-  }, [row.id, row.group_name, row.title]);
+  }, [row.id, row.group_name, row.title, row.type]);
 
-  const activeContent = files.find((f) => f.name === activeFile)?.content ?? "";
+  const activeFileData = files.find((f) => f.name === activeFile);
+  const activeContent = activeFileData?.content ?? "";
+  const missingFiles = CONTENT_FILES.filter((f) => !files.find((e) => e.name === f));
+  const isEditing = editingFile !== null || addingFile !== null;
 
-  return createPortal(
-    <>
-      <div className="fixed inset-0 bg-black/30 z-40" onClick={onClose} />
-      <div className="fixed inset-y-0 right-0 z-50 w-full max-w-[560px] bg-white shadow-2xl flex flex-col">
-        {/* Header */}
-        <div className="flex items-start gap-3 px-5 py-4 border-b border-border-light shrink-0">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-0.5">
-              <FileText size={14} className="text-text-muted shrink-0" />
-              <span className="text-[11px] text-text-muted font-medium">
-                {row.group_name}
-              </span>
-            </div>
-            <h3 className="text-[15px] font-bold text-text-primary leading-tight truncate">
-              {row.title}
-            </h3>
-            <p className="text-[12px] text-text-muted mt-0.5">
-              {row.displayDate} · {row.type}
-            </p>
+  async function handleSave() {
+    const fileName = editingFile ?? addingFile;
+    if (!fileName) return;
+    setSaving(true);
+    setSaveError("");
+    const fileData = files.find((f) => f.name === fileName);
+    try {
+      const res = await fetch("/api/homework/github-content", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          path: `${folderPath}/${fileName}`,
+          content: editContent,
+          ...(fileData ? { sha: fileData.sha } : {}),
+        }),
+      });
+      const data = (await res.json()) as { sha: string } | { error: string };
+      if (!res.ok || "error" in data) {
+        setSaveError("error" in data ? data.error : "Save failed");
+        return;
+      }
+      const newSha = (data as { sha: string }).sha;
+      if (!fileData) {
+        setFiles((cur) => [...cur, { name: fileName, content: editContent, sha: newSha }]);
+        setActiveFile(fileName);
+      } else {
+        setFiles((cur) =>
+          cur.map((f) => (f.name === fileName ? { ...f, content: editContent, sha: newSha } : f)),
+        );
+      }
+      setEditingFile(null);
+      setAddingFile(null);
+    } catch {
+      setSaveError("Network error");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete(fileName: string) {
+    const fileData = files.find((f) => f.name === fileName);
+    if (!fileData) return;
+    try {
+      const res = await fetch("/api/homework/github-content", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: `${folderPath}/${fileName}`, sha: fileData.sha }),
+      });
+      if (!res.ok) {
+        const err = (await res.json()) as { error?: string };
+        throw new Error(err.error ?? "Delete failed");
+      }
+      const remaining = files.filter((f) => f.name !== fileName);
+      setFiles(remaining);
+      setConfirmDelete(null);
+      if (activeFile === fileName) setActiveFile(remaining[0]?.name ?? "");
+    } catch {
+      // leave confirm open for retry
+    }
+  }
+
+  function handleCopy() {
+    navigator.clipboard.writeText(isEditing ? editContent : activeContent).then(() => {
+      setCopyDone(true);
+      setTimeout(() => setCopyDone(false), 2000);
+    });
+  }
+
+  function startEdit(fileName: string) {
+    const fileData = files.find((f) => f.name === fileName);
+    setEditContent(fileData?.content ?? "");
+    setEditPreview(false);
+    setSaveError("");
+    setEditingFile(fileName);
+    setAddingFile(null);
+  }
+
+  function startAdd(fileName: string) {
+    setEditContent("");
+    setEditPreview(false);
+    setSaveError("");
+    setAddingFile(fileName);
+    setEditingFile(null);
+    setAddMenuOpen(false);
+  }
+
+  function cancelEdit() {
+    setEditingFile(null);
+    setAddingFile(null);
+    setSaveError("");
+    setEditPreview(false);
+  }
+
+  async function handleCreateFolder() {
+    setCreating(true);
+    setCreateError("");
+    const basePath = getBasePath(row.type);
+    const folderName = toFolderName(row.title, row.type);
+    const newFolderPath = `${basePath}/${folderName}`;
+    try {
+      const created: GitHubFile[] = [];
+      for (const fileName of CONTENT_FILES) {
+        const res = await fetch("/api/homework/github-content", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path: `${newFolderPath}/${fileName}`, content: "" }),
+        });
+        if (!res.ok) {
+          const err = (await res.json()) as { error?: string };
+          throw new Error(err.error ?? "Failed to create file");
+        }
+        const data = (await res.json()) as { sha: string };
+        created.push({ name: fileName, content: "", sha: data.sha });
+      }
+      setFiles(created);
+      setFolderPath(newFolderPath);
+      setActiveFile(created[0].name);
+      setStatus("loaded");
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : "Failed to create folder");
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  const editLabel = editingFile
+    ? `Editing: ${fileTabLabel(editingFile)}`
+    : `Creating: ${fileTabLabel(addingFile ?? "")}`;
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="flex items-start gap-3 px-5 py-4 border-b border-border-light shrink-0">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5">
+            <FileText size={15} className="text-text-muted shrink-0" />
+            <span className="text-[14px] text-text-muted font-medium">{row.group_name}</span>
+            <span
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[12px] font-semibold ${row.statusBadgeBg} ${row.statusColor}`}
+            >
+              <row.statusIcon size={12} />
+              {row.statusLabel}
+            </span>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-surface-container text-text-muted hover:text-primary transition-colors shrink-0 mt-0.5"
-          >
-            <X size={16} />
-          </button>
+          <h3 className="text-[18px] font-bold text-text-primary leading-tight">{row.title}</h3>
+          <p className="text-[14px] text-text-muted mt-0.5">
+            {row.displayDate} · {row.type}
+          </p>
         </div>
+      </div>
 
-        {/* File tabs */}
-        {status === "loaded" && files.length > 1 && (
-          <div className="flex border-b border-border-light px-4 shrink-0 overflow-x-auto">
-            {files.map((f) => (
+      {/* Tab bar + actions */}
+      <div className="flex items-center border-b border-border-light px-4 shrink-0">
+        <div className="flex flex-1 overflow-x-auto">
+          {isEditing ? (
+            <span className="px-4 py-3 text-[15px] font-medium text-primary border-b-2 border-primary whitespace-nowrap">
+              {editLabel}
+            </span>
+          ) : (
+            files.map((f) => (
               <button
                 key={f.name}
                 onClick={() => setActiveFile(f.name)}
-                className={`px-4 py-3 text-[13px] font-medium whitespace-nowrap border-b-2 transition-colors ${
+                className={`px-4 py-3 text-[15px] font-medium whitespace-nowrap border-b-2 transition-colors ${
                   activeFile === f.name
                     ? "border-primary text-primary"
                     : "border-transparent text-text-muted hover:text-text-primary"
@@ -638,40 +858,201 @@ function HomeworkDrawer({
               >
                 {fileTabLabel(f.name)}
               </button>
-            ))}
-          </div>
-        )}
-
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto px-5 py-5">
-          {status === "loading" && (
-            <div className="flex items-center justify-center h-32 gap-2 text-text-muted">
-              <Loader2 size={18} className="animate-spin" />
-              <span className="text-[14px]">Loading from GitHub…</span>
-            </div>
-          )}
-
-          {status === "error" && (
-            <div className="flex flex-col items-center justify-center h-32 gap-2 text-center">
-              <AlertTriangle size={24} className="text-warning" />
-              <p className="text-[14px] font-semibold text-text-primary">
-                Content not found
-              </p>
-              <p className="text-[12px] text-text-muted max-w-64">
-                {errorMsg === "Folder not found"
-                  ? `No folder matching "${row.title}" in the GitHub repo for this group.`
-                  : errorMsg}
-              </p>
-            </div>
-          )}
-
-          {status === "loaded" && activeContent && (
-            <MarkdownContent text={activeContent} />
+            ))
           )}
         </div>
+
+        {status === "loaded" && (
+          <div className="flex items-center gap-0.5 shrink-0 pl-3 border-l border-border-light ml-2 my-2">
+            {isEditing ? (
+              <>
+                <button
+                  onClick={() => setEditPreview((v) => !v)}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 text-[13px] text-text-secondary border border-border-light rounded-lg hover:bg-surface-gray-light transition-colors"
+                >
+                  {editPreview ? <EyeOff size={13} /> : <Eye size={13} />}
+                  {editPreview ? "Edit" : "Preview"}
+                </button>
+                <button
+                  onClick={cancelEdit}
+                  className="px-2.5 py-1.5 text-[13px] text-text-secondary hover:bg-surface-gray-light rounded-lg transition-colors ml-1"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] bg-primary text-white rounded-lg hover:bg-primary-hover disabled:opacity-50 transition-colors ml-1"
+                >
+                  {saving && <Loader2 size={12} className="animate-spin" />}
+                  Save
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleCopy}
+                  title={copyDone ? "Copied!" : "Copy markdown"}
+                  className={`p-2 rounded-lg transition-colors ${
+                    copyDone
+                      ? "text-success"
+                      : "text-text-muted hover:text-primary hover:bg-surface-container"
+                  }`}
+                >
+                  {copyDone ? <CheckCheck size={15} /> : <Copy size={15} />}
+                </button>
+                {activeFileData && (
+                  <button
+                    onClick={() => startEdit(activeFile)}
+                    title="Edit"
+                    className="p-2 rounded-lg text-text-muted hover:text-primary hover:bg-surface-container transition-colors"
+                  >
+                    <Pencil size={15} />
+                  </button>
+                )}
+                {activeFileData && (
+                  <button
+                    onClick={() => setConfirmDelete(activeFile)}
+                    title="Delete"
+                    className="p-2 rounded-lg text-text-muted hover:text-error hover:bg-error-light transition-colors"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                )}
+                {missingFiles.length > 0 && (
+                  <div className="relative">
+                    <button
+                      onClick={() => setAddMenuOpen((v) => !v)}
+                      title="Add file"
+                      className="p-2 rounded-lg text-text-muted hover:text-primary hover:bg-surface-container transition-colors"
+                    >
+                      <Plus size={15} />
+                    </button>
+                    {addMenuOpen && (
+                      <>
+                        <div className="fixed inset-0 z-10" onClick={() => setAddMenuOpen(false)} />
+                        <div className="absolute right-0 top-full mt-1 bg-white border border-border-light rounded-xl shadow-lg py-1 w-44 z-20">
+                          {missingFiles.map((f) => (
+                            <button
+                              key={f}
+                              onClick={() => startAdd(f)}
+                              className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-text-primary hover:bg-surface-container transition-colors"
+                            >
+                              <Plus size={13} className="text-text-muted" />
+                              {fileTabLabel(f)}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+                <MarkdownHelpTooltip />
+              </>
+            )}
+          </div>
+        )}
       </div>
-    </>,
-    document.body,
+
+      {/* Save error */}
+      {saveError && (
+        <div className="mx-5 mt-3 px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-[13px] text-error flex items-center justify-between shrink-0">
+          {saveError}
+          <button onClick={() => setSaveError("")} className="ml-2 text-text-muted hover:text-error">
+            <X size={13} />
+          </button>
+        </div>
+      )}
+
+      {/* Content area */}
+      <div className="flex-1 overflow-hidden flex flex-col">
+        {isEditing ? (
+          editPreview ? (
+            <div className="flex-1 overflow-y-auto px-5 py-5">
+              {editContent ? (
+                <MarkdownContent text={editContent} />
+              ) : (
+                <p className="text-text-muted text-[14px] italic">Nothing to preview yet.</p>
+              )}
+            </div>
+          ) : (
+            <textarea
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              className="flex-1 resize-none p-5 font-mono text-[13px] leading-relaxed outline-none bg-white placeholder:text-text-muted"
+              placeholder="Write markdown here…"
+              spellCheck={false}
+            />
+          )
+        ) : (
+          <div className="flex-1 overflow-y-auto px-5 py-5">
+            {confirmDelete && (
+              <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3 flex items-center justify-between">
+                <span className="text-[13px] text-error font-semibold">
+                  Delete &ldquo;{fileTabLabel(confirmDelete)}&rdquo;?
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleDelete(confirmDelete)}
+                    className="px-3 py-1 bg-error text-white rounded-lg text-[12px] font-bold hover:bg-[#b91c1c] transition-colors"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    onClick={() => setConfirmDelete(null)}
+                    className="px-3 py-1 border border-border-light rounded-lg text-[12px] text-text-secondary hover:bg-surface-gray-light transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+            {status === "loading" && (
+              <div className="flex items-center justify-center h-32 gap-2 text-text-muted">
+                <Loader2 size={18} className="animate-spin" />
+                <span className="text-[14px]">Loading from GitHub…</span>
+              </div>
+            )}
+            {status === "error" && (
+              <div className="flex flex-col items-center justify-center py-10 gap-3 text-center">
+                <AlertTriangle size={24} className="text-warning" />
+                <p className="text-[14px] font-semibold text-text-primary">Content not found</p>
+                <p className="text-[12px] text-text-muted max-w-64">
+                  {errorMsg === "Folder not found"
+                    ? `No folder matching "${row.title}" in the GitHub repo for this group.`
+                    : errorMsg}
+                </p>
+                {errorMsg === "Folder not found" && (
+                  <>
+                    <button
+                      onClick={handleCreateFolder}
+                      disabled={creating}
+                      className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-[13px] font-semibold hover:bg-primary-hover disabled:opacity-50 transition-colors"
+                    >
+                      {creating ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <Plus size={14} />
+                      )}
+                      {creating ? "Creating…" : "Create content files"}
+                    </button>
+                    {createError && (
+                      <p className="text-[12px] text-error">{createError}</p>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+            {status === "loaded" &&
+              (activeContent ? (
+                <MarkdownContent text={activeContent} />
+              ) : (
+                <p className="text-text-muted text-[14px] italic">This file is empty.</p>
+              ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -688,18 +1069,20 @@ export default function HomeworkClient({
   const [modalHomework, setModalHomework] = useState<Homework | null>(null);
   const [menuAnchor, setMenuAnchor] = useState<MenuAnchor | null>(null);
   const [actionBusyId, setActionBusyId] = useState<string | null>(null);
-  const [drawerRow, setDrawerRow] = useState<HomeworkRow | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const groups = useMemo(
     () =>
-      [...new Set(homework.map((row) => row.group_name).filter(Boolean))]
-        .sort((a, b) => a.localeCompare(b)),
+      [...new Set(homework.map((row) => row.group_name).filter(Boolean))].sort((a, b) =>
+        a.localeCompare(b),
+      ),
     [homework],
   );
   const types = useMemo(
     () =>
-      [...new Set(homework.map((row) => row.type).filter(Boolean))]
-        .sort((a, b) => a.localeCompare(b)),
+      [...new Set(homework.map((row) => row.type).filter(Boolean))].sort((a, b) =>
+        a.localeCompare(b),
+      ),
     [homework],
   );
 
@@ -708,7 +1091,6 @@ export default function HomeworkClient({
       homework.map((row) => {
         const iconInfo = getIconInfo(row.type);
         const statusInfo = getStatusInfo(row.status);
-
         return {
           ...row,
           displayStatus: statusInfo.displayStatus,
@@ -733,19 +1115,32 @@ export default function HomeworkClient({
         row.title.toLowerCase().includes(query) ||
         row.date.toLowerCase().includes(query) ||
         row.displayDate.toLowerCase().includes(query);
-      const matchesGroup =
-        groupFilter === "all" || row.group_name === groupFilter;
+      const matchesGroup = groupFilter === "all" || row.group_name === groupFilter;
       const matchesType = typeFilter === "all" || row.type === typeFilter;
-      const matchesStatus =
-        statusFilter === "all" || row.displayStatus === statusFilter;
-
+      const matchesStatus = statusFilter === "all" || row.displayStatus === statusFilter;
       return matchesSearch && matchesGroup && matchesType && matchesStatus;
     });
   }, [groupFilter, rows, search, statusFilter, typeFilter]);
 
+  // Auto-select first row; keep selection if it's still in filteredRows
+  useEffect(() => {
+    if (filteredRows.length === 0) {
+      setSelectedId(null);
+      return;
+    }
+    setSelectedId((cur) => {
+      if (cur && filteredRows.find((r) => r.id === cur)) return cur;
+      return filteredRows[0].id;
+    });
+  }, [filteredRows]);
+
+  const selectedRow = useMemo(
+    () => filteredRows.find((r) => r.id === selectedId) ?? null,
+    [filteredRows, selectedId],
+  );
+
   const completedCount = rows.filter((row) => row.displayStatus === "completed").length;
-  const overallPct =
-    rows.length > 0 ? Math.round((completedCount / rows.length) * 100) : 0;
+  const overallPct = rows.length > 0 ? Math.round((completedCount / rows.length) * 100) : 0;
 
   async function persistHomework(
     method: "POST" | "PATCH",
@@ -758,11 +1153,9 @@ export default function HomeworkClient({
       body: JSON.stringify(payload),
     });
     const data = (await res.json()) as Homework | { error?: string };
-
     if (!res.ok) {
       throw new Error("error" in data && data.error ? data.error : "Failed to save homework");
     }
-
     return data as Homework;
   }
 
@@ -776,25 +1169,18 @@ export default function HomeworkClient({
     );
   }
 
-  async function handleStatusChange(
-    row: HomeworkRow,
-    status: HomeworkStatus,
-  ) {
+  async function handleStatusChange(row: HomeworkRow, status: HomeworkStatus) {
     setActionBusyId(row.id);
     let saved = false;
     try {
-      const updated = await persistHomework("PATCH", `/api/homework/${row.id}`, {
-        status,
-      });
+      const updated = await persistHomework("PATCH", `/api/homework/${row.id}`, { status });
       upsertHomework(updated);
       saved = true;
     } catch {
-      // Keep the menu open and let the user retry.
+      // keep menu open for retry
     } finally {
       setActionBusyId(null);
-      if (saved) {
-        setMenuAnchor(null);
-      }
+      if (saved) setMenuAnchor(null);
     }
   }
 
@@ -809,16 +1195,13 @@ export default function HomeworkClient({
       setHomework((current) => current.filter((item) => item.id !== row.id));
       setMenuAnchor(null);
     } catch {
-      // No toast system here yet, so keep the row available for another attempt.
+      // no toast yet
     } finally {
       setActionBusyId(null);
     }
   }
 
-  function openMenu(
-    homeworkRow: HomeworkRow,
-    target: HTMLButtonElement,
-  ) {
+  function openMenu(homeworkRow: HomeworkRow, target: HTMLButtonElement) {
     const rect = target.getBoundingClientRect();
     setMenuAnchor({
       homework: homeworkRow,
@@ -833,221 +1216,161 @@ export default function HomeworkClient({
     setStatusFilter("all");
   }
 
-  const hasRows = filteredRows.length > 0;
+  const HW_HEADERS = ["Title", "Date", "Group", "Type", "Status", "Notes"];
+
+  function getHwRows() {
+    return homework.map((h) => [h.title, h.date, h.group_name, h.type, h.status, h.notes ?? ""]);
+  }
+
+  function handleExport(format: "json" | "csv" | "excel") {
+    if (format === "json") {
+      downloadJSON(homework, "homework");
+    } else if (format === "csv") {
+      downloadCSV(HW_HEADERS, getHwRows(), "homework");
+    } else {
+      downloadExcel(HW_HEADERS, getHwRows(), "homework", "Homework");
+    }
+  }
+
+  async function handleImport(importedRows: Record<string, string>[]) {
+    for (const row of importedRows) {
+      await fetch("/api/homework", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: row["Title"] ?? row["title"] ?? "",
+          date: row["Date"] ?? row["date"] ?? new Date().toISOString().slice(0, 10),
+          group_name: row["Group"] ?? row["group_name"] ?? "",
+          type: row["Type"] ?? row["type"] ?? "",
+          status: row["Status"] ?? row["status"] ?? "planning",
+          notes: row["Notes"] ?? row["notes"] ?? null,
+        }),
+      });
+    }
+    window.location.reload();
+  }
 
   return (
-    <div className="min-h-screen bg-surface-gray-light">
+    <div className="h-screen flex flex-col bg-surface-gray-light overflow-hidden">
       <TopBar breadcrumb={["Main Hub", "Homework"]} />
 
-      <main className="p-4 sm:p-6 lg:p-10">
-        <div className="flex justify-between items-end mb-4 sm:mb-6 gap-4">
+      {/* Header + filters */}
+      <div className="px-4 sm:px-6 pt-4 sm:pt-5 shrink-0">
+        <div className="flex items-end justify-between gap-4 mb-3">
           <div>
-            <h1 className="text-2xl sm:text-[32px] font-bold text-text-primary tracking-tight">
+            <h1 className="text-2xl sm:text-[28px] font-bold text-text-primary tracking-tight">
               Homework Overview
             </h1>
-            <p className="text-[14px] text-text-secondary mt-1">
+            <p className="text-[13px] text-text-secondary mt-0.5">
               Manage and track assignments across all learning groups.
             </p>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
-          <div className="md:col-span-3">
-            <HomeworkFilters
-              search={search}
-              onSearchChange={setSearch}
-              groupFilter={groupFilter}
-              onGroupChange={setGroupFilter}
-              typeFilter={typeFilter}
-              onTypeChange={setTypeFilter}
-              statusFilter={statusFilter}
-              onStatusChange={setStatusFilter}
-              groups={groups}
-              types={types}
-              onReset={resetFilters}
-            />
-          </div>
-
-          <div className="bg-primary text-white rounded-xl p-4 shadow-lg flex flex-col justify-center relative overflow-hidden md:col-span-1">
-            <div className="relative z-10">
-              <span className="text-[11px] font-semibold uppercase tracking-wide opacity-80">
-                Completion Rate
-              </span>
-              <div className="text-[28px] font-black leading-none mt-0.5">
-                {overallPct}%
+          <div className="flex items-center gap-3 shrink-0">
+            <ImportExportButtons onExport={handleExport} onImport={handleImport} />
+            <div className="bg-primary text-white rounded-xl px-4 py-2.5 flex items-center gap-3 shrink-0 relative overflow-hidden">
+              <div className="relative z-10">
+                <p className="text-[10px] font-semibold uppercase tracking-wide opacity-80">
+                  Completion
+                </p>
+                <p className="text-[22px] font-black leading-none">
+                  {overallPct}%{" "}
+                  <span className="text-[11px] font-normal opacity-80">
+                    {completedCount}/{rows.length}
+                  </span>
+                </p>
               </div>
-              <p className="text-[11px] opacity-90 mt-0.5">
-                {completedCount} of {rows.length}
-              </p>
+              <TrendingUp size={48} className="absolute -right-2 -bottom-2 opacity-15" />
             </div>
-            <TrendingUp
-              size={60}
-              className="absolute -right-3 -bottom-3 opacity-15"
-            />
           </div>
         </div>
+        <HomeworkFilters
+          search={search}
+          onSearchChange={setSearch}
+          groupFilter={groupFilter}
+          onGroupChange={setGroupFilter}
+          typeFilter={typeFilter}
+          onTypeChange={setTypeFilter}
+          statusFilter={statusFilter}
+          onStatusChange={setStatusFilter}
+          groups={groups}
+          types={types}
+          onReset={resetFilters}
+        />
+      </div>
 
-        <div className="bg-white border border-border-light rounded-xl shadow-sm overflow-hidden mb-4 sm:mb-6">
-          <div className="overflow-x-auto">
-            <table className="min-w-[1120px] w-full table-fixed text-left border-collapse">
-              <thead>
-                <tr className="bg-surface-gray-light border-b border-border-light">
-                  <th className="px-6 py-4 text-[12px] font-semibold uppercase tracking-wide text-text-muted w-[38%]">
-                    Assignment
-                  </th>
-                  <th className="px-6 py-4 text-[12px] font-semibold uppercase tracking-wide text-text-muted w-[16%] whitespace-nowrap">
-                    Group
-                  </th>
-                  <th className="px-6 py-4 text-[12px] font-semibold uppercase tracking-wide text-text-muted w-[16%] whitespace-nowrap">
-                    Date
-                  </th>
-                  <th className="px-6 py-4 text-[12px] font-semibold uppercase tracking-wide text-text-muted w-[16%] whitespace-nowrap">
-                    Type
-                  </th>
-                  <th className="px-6 py-4 text-[12px] font-semibold uppercase tracking-wide text-text-muted w-[10%] whitespace-nowrap">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-[12px] font-semibold uppercase tracking-wide text-text-muted w-[4%]">
-                    {" "}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border-light">
-                {hasRows ? (
-                  filteredRows.map((row) => (
-                    <tr
-                      key={row.id}
-                      onClick={() => setDrawerRow(row)}
-                      className="hover:bg-surface-gray-light transition-colors cursor-pointer"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div
-                            className={`w-10 h-10 rounded-lg ${row.iconBg} ${row.iconColor} flex items-center justify-center shrink-0`}
-                          >
-                            <row.icon size={20} />
-                          </div>
-                          <div className="min-w-0">
-                            <div className="text-[14px] font-semibold text-text-primary truncate">
-                              {row.title}
-                            </div>
-                            {row.notes && (
-                              <div className="text-[12px] text-text-muted truncate max-w-72">
-                                {row.notes}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-surface-container text-primary text-[12px] font-bold max-w-full truncate">
-                          {row.group_name}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-[14px] text-text-secondary whitespace-nowrap">
-                        {row.displayDate}
-                      </td>
-                      <td className="px-6 py-4 text-[12px] text-text-secondary whitespace-nowrap truncate">
-                        {row.type}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${row.statusBadgeBg} ${row.statusColor}`}
-                        >
-                          <row.statusIcon size={14} />
-                          <span className="text-[12px] font-semibold uppercase tracking-wide">
-                            {row.statusLabel}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right whitespace-nowrap">
-                        <button
-                          disabled={actionBusyId === row.id}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openMenu(row, e.currentTarget);
-                          }}
-                          className="p-2 text-text-muted hover:text-primary transition-colors disabled:opacity-50"
-                        >
-                          {actionBusyId === row.id ? (
-                            <Loader2 size={16} className="animate-spin" />
-                          ) : (
-                            <MoreVertical size={16} />
-                          )}
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-10 text-center text-text-muted">
-                      No homework matches the current search or filters.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="px-6 py-3 border-t border-border-light flex items-center justify-between">
-            <span className="text-[12px] text-text-muted">
-              Showing 1–{filteredRows.length} of {filteredRows.length} assignments
-            </span>
-            <div className="flex items-center gap-1">
-              <button
-                disabled
-                className="p-1.5 rounded-lg border border-border-light text-text-muted disabled:opacity-40"
+      {/* Two-pane area */}
+      <div className="flex-1 overflow-hidden mx-4 sm:mx-6 my-4 flex bg-white border border-border-light rounded-xl shadow-sm">
+        {/* Left: compact list */}
+        <div className="w-[35vw] min-w-55 max-w-105 border-r border-border-light overflow-y-auto shrink-0 flex flex-col">
+          {filteredRows.length === 0 ? (
+            <p className="p-4 text-[12px] text-text-muted text-center mt-8">
+              No homework matches the current filters.
+            </p>
+          ) : (
+            filteredRows.map((row) => (
+              <div
+                key={row.id}
+                onClick={() => setSelectedId(row.id)}
+                className={`px-3 py-2.5 cursor-pointer border-b border-border-light transition-all ${
+                  selectedId === row.id
+                    ? "opacity-100 bg-surface-container"
+                    : "opacity-[0.65] hover:opacity-100 hover:bg-surface-gray-light"
+                }`}
               >
-                <ChevronLeft size={16} />
-              </button>
-              <button className="w-8 h-8 rounded-lg border border-primary bg-primary text-white text-[13px] font-semibold">
-                1
-              </button>
-              <button className="p-1.5 rounded-lg border border-border-light text-text-secondary hover:bg-surface-gray-light">
-                <ChevronRight size={16} />
-              </button>
-            </div>
-          </div>
+                <div className="flex items-start gap-1.5 min-w-0">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                          row.displayStatus === "completed" ? "bg-success" : "bg-warning"
+                        }`}
+                      />
+                      <span className="text-[16px] font-semibold text-text-primary truncate leading-tight">
+                        {row.title}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 pl-3 flex-wrap">
+                      <span className="text-[14px] text-text-muted shrink-0">
+                        {row.displayDate}
+                      </span>
+                      <span className="text-[14px] px-1.5 py-0.5 rounded-full bg-surface-container text-primary font-bold truncate max-w-[90px]">
+                        {row.group_name}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openMenu(row, e.currentTarget as HTMLButtonElement);
+                    }}
+                    disabled={actionBusyId === row.id}
+                    className="p-1 text-text-muted hover:text-primary transition-colors shrink-0 disabled:opacity-50 mt-0.5"
+                  >
+                    {actionBusyId === row.id ? (
+                      <Loader2 size={12} className="animate-spin" />
+                    ) : (
+                      <MoreVertical size={12} />
+                    )}
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-          <div className="bg-white border border-border-light rounded-xl p-6 shadow-sm flex items-center gap-6">
-            <div className="w-16 h-16 rounded-full bg-warning-light flex items-center justify-center text-warning shrink-0">
-              <AlertTriangle size={28} />
+        {/* Right: content panel */}
+        <div className="flex-1 overflow-hidden">
+          {selectedRow ? (
+            <ContentPanel row={selectedRow} />
+          ) : (
+            <div className="flex items-center justify-center h-full text-text-muted">
+              <p className="text-[14px]">Select a homework to view its content.</p>
             </div>
-            <div>
-              <h4 className="text-[18px] font-semibold text-text-primary">
-                Planning Assignments
-              </h4>
-              <p className="text-[14px] text-text-secondary mt-0.5">
-                {rows.filter((row) => row.displayStatus === "planning").length}{" "}
-                assignments are still in planning.
-              </p>
-              <button className="mt-2 text-primary font-bold text-[14px] hover:underline flex items-center gap-1">
-                Review planning <ChevronRight size={14} />
-              </button>
-            </div>
-          </div>
-
-          <div className="bg-white border border-border-light rounded-xl p-6 shadow-sm flex items-center gap-6">
-            <div className="w-16 h-16 rounded-full bg-success-light flex items-center justify-center text-success shrink-0">
-              <CheckCircle2 size={28} />
-            </div>
-            <div>
-              <h4 className="text-[18px] font-semibold text-text-primary">
-                Completed Ready
-              </h4>
-              <p className="text-[14px] text-text-secondary mt-0.5">
-                {completedCount} completed assignments are ready for review.
-              </p>
-              <button className="mt-2 text-primary font-bold text-[14px] hover:underline flex items-center gap-1">
-                Review completed <ChevronRight size={14} />
-              </button>
-            </div>
-          </div>
+          )}
         </div>
-      </main>
+      </div>
 
+      {/* FAB: add homework */}
       <button
         onClick={() => setModalHomework({} as Homework)}
         className="fixed bottom-6 right-6 lg:bottom-10 lg:right-10 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-50"
@@ -1079,10 +1402,6 @@ export default function HomeworkClient({
         onStatusChange={handleStatusChange}
         onClose={() => setMenuAnchor(null)}
       />
-
-      {drawerRow && (
-        <HomeworkDrawer row={drawerRow} onClose={() => setDrawerRow(null)} />
-      )}
     </div>
   );
 }

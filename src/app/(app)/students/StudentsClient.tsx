@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Download, UserPlus, Zap } from "lucide-react";
+import { UserPlus, Zap } from "lucide-react";
+import { downloadJSON, downloadCSV, downloadExcel } from "@/lib/import-export";
+import ImportExportButtons from "@/components/ui/ImportExportButtons";
 import {
   type StudentRow,
   type StatItem,
@@ -130,43 +132,41 @@ export default function StudentsClient({ rows, uniqueGroups, stats, homeworks }:
     setPage(1);
   }
 
-  function handleExportCSV() {
-    const headers = [
-      "Name",
-      "Contact",
-      "Group",
-      "Type",
-      "HW Score",
-      "Status",
-      "Started",
-      "Finished",
-      "GitHub",
-      "Notes",
-    ];
-    const csvRows = [
-      headers.join(","),
-      ...rows.map((r) =>
-        [
-          r.name,
-          r.contact,
-          r.group,
-          r.type,
-          r.grade,
-          r.statusLabel,
-          r.started,
-          r.finished ?? "",
-          r.githubUsername ?? "",
-          `"${(r.notes ?? "").replace(/"/g, '""')}"`,
-        ].join(","),
-      ),
-    ];
-    const blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "students.csv";
-    a.click();
-    URL.revokeObjectURL(url);
+  const EXPORT_HEADERS = ["Name", "Telegram", "Group", "Type", "Status", "Started", "Finished", "GitHub", "Notes"];
+
+  function getExportRows() {
+    return rows.map((r) => [r.name, r.contact, r.group, r.type, r.statusLabel, r.started, r.finished ?? "", r.githubUsername ?? "", r.notes ?? ""]);
+  }
+
+  function handleExport(format: "json" | "csv" | "excel") {
+    if (format === "json") {
+      downloadJSON(rows.map((r) => ({ name: r.name, telegram: r.contact, group_name: r.group, type: r.type, status: r.statusLabel, started: r.started, finished: r.finished ?? null, github_username: r.githubUsername ?? null, notes: r.notes ?? null })), "students");
+    } else if (format === "csv") {
+      downloadCSV(EXPORT_HEADERS, getExportRows(), "students");
+    } else {
+      downloadExcel(EXPORT_HEADERS, getExportRows(), "students", "Students");
+    }
+  }
+
+  async function handleImport(importedRows: Record<string, string>[]) {
+    for (const row of importedRows) {
+      await fetch("/api/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: row["Name"] ?? row["name"] ?? "",
+          telegram: row["Telegram"] ?? row["telegram"] ?? null,
+          group_name: row["Group"] ?? row["group_name"] ?? "",
+          type: row["Type"] ?? row["type"] ?? "",
+          status: row["Status"] ?? row["status"] ?? "active",
+          started: row["Started"] ?? row["started"] ?? new Date().toISOString().slice(0, 10),
+          finished: row["Finished"] ?? row["finished"] ?? null,
+          github_username: row["GitHub"] ?? row["github_username"] ?? null,
+          notes: row["Notes"] ?? row["notes"] ?? null,
+        }),
+      });
+    }
+    window.location.reload();
   }
 
   const filtered = useMemo(() => {
@@ -220,14 +220,8 @@ export default function StudentsClient({ rows, uniqueGroups, stats, homeworks }:
             {uniqueGroups.length} AI-orchestrated tracks.
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex gap-3 w-full lg:w-auto">
-          <button
-            onClick={handleExportCSV}
-            className="px-4 py-3 border border-border-light bg-white rounded-lg text-[14px] flex items-center justify-center gap-2 hover:bg-surface-gray-light transition-colors"
-          >
-            <Download size={16} />
-            Export CSV
-          </button>
+        <div className="flex flex-wrap gap-3 items-center w-full lg:w-auto">
+          <ImportExportButtons onExport={handleExport} onImport={handleImport} />
           <button
             onClick={() => setShowAddModal(true)}
             className="px-4 py-3 bg-primary text-white rounded-lg text-[14px] font-semibold flex items-center justify-center gap-2 shadow-lg hover:bg-primary-hover transition-colors"

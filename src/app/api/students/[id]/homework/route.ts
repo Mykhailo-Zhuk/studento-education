@@ -6,6 +6,20 @@ interface Params {
   params: Promise<{ id: string }>;
 }
 
+export async function GET(_req: Request, { params }: Params) {
+  try {
+    const { id } = await params;
+    const supabase = getSupabaseAdmin();
+    const table = supabase.from("student_homework_records") as unknown as AdminTable<StudentHomeworkRecord>;
+    const { data, error } = await table.select("*").eq("student_id", id);
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json(data ?? []);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to fetch homework records";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
 export async function POST(req: Request, { params }: Params) {
   try {
     const { id } = await params;

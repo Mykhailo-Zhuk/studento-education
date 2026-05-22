@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { EMPTY_FORM, TYPE_COLOR } from "../types";
+import { CustomSelect } from "@/components/ui/CustomSelect";
 
 interface Props {
   uniqueGroups: string[];
@@ -67,26 +68,42 @@ export default function AddStudentModal({ uniqueGroups, onClose }: Props) {
           </div>
           <div>
             <label className={label}>Group *</label>
-            <select required value={form.group_name} onChange={(e) => setForm((f) => ({ ...f, group_name: e.target.value }))} className={field("bg-white")}>
-              <option value="">Select a group</option>
-              {uniqueGroups.map((g) => <option key={g} value={g}>{g}</option>)}
-            </select>
+            <div className="mt-1">
+              <CustomSelect
+                value={form.group_name}
+                onChange={(v) => setForm((f) => ({ ...f, group_name: v }))}
+                options={[
+                  { value: "", label: "Select a group" },
+                  ...uniqueGroups.map((g) => ({ value: g, label: g })),
+                ]}
+              />
+            </div>
           </div>
           <div className="flex gap-3">
             <div className="flex-1">
               <label className={label}>Type</label>
-              <select value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))} className={field("bg-white")}>
-                {Object.keys(TYPE_COLOR).map((t) => <option key={t}>{t}</option>)}
-              </select>
+              <div className="mt-1">
+                <CustomSelect
+                  value={form.type}
+                  onChange={(v) => setForm((f) => ({ ...f, type: v }))}
+                  options={Object.keys(TYPE_COLOR).map((t) => ({ value: t, label: t }))}
+                />
+              </div>
             </div>
             <div className="flex-1">
               <label className={label}>Status</label>
-              <select value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))} className={field("bg-white")}>
-                <option value="Not Started">Not Started</option>
-                <option value="In progress">In Progress</option>
-                <option value="Interrupted">Interrupted</option>
-                <option value="End course">End Course</option>
-              </select>
+              <div className="mt-1">
+                <CustomSelect
+                  value={form.status}
+                  onChange={(v) => setForm((f) => ({ ...f, status: v }))}
+                  options={[
+                    { value: "Not Started", label: "Not Started" },
+                    { value: "In progress", label: "In Progress" },
+                    { value: "Interrupted", label: "Interrupted" },
+                    { value: "End course", label: "End Course" },
+                  ]}
+                />
+              </div>
             </div>
           </div>
           <div className="flex gap-3">
