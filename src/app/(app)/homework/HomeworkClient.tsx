@@ -1123,18 +1123,15 @@ export default function HomeworkClient({
     });
   }, [groupFilter, rows, search, statusFilter, typeFilter]);
 
-  // Auto-select first row; keep selection if it's still in filteredRows
-  useEffect(() => {
-    setSelectedId((cur) => {
-      if (filteredRows.length === 0) return null;
-      if (cur && filteredRows.find((r) => r.id === cur)) return cur;
-      return filteredRows[0].id;
-    });
-  }, [filteredRows]);
+  const effectiveSelectedId = useMemo(() => {
+    if (filteredRows.length === 0) return null;
+    if (selectedId && filteredRows.find((r) => r.id === selectedId)) return selectedId;
+    return filteredRows[0].id;
+  }, [filteredRows, selectedId]);
 
   const selectedRow = useMemo(
-    () => filteredRows.find((r) => r.id === selectedId) ?? null,
-    [filteredRows, selectedId],
+    () => filteredRows.find((r) => r.id === effectiveSelectedId) ?? null,
+    [filteredRows, effectiveSelectedId],
   );
 
   const completedCount = rows.filter((row) => row.displayStatus === "completed").length;
@@ -1313,7 +1310,7 @@ export default function HomeworkClient({
                 key={row.id}
                 onClick={() => setSelectedId(row.id)}
                 className={`px-3 py-2.5 cursor-pointer border-b border-border-light transition-all ${
-                  selectedId === row.id
+                  effectiveSelectedId === row.id
                     ? "opacity-100 bg-surface-container"
                     : "opacity-[0.65] hover:opacity-100 hover:bg-surface-gray-light"
                 }`}

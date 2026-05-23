@@ -25,7 +25,7 @@ export default function LessonsClient({
   groups: Group[];
 }) {
   const [view, setView] = useState<"list" | "calendar">("list");
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [pagination, setPagination] = useState({ filterKey: "", count: PAGE_SIZE });
   const [lessons, setLessons] = useState<Lesson[]>(initialLessons);
   const [search, setSearch] = useState("");
   const [groupFilter, setGroupFilter] = useState("all");
@@ -83,6 +83,9 @@ export default function LessonsClient({
     [filteredLessons],
   );
 
+  const filterKey = `${search}|${groupFilter}|${typeFilter}`;
+  const visibleCount = pagination.filterKey === filterKey ? pagination.count : PAGE_SIZE;
+
   const grouped = useMemo(() => {
     return sorted.slice(0, visibleCount).reduce<
       { lesson: Lesson; showDate: boolean }[]
@@ -93,10 +96,6 @@ export default function LessonsClient({
       return acc;
     }, []);
   }, [sorted, visibleCount]);
-
-  useEffect(() => {
-    setVisibleCount(() => PAGE_SIZE);
-  }, [search, groupFilter, typeFilter]);
 
   const weeklyData = useMemo(() => {
     const counts = [0, 0, 0, 0, 0, 0, 0];
@@ -306,7 +305,7 @@ export default function LessonsClient({
           grouped={grouped}
           totalCount={sorted.length}
           visibleCount={visibleCount}
-          onLoadMore={() => setVisibleCount((c) => c + PAGE_SIZE)}
+          onLoadMore={() => setPagination({ filterKey, count: visibleCount + PAGE_SIZE })}
           onMenuOpen={handleMenuOpen}
           onPrepareContent={(lesson) => setPrepLesson(lesson)}
           openMenuId={openMenu?.id ?? null}
