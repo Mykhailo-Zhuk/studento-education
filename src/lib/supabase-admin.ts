@@ -11,9 +11,15 @@ export type AdminListResponse<T> = Promise<{
   error: { message: string } | null;
 }>;
 
+export type AdminFilterBuilder<T> = AdminListResponse<T> & {
+  single: () => AdminSingleResponse<T>;
+  order: (column: string, options?: { ascending?: boolean }) => AdminListResponse<T>;
+  eq: (column: string, value: string) => AdminFilterBuilder<T>;
+};
+
 export type AdminQueryBuilder<T> = {
   order: (column: string, options?: { ascending?: boolean }) => AdminListResponse<T>;
-  eq: (column: string, value: string) => AdminListResponse<T>;
+  eq: (column: string, value: string) => AdminFilterBuilder<T>;
 };
 
 export type AdminWriteBuilder<T> = {
