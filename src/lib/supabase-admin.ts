@@ -7,7 +7,7 @@ export type AdminSingleResponse<T> = Promise<{
 }>;
 
 export type AdminListResponse<T> = Promise<{
-  data: T[] | null;
+  data: T[];
   error: { message: string } | null;
 }>;
 
