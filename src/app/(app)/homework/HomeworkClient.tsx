@@ -650,37 +650,37 @@ function ContentPanel({ row }: { row: HomeworkRow }) {
   const [createError, setCreateError] = useState("");
 
   useEffect(() => {
-    setStatus("loading");
-    setFiles([]);
-    setFolderPath("");
-    setActiveFile("");
-    setErrorMsg("");
-    setEditingFile(null);
-    setAddingFile(null);
-    setCreating(false);
-    setCreateError("");
+    async function load() {
+      setStatus("loading");
+      setFiles([]);
+      setFolderPath("");
+      setActiveFile("");
+      setErrorMsg("");
+      setEditingFile(null);
+      setAddingFile(null);
+      setCreating(false);
+      setCreateError("");
 
-    fetch(
-      `/api/homework/github-content?title=${slugify(row.title)}&type=${slugify(row.type)}`,
-    )
-      .then(async (res) => {
-        const data = (await res.json()) as
-          | { files: GitHubFile[]; folderPath: string }
-          | { error: string };
-        if (!res.ok || "error" in data) {
-          setErrorMsg("error" in data ? data.error : "Failed to load content");
-          setStatus("error");
-          return;
-        }
-        setFiles(data.files);
-        setFolderPath(data.folderPath);
-        setActiveFile(data.files[0]?.name ?? "");
-        setStatus("loaded");
-      })
-      .catch(() => {
-        setErrorMsg("Network error");
+      const res = await fetch(
+        `/api/homework/github-content?title=${slugify(row.title)}&type=${slugify(row.type)}`,
+      );
+      const data = (await res.json()) as
+        | { files: GitHubFile[]; folderPath: string }
+        | { error: string };
+      if (!res.ok || "error" in data) {
+        setErrorMsg("error" in data ? data.error : "Failed to load content");
         setStatus("error");
-      });
+        return;
+      }
+      setFiles(data.files);
+      setFolderPath(data.folderPath);
+      setActiveFile(data.files[0]?.name ?? "");
+      setStatus("loaded");
+    }
+    load().catch(() => {
+      setErrorMsg("Network error");
+      setStatus("error");
+    });
   }, [row.id, row.group_name, row.title, row.type]);
 
   const activeFileData = files.find((f) => f.name === activeFile);
@@ -1125,11 +1125,8 @@ export default function HomeworkClient({
 
   // Auto-select first row; keep selection if it's still in filteredRows
   useEffect(() => {
-    if (filteredRows.length === 0) {
-      setSelectedId(null);
-      return;
-    }
     setSelectedId((cur) => {
+      if (filteredRows.length === 0) return null;
       if (cur && filteredRows.find((r) => r.id === cur)) return cur;
       return filteredRows[0].id;
     });

@@ -118,30 +118,30 @@ function HomeworkDetailView({ homework, onBack }: { homework: Homework; onBack: 
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
-    setFetchStatus("loading");
-    setFiles([]);
-    setActiveFile("");
-    setErrorMsg("");
+    async function load() {
+      setFetchStatus("loading");
+      setFiles([]);
+      setActiveFile("");
+      setErrorMsg("");
 
-    fetch(
-      `/api/homework/github-content?title=${slugify(homework.title)}&type=${slugify(homework.type)}`,
-    )
-      .then(async (res) => {
-        const data = (await res.json()) as { files: GitHubFile[]; folderPath: string } | { error: string };
-        if (!res.ok || "error" in data) {
-          setErrorMsg("error" in data ? data.error : "Failed to load content");
-          setFetchStatus("error");
-          return;
-        }
-        const filtered = data.files.filter((f) => !f.name.toLowerCase().replace(/\.md$/, "").includes("youtube"));
-        setFiles(filtered);
-        setActiveFile(filtered[0]?.name ?? "");
-        setFetchStatus("loaded");
-      })
-      .catch(() => {
-        setErrorMsg("Network error");
+      const res = await fetch(
+        `/api/homework/github-content?title=${slugify(homework.title)}&type=${slugify(homework.type)}`,
+      );
+      const data = (await res.json()) as { files: GitHubFile[]; folderPath: string } | { error: string };
+      if (!res.ok || "error" in data) {
+        setErrorMsg("error" in data ? data.error : "Failed to load content");
         setFetchStatus("error");
-      });
+        return;
+      }
+      const filtered = data.files.filter((f) => !f.name.toLowerCase().replace(/\.md$/, "").includes("youtube"));
+      setFiles(filtered);
+      setActiveFile(filtered[0]?.name ?? "");
+      setFetchStatus("loaded");
+    }
+    load().catch(() => {
+      setErrorMsg("Network error");
+      setFetchStatus("error");
+    });
   }, [homework.id, homework.group_name, homework.title, homework.type]);
 
   const activeContent = files.find((f) => f.name === activeFile)?.content ?? "";

@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import PublicTopBar from "@/components/public/PublicTopBar";
 import StudentView from "@/components/public/StudentView";
 import type { StudentBundle } from "@/lib/types";

@@ -6,7 +6,7 @@ import TopBar from "@/components/layout/TopBar";
 import StudentSelectorModal from "@/components/dashboard/StudentSelectorModal";
 import GenerateLinkModal from "@/components/dashboard/GenerateLinkModal";
 import StudentDataPopup from "@/components/dashboard/StudentDataPopup";
-import type { Student, StudentBundle } from "@/lib/types";
+import type { Student, StudentBundle, Group, Lesson, Homework, StudentHomeworkRecord } from "@/lib/types";
 
 interface DashboardClientProps {
   students: Student[];
@@ -20,33 +20,25 @@ export default function DashboardClient({ students }: DashboardClientProps) {
 
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [selectedStudentData, setSelectedStudentData] = useState<StudentBundle | null>(null);
-  const [loading, setLoading] = useState(false);
 
-  // Fetch student data when student is selected
   useEffect(() => {
     if (!selectedStudent) return;
-
-    setLoading(true);
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-    // Temporarily fetch the raw data from the API using the student ID
-    // This is a workaround since we don't have a direct API for fetching by student ID
-    // In a real scenario, you'd want an /api/students/[id] endpoint
-    const fetchStudentData = async () => {
+    async function fetchStudentData() {
       try {
-        // For now, we'll construct the data manually since we don't have a direct API
         const [groups, lessons, homework, records] = await Promise.all([
-          fetch(`${baseUrl}/api/groups`).then((r) => r.json()),
-          fetch(`${baseUrl}/api/lessons`).then((r) => r.json()),
-          fetch(`${baseUrl}/api/homework`).then((r) => r.json()),
-          fetch(`${baseUrl}/api/students/${selectedStudent.id}/homework`).then((r) => r.json()),
+          fetch(`${baseUrl}/api/groups`).then((r) => r.json()) as Promise<Group[]>,
+          fetch(`${baseUrl}/api/lessons`).then((r) => r.json()) as Promise<Lesson[]>,
+          fetch(`${baseUrl}/api/homework`).then((r) => r.json()) as Promise<Homework[]>,
+          fetch(`${baseUrl}/api/students/${selectedStudent.id}/homework`).then((r) => r.json()) as Promise<StudentHomeworkRecord[]>,
         ]);
 
-        const group = groups.find((g: any) => g.name === selectedStudent.group_name);
-        const studentLessons = lessons.filter((l: any) => l.group_name === selectedStudent.group_name);
-        const studentRecords = records.filter((r: any) => r.student_id === selectedStudent.id);
-        const studentHomework = homework.filter((hw: any) =>
-          studentRecords.some((r: any) => r.homework_id === hw.id),
+        const group = groups.find((g) => g.name === selectedStudent.group_name);
+        const studentLessons = lessons.filter((l) => l.group_name === selectedStudent.group_name);
+        const studentRecords = records.filter((r) => r.student_id === selectedStudent.id);
+        const studentHomework = homework.filter((hw) =>
+          studentRecords.some((r) => r.homework_id === hw.id),
         );
 
         setSelectedStudentData({
@@ -58,10 +50,8 @@ export default function DashboardClient({ students }: DashboardClientProps) {
         });
       } catch (error) {
         console.error("Failed to fetch student data:", error);
-      } finally {
-        setLoading(false);
       }
-    };
+    }
 
     fetchStudentData();
   }, [selectedStudent]);

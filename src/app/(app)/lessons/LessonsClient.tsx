@@ -95,7 +95,7 @@ export default function LessonsClient({
   }, [sorted, visibleCount]);
 
   useEffect(() => {
-    setVisibleCount(PAGE_SIZE);
+    setVisibleCount(() => PAGE_SIZE);
   }, [search, groupFilter, typeFilter]);
 
   const weeklyData = useMemo(() => {

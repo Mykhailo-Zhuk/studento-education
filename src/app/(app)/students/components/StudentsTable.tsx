@@ -235,21 +235,24 @@ function HomeworkDetailDrawer({
 
   useEffect(() => {
     if (!homework?.title) return;
-    setLoading(true);
-    const folder = encodeURIComponent(homework.title);
-    Promise.all([
-      fetch(`/api/homework/github-content?folder=${folder}&file=What-to-read`).then((r) => r.json()),
-      fetch(`/api/homework/github-content?folder=${folder}&file=What-to-write`).then((r) => r.json()),
-    ])
-      .then(([read, write]) => {
-        setReadContent((read as { content?: string; error?: string }).content ?? (read as { error?: string }).error ?? null);
-        setWriteContent((write as { content?: string; error?: string }).content ?? (write as { error?: string }).error ?? null);
-      })
-      .catch(() => {
+    async function load() {
+      setLoading(true);
+      const folder = encodeURIComponent(homework.title);
+      try {
+        const [read, write] = await Promise.all([
+          fetch(`/api/homework/github-content?folder=${folder}&file=What-to-read`).then((r) => r.json()) as Promise<{ content?: string; error?: string }>,
+          fetch(`/api/homework/github-content?folder=${folder}&file=What-to-write`).then((r) => r.json()) as Promise<{ content?: string; error?: string }>,
+        ]);
+        setReadContent(read.content ?? read.error ?? null);
+        setWriteContent(write.content ?? write.error ?? null);
+      } catch {
         setReadContent("Failed to load content.");
         setWriteContent("Failed to load content.");
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
   }, [homework?.title]);
 
   return (
