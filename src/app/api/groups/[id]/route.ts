@@ -10,10 +10,12 @@ export async function PATCH(req: Request, { params }: Params) {
   try {
     const { id } = await params;
     const body = (await req.json()) as Record<string, unknown>;
+    const UPDATABLE = new Set(['name','type','status','members','started','finished','schedule_time','journal_url','telegram_url','notes']);
+    const patch = Object.fromEntries(Object.entries(body).filter(([k]) => UPDATABLE.has(k)));
     const supabase = getSupabaseAdmin();
     const groupsTable = supabase.from("groups") as unknown as AdminTable<Group>;
     const { data, error } = await groupsTable
-      .update(body)
+      .update(patch)
       .eq("id", id)
       .select("*")
       .single();

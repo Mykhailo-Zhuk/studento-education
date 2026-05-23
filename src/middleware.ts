@@ -29,10 +29,13 @@ export async function middleware(request: NextRequest) {
   const isPublic =
     pathname.startsWith("/login") ||
     pathname.startsWith("/view") ||
-    pathname.startsWith("/api") ||
+    pathname.startsWith("/api/view/") ||
     pathname.startsWith("/_next");
 
   if (!user && !isPublic) {
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

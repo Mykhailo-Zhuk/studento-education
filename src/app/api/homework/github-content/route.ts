@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 const OWNER = "Mykhailo-Zhuk";
 const REPO = "my-obsidian-vaults";
 const KNOWN_FILES = ["what-to-read.md", "what-to-write.md", "youtube-description.md"];
+const ALLOWED_PATH_PREFIX = "Studento/";
 
 function resolveBasePath(type: string): string {
   const t = type.toLowerCase();
@@ -145,6 +146,8 @@ export async function PUT(req: Request) {
   const body = (await req.json()) as { path: string; content: string; sha?: string };
   if (!body.path || body.content === undefined)
     return NextResponse.json({ error: "Missing path or content" }, { status: 400 });
+  if (!body.path.startsWith(ALLOWED_PATH_PREFIX))
+    return NextResponse.json({ error: "Forbidden path" }, { status: 403 });
 
   const encodedPath = body.path.split("/").map(encodeURIComponent).join("/");
   const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${encodedPath}`;
@@ -183,6 +186,8 @@ export async function DELETE(req: Request) {
   const body = (await req.json()) as { path: string; sha: string };
   if (!body.path || !body.sha)
     return NextResponse.json({ error: "Missing path or sha" }, { status: 400 });
+  if (!body.path.startsWith(ALLOWED_PATH_PREFIX))
+    return NextResponse.json({ error: "Forbidden path" }, { status: 403 });
 
   const encodedPath = body.path.split("/").map(encodeURIComponent).join("/");
   const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${encodedPath}`;

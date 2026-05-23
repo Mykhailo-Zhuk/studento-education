@@ -47,6 +47,7 @@ export async function parseImportFile(
 
   if (ext === "xlsx" || ext === "xls") {
     const buffer = await file.arrayBuffer();
+    Object.freeze(Object.prototype);
     const wb = XLSX.read(new Uint8Array(buffer), { type: "array" });
     const ws = wb.Sheets[wb.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json<Record<string, string>>(ws, {

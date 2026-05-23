@@ -10,10 +10,12 @@ export async function PATCH(req: Request, { params }: Params) {
   try {
     const { id } = await params;
     const body = (await req.json()) as Record<string, unknown>;
+    const UPDATABLE = new Set(['title','group_name','type','date','status','hours','youtube_url','has_homework','has_feedback','comment']);
+    const patch = Object.fromEntries(Object.entries(body).filter(([k]) => UPDATABLE.has(k)));
     const supabase = getSupabaseAdmin();
     const lessonsTable = supabase.from("lessons") as unknown as AdminTable<Lesson>;
     const { data, error } = await lessonsTable
-      .update(body)
+      .update(patch)
       .eq("id", id)
       .select("*")
       .single();
