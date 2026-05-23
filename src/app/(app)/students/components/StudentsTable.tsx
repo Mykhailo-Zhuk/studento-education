@@ -235,9 +235,10 @@ function HomeworkDetailDrawer({
 
   useEffect(() => {
     if (!homework?.title) return;
+    const hw = homework;
     async function load() {
       setLoading(true);
-      const folder = encodeURIComponent(homework.title);
+      const folder = encodeURIComponent(hw.title);
       try {
         const [read, write] = await Promise.all([
           fetch(`/api/homework/github-content?folder=${folder}&file=What-to-read`).then((r) => r.json()) as Promise<{ content?: string; error?: string }>,
