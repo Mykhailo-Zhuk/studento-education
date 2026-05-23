@@ -7,7 +7,6 @@ import type { Group } from "@/lib/types";
 import GroupActionMenu from "./components/GroupActionMenu";
 import DeleteGroupDialog from "./components/DeleteGroupDialog";
 import GroupFilters from "./components/GroupFilters";
-import GroupInsights from "./components/GroupInsights";
 import GroupModal from "./components/GroupModal";
 import GroupTooltip from "./components/GroupTooltip";
 import GroupsTable from "./components/GroupsTable";
@@ -236,9 +235,13 @@ export default function GroupsPage() {
             <h2 className="text-[26px] sm:text-[32px] font-bold text-text-primary tracking-tight">
               Learning Cohorts
             </h2>
-            <p className="text-[13px] sm:text-[14px] text-text-secondary mt-1 max-w-2xl">
-              Manage and monitor student progress across all active learning
-              groups.
+            <p className="text-[13px] sm:text-[14px] text-text-secondary mt-1">
+              <span className="font-semibold text-text-primary">
+                {groups.filter((g) => g.status.toLowerCase() !== "finished").length}
+              </span>{" "}
+              active of{" "}
+              <span className="font-semibold text-text-primary">{groups.length}</span>{" "}
+              total groups
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
@@ -267,7 +270,6 @@ export default function GroupsPage() {
           onHideTooltip={hideCellTooltip}
         />
 
-        <GroupInsights groups={groups} />
       </section>
 
       <button

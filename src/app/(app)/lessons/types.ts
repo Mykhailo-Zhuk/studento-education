@@ -41,7 +41,7 @@ export function formatDisplayDate(value: string | null): string {
 export const EMPTY_FORM = {
   title: "",
   date: new Date().toISOString().slice(0, 10),
-  hours: 1,
+  hours: 2,
   group_name: "",
   type: "",
   status: "pending",

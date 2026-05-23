@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useNotifications } from "@/contexts/notifications";
 
 interface Props {
   id: string;
@@ -10,15 +11,18 @@ interface Props {
 
 export default function DeleteStudentModal({ id, onClose }: Props) {
   const router = useRouter();
+  const { add: notify } = useNotifications();
   const [deleting, setDeleting] = useState(false);
 
   async function handleDelete() {
     setDeleting(true);
     const res = await fetch(`/api/students/${id}`, { method: "DELETE" });
     if (!res.ok) {
+      notify("Failed to delete student", "error");
       setDeleting(false);
       return;
     }
+    notify("Student deleted");
     setDeleting(false);
     onClose();
     router.refresh();

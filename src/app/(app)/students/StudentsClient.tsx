@@ -6,7 +6,6 @@ import { downloadJSON, downloadCSV, downloadExcel } from "@/lib/import-export";
 import ImportExportButtons from "@/components/ui/ImportExportButtons";
 import {
   type StudentRow,
-  type StatItem,
   type ColumnId,
   type SortKey,
   type SortDir,
@@ -15,23 +14,21 @@ import {
   PAGE_SIZE,
 } from "./types";
 import type { StudentHomeworkRecord, Homework } from "@/lib/types";
-import { StatIcon } from "./components/TablePrimitives";
 import StudentsFilters from "./components/StudentsFilters";
 import StudentsTable from "./components/StudentsTable";
 import AddStudentModal from "./components/AddStudentModal";
 import EditStudentModal from "./components/EditStudentModal";
 import DeleteStudentModal from "./components/DeleteStudentModal";
 
-export type { StudentRow, StatItem };
+export type { StudentRow };
 
 interface Props {
   rows: StudentRow[];
   uniqueGroups: string[];
-  stats: StatItem[];
   homeworks: Homework[];
 }
 
-export default function StudentsClient({ rows, uniqueGroups, stats, homeworks }: Props) {
+export default function StudentsClient({ rows, uniqueGroups, homeworks }: Props) {
   const [search, setSearch] = useState("");
   const [groupFilter, setGroupFilter] = useState("All Groups");
   const [gradeFilter, setGradeFilter] = useState("All Grades");
@@ -215,9 +212,13 @@ export default function StudentsClient({ rows, uniqueGroups, stats, homeworks }:
           <h2 className="text-[26px] sm:text-[32px] font-bold text-text-primary tracking-tight">
             Students Performance
           </h2>
-          <p className="text-[13px] sm:text-[14px] text-text-secondary mt-2 max-w-2xl">
-            Monitoring {rows.length} individual learners across{" "}
-            {uniqueGroups.length} AI-orchestrated tracks.
+          <p className="text-[13px] sm:text-[14px] text-text-secondary mt-2">
+            <span className="font-semibold text-text-primary">
+              {rows.filter((r) => r.statusRaw === "In progress").length}
+            </span>{" "}
+            active of{" "}
+            <span className="font-semibold text-text-primary">{rows.length}</span>{" "}
+            total students
           </p>
         </div>
         <div className="flex flex-wrap gap-3 items-center w-full lg:w-auto">
@@ -230,33 +231,6 @@ export default function StudentsClient({ rows, uniqueGroups, stats, homeworks }:
             Add Student
           </button>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-        {stats.map((s) => (
-          <div
-            key={s.label}
-            className="bg-white p-6 rounded-xl border border-border-light shadow-sm"
-          >
-            <p className="text-[12px] font-semibold text-text-muted uppercase tracking-widest">
-              {s.label}
-            </p>
-            <div className="flex items-center justify-between mt-2">
-              <span className={`text-[32px] font-bold ${s.valueColor}`}>
-                {s.value}
-              </span>
-              {s.badge ? (
-                <span
-                  className={`px-2 py-0.5 rounded-full text-[12px] font-semibold ${s.badgeClasses}`}
-                >
-                  {s.badge}
-                </span>
-              ) : (
-                <StatIcon iconName={s.iconName} />
-              )}
-            </div>
-          </div>
-        ))}
       </div>
 
       <StudentsFilters

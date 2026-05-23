@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { EMPTY_FORM, TYPE_COLOR } from "../types";
 import { CustomSelect } from "@/components/ui/CustomSelect";
+import { useNotifications } from "@/contexts/notifications";
 
 interface Props {
   uniqueGroups: string[];
@@ -13,6 +14,7 @@ interface Props {
 
 export default function AddStudentModal({ uniqueGroups, onClose }: Props) {
   const router = useRouter();
+  const { add: notify } = useNotifications();
   const [form, setForm] = useState(EMPTY_FORM);
   const [adding, setAdding] = useState(false);
 
@@ -32,13 +34,16 @@ export default function AddStudentModal({ uniqueGroups, onClose }: Props) {
       started: form.started || new Date().toISOString().split("T")[0],
       finished: form.finished || null,
       github_username: form.github_username.trim() || null,
+      exam_project_url: form.exam_project_url.trim() || null,
       notes: form.notes.trim() || null,
       }),
     });
     if (!res.ok) {
+      notify("Failed to add student", "error");
       setAdding(false);
       return;
     }
+    notify(`Student "${form.name.trim()}" added`);
     setAdding(false);
     onClose();
     router.refresh();
@@ -119,6 +124,10 @@ export default function AddStudentModal({ uniqueGroups, onClose }: Props) {
           <div>
             <label className={label}>GitHub Username</label>
             <input value={form.github_username} onChange={(e) => setForm((f) => ({ ...f, github_username: e.target.value }))} placeholder="username" className={field()} />
+          </div>
+          <div>
+            <label className={label}>Exam Project URL</label>
+            <input value={form.exam_project_url} onChange={(e) => setForm((f) => ({ ...f, exam_project_url: e.target.value }))} placeholder="https://github.com/..." className={field()} />
           </div>
           <div>
             <label className={label}>Notes</label>

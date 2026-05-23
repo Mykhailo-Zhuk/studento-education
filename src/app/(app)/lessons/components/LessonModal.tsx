@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import type { Lesson, Group } from "@/lib/types";
+import { useNotifications } from "@/contexts/notifications";
 import { EMPTY_FORM, type LessonForm } from "../types";
 import { CustomSelect } from "@/components/ui/CustomSelect";
 
@@ -15,6 +16,7 @@ interface Props {
 
 export default function LessonModal({ lesson, groups, onClose, onSaved }: Props) {
   const isEdit = !!lesson;
+  const { add: notify } = useNotifications();
   const groupNames = groups.map((g) => g.name);
   const uniqueTypes = [...new Set(groups.map((g) => g.type).filter(Boolean))].sort();
 
@@ -75,11 +77,14 @@ export default function LessonModal({ lesson, groups, onClose, onSaved }: Props)
       const data = (await res.json()) as Lesson | { error?: string };
 
       if (!res.ok) {
-        setError("error" in data && data.error ? data.error : "Failed to save lesson");
+        const msg = "error" in data && data.error ? data.error : "Failed to save lesson";
+        setError(msg);
+        notify(msg, "error");
         setSaving(false);
         return;
       }
 
+      notify(isEdit ? `Lesson "${form.title}" updated` : `Lesson "${form.title}" added`);
       setSaving(false);
       onSaved(data as Lesson);
       onClose();

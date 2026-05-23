@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import type { Group } from "@/lib/types";
+import { useNotifications } from "@/contexts/notifications";
 import {
   GROUP_STATUSES,
   GROUP_TYPES,
@@ -18,6 +19,7 @@ interface Props {
 
 export default function GroupModal({ group, onClose, onSaved }: Props) {
   const isEdit = group !== null;
+  const { add: notify } = useNotifications();
   const [form, setForm] = useState<GroupFormState>({
     name: group?.name ?? "",
     type: group?.type ?? "React",
@@ -73,9 +75,11 @@ export default function GroupModal({ group, onClose, onSaved }: Props) {
     if (!res.ok) {
       const data = (await res.json()) as { error?: string };
       setError(data.error ?? "Failed to save group");
+      notify(data.error ?? "Failed to save group", "error");
       return;
     }
 
+    notify(isEdit ? `Group "${form.name}" updated` : `Group "${form.name}" created`);
     onSaved();
   }
 

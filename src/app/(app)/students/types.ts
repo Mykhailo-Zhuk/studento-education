@@ -24,18 +24,10 @@ export type StudentRow = {
   started: string;
   finished: string | null;
   githubUsername: string | null;
+  examProjectUrl: string | null;
   notes: string | null;
   homeworkRecords: import("@/lib/types").StudentHomeworkRecord[];
   statusRaw: string;
-};
-
-export type StatItem = {
-  label: string;
-  value: string;
-  badge: string | null;
-  valueColor: string;
-  badgeClasses: string;
-  iconName?: "trending" | "zap";
 };
 
 export const COLUMN_DEFS = [
@@ -48,6 +40,7 @@ export const COLUMN_DEFS = [
   { id: "started", label: "Started", defaultVisible: true },
   { id: "finished", label: "Finished", defaultVisible: true },
   { id: "github", label: "GitHub", defaultVisible: true },
+  { id: "exam_project", label: "Exam Project", defaultVisible: true },
   { id: "notes", label: "Notes", defaultVisible: true },
 ] as const;
 
@@ -74,6 +67,7 @@ export const EMPTY_FORM = {
   started: "",
   finished: "",
   github_username: "",
+  exam_project_url: "",
   notes: "",
 };
 

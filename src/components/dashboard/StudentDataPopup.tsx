@@ -10,11 +10,15 @@ function slugify(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
+function formatDate(value: string): string {
+  const d = new Date(value);
+  return `${String(d.getDate()).padStart(2, "0")}-${String(d.getMonth() + 1).padStart(2, "0")}-${d.getFullYear()}`;
+}
+
 function fileTabLabel(name: string): string {
   const base = name.replace(/\.md$/, "").toLowerCase();
   if (base === "what-to-read") return "What to Read";
   if (base === "what-to-write") return "What to Write";
-  if (base === "youtube-description") return "YouTube";
   return base.replace(/-/g, " ");
 }
 
@@ -129,8 +133,9 @@ function HomeworkDetailView({ homework, onBack }: { homework: Homework; onBack: 
           setFetchStatus("error");
           return;
         }
-        setFiles(data.files);
-        setActiveFile(data.files[0]?.name ?? "");
+        const filtered = data.files.filter((f) => !f.name.toLowerCase().replace(/\.md$/, "").includes("youtube"));
+        setFiles(filtered);
+        setActiveFile(filtered[0]?.name ?? "");
         setFetchStatus("loaded");
       })
       .catch(() => {
@@ -345,7 +350,7 @@ export default function StudentDataPopup({ onClose, type, data }: StudentDataPop
         </div>
         <div>
           <p className="text-text-muted text-[12px]">Started</p>
-          <p className="text-white">{new Date(data.student.started).toLocaleDateString()}</p>
+          <p className="text-white">{formatDate(data.student.started)}</p>
         </div>
       </div>
     );

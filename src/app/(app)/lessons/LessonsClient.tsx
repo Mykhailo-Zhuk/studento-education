@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Plus } from "lucide-react";
+import { Plus, FileText } from "lucide-react";
+import { useNotifications } from "@/contexts/notifications";
 import { supabase } from "@/lib/supabase";
 import type { Lesson, Group } from "@/lib/types";
 import { PAGE_SIZE, formatDisplayDate } from "./types";
@@ -14,6 +15,7 @@ import LessonsInsights from "./components/LessonsInsights";
 import CalendarView from "./components/CalendarView";
 import LessonPrepModal from "./components/LessonPrepModal";
 import LessonFilters from "./components/LessonFilters";
+import ReportModal from "./components/ReportModal";
 
 export default function LessonsClient({
   initialLessons,
@@ -38,6 +40,8 @@ export default function LessonsClient({
     right: number;
   } | null>(null);
   const [modalLesson, setModalLesson] = useState<Lesson | "new" | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
+  const { add: notify } = useNotifications();
 
   const openMenuLesson = openMenu
     ? (lessons.find((l) => l.id === openMenu.id) ?? null)
@@ -113,25 +117,29 @@ export default function LessonsClient({
   }
 
   async function handleDelete(id: string) {
+    const lesson = lessons.find((l) => l.id === id);
     const res = await fetch(`/api/lessons/${id}`, { method: "DELETE" });
     if (!res.ok) {
-      console.error("Failed to delete lesson");
+      notify("Failed to delete lesson", "error");
       return;
     }
+    notify(`Lesson "${lesson?.title ?? ""}" deleted`);
     setOpenMenu(null);
     await fetchLessons();
   }
 
   async function handleStatusChange(id: string, status: string) {
+    const lesson = lessons.find((l) => l.id === id);
     const res = await fetch(`/api/lessons/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
     if (!res.ok) {
-      console.error("Failed to update lesson status");
+      notify("Failed to update lesson status", "error");
       return;
     }
+    notify(`Lesson "${lesson?.title ?? ""}" marked ${status}`);
     await fetchLessons();
     setOpenMenu(null);
   }
@@ -256,6 +264,13 @@ export default function LessonsClient({
           </div>
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
             <ImportExportButtons onExport={handleExport} onImport={handleImport} />
+            <button
+              onClick={() => setReportOpen(true)}
+              className="flex items-center gap-2 px-3 py-2 border border-border-light rounded-lg text-[13px] font-semibold text-text-secondary hover:bg-surface-gray-light transition-colors"
+            >
+              <FileText size={15} />
+              Report
+            </button>
             <div className="flex p-1 bg-surface-container rounded-lg border border-border-light sm:w-auto">
               {(["list", "calendar"] as const).map((v) => (
                 <button
@@ -344,6 +359,10 @@ export default function LessonsClient({
             setPrepLesson(null);
           }}
         />
+      )}
+
+      {reportOpen && (
+        <ReportModal lessons={lessons} onClose={() => setReportOpen(false)} />
       )}
 
       <button

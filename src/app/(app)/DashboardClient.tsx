@@ -196,7 +196,7 @@ export default function DashboardClient({ students }: DashboardClientProps) {
           </>
         ) : (
           <div className="text-center">
-            <h2 className="text-white text-[32px] font-bold mb-4">Welcome to EduOrchestrate</h2>
+            <h2 className="text-white text-[32px] font-bold mb-4">Welcome to Studento Education</h2>
             <p className="text-text-muted text-[16px] mb-8">Select a student to view their data and generate a share link</p>
             <button
               onClick={() => setShowSelectorModal(true)}

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { TYPE_COLOR, type StudentRow } from "../types";
 import { CustomSelect } from "@/components/ui/CustomSelect";
+import { useNotifications } from "@/contexts/notifications";
 
 interface Props {
   student: StudentRow;
@@ -14,6 +15,7 @@ interface Props {
 
 export default function EditStudentModal({ student, uniqueGroups, onClose }: Props) {
   const router = useRouter();
+  const { add: notify } = useNotifications();
   const [form, setForm] = useState({
     name: student.name,
     telegram: student.contact,
@@ -23,6 +25,7 @@ export default function EditStudentModal({ student, uniqueGroups, onClose }: Pro
     started: student.started,
     finished: student.finished ?? "",
     github_username: student.githubUsername ?? "",
+    exam_project_url: student.examProjectUrl ?? "",
     notes: student.notes ?? "",
   });
   const [saving, setSaving] = useState(false);
@@ -42,13 +45,16 @@ export default function EditStudentModal({ student, uniqueGroups, onClose }: Pro
         started: form.started,
         finished: form.finished || null,
         github_username: form.github_username.trim() || null,
+        exam_project_url: form.exam_project_url.trim() || null,
         notes: form.notes.trim() || null,
       }),
     });
     if (!res.ok) {
+      notify("Failed to update student", "error");
       setSaving(false);
       return;
     }
+    notify(`Student "${form.name.trim()}" updated`);
     setSaving(false);
     onClose();
     router.refresh();
@@ -129,6 +135,10 @@ export default function EditStudentModal({ student, uniqueGroups, onClose }: Pro
           <div>
             <label className={label}>GitHub Username</label>
             <input value={form.github_username} onChange={(e) => setForm((f) => ({ ...f, github_username: e.target.value }))} placeholder="username" className={field()} />
+          </div>
+          <div>
+            <label className={label}>Exam Project URL</label>
+            <input value={form.exam_project_url} onChange={(e) => setForm((f) => ({ ...f, exam_project_url: e.target.value }))} placeholder="https://github.com/..." className={field()} />
           </div>
           <div>
             <label className={label}>Notes</label>

@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import TopBar from "@/components/layout/TopBar";
 import HomeworkFilters from "./components/HomeworkFilters";
+import { useNotifications } from "@/contexts/notifications";
 import type { Homework } from "@/lib/types";
 import { downloadJSON, downloadCSV, downloadExcel } from "@/lib/import-export";
 import ImportExportButtons from "@/components/ui/ImportExportButtons";
@@ -1141,6 +1142,7 @@ export default function HomeworkClient({
 
   const completedCount = rows.filter((row) => row.displayStatus === "completed").length;
   const overallPct = rows.length > 0 ? Math.round((completedCount / rows.length) * 100) : 0;
+  const { add: notify } = useNotifications();
 
   async function persistHomework(
     method: "POST" | "PATCH",
@@ -1175,9 +1177,10 @@ export default function HomeworkClient({
     try {
       const updated = await persistHomework("PATCH", `/api/homework/${row.id}`, { status });
       upsertHomework(updated);
+      notify(`"${row.title}" marked ${status}`);
       saved = true;
     } catch {
-      // keep menu open for retry
+      notify("Failed to update homework status", "error");
     } finally {
       setActionBusyId(null);
       if (saved) setMenuAnchor(null);
@@ -1193,9 +1196,10 @@ export default function HomeworkClient({
         throw new Error(data.error ?? "Failed to delete homework");
       }
       setHomework((current) => current.filter((item) => item.id !== row.id));
+      notify(`Homework "${row.title}" deleted`);
       setMenuAnchor(null);
     } catch {
-      // no toast yet
+      notify("Failed to delete homework", "error");
     } finally {
       setActionBusyId(null);
     }
@@ -1386,6 +1390,8 @@ export default function HomeworkClient({
           types={types}
           onClose={() => setModalHomework(null)}
           onSaved={(saved) => {
+            const isNew = !homework.some((h) => h.id === saved.id);
+            notify(isNew ? `Homework "${saved.title}" added` : `Homework "${saved.title}" updated`);
             upsertHomework(saved);
             setModalHomework(null);
           }}

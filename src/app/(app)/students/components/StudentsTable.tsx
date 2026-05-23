@@ -10,6 +10,7 @@ import {
   Pencil,
   Trash2,
   X,
+  Star,
 } from "lucide-react";
 import type { StudentHomeworkRecord, Homework } from "@/lib/types";
 import {
@@ -615,6 +616,7 @@ export default function StudentsTable({
                 <SortTh label="Finished" sortKey="finished" currentKey={sortKey} dir={sortDir} onSort={onSort} />
               )}
               {col("github") && <th className={TH_BASE}>GitHub</th>}
+              {col("exam_project") && <th className={TH_BASE}>Exam Project</th>}
               {col("notes") && <th className={TH_BASE}>Notes</th>}
               <th className="px-6 py-3" />
             </tr>
@@ -718,6 +720,25 @@ export default function StudentsTable({
                       ) : (
                         <span className="text-[14px] text-text-muted">—</span>
                       )}
+                    </td>
+                  )}
+                  {col("exam_project") && (
+                    <td className="px-6 py-4">
+                      <div className="flex justify-center">
+                        {s.examProjectUrl ? (
+                          <a
+                            href={s.examProjectUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            title={s.examProjectUrl}
+                            className="text-warning hover:opacity-70 transition-opacity"
+                          >
+                            <Star size={18} fill="currentColor" />
+                          </a>
+                        ) : (
+                          <Star size={18} className="text-text-muted" />
+                        )}
+                      </div>
                     </td>
                   )}
                   {col("notes") && (

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X, Copy, Check } from "lucide-react";
 import type { Student } from "@/lib/types";
+import { useNotifications } from "@/contexts/notifications";
 
 interface GenerateLinkModalProps {
   student: Student;
@@ -16,6 +17,7 @@ const DURATION_PRESETS = [
 ];
 
 export default function GenerateLinkModal({ student, onClose }: GenerateLinkModalProps) {
+  const { add: notify } = useNotifications();
   const [selectedDuration, setSelectedDuration] = useState<number | null>(null);
   const [customHours, setCustomHours] = useState("");
   const [generatedLink, setGeneratedLink] = useState<string | null>(null);
@@ -49,8 +51,11 @@ export default function GenerateLinkModal({ student, onClose }: GenerateLinkModa
 
       const data = await response.json();
       setGeneratedLink(data.share_link);
+      notify(`Share link generated for ${student.name}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const msg = err instanceof Error ? err.message : "An error occurred";
+      setError(msg);
+      notify(msg, "error");
     } finally {
       setLoading(false);
     }
@@ -126,7 +131,7 @@ export default function GenerateLinkModal({ student, onClose }: GenerateLinkModa
                     setSelectedDuration(null);
                   }}
                   placeholder="e.g., 48"
-                  className="w-full bg-surface-container border border-white/10 rounded-lg px-4 py-2 text-white text-[14px] focus:ring-2 focus:ring-primary/20 outline-none"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white text-[14px] focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-text-muted"
                 />
               </div>
 

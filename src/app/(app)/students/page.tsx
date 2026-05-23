@@ -1,10 +1,7 @@
 import TopBar from "@/components/layout/TopBar";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import type { Student, StudentHomeworkRecord, Homework } from "@/lib/types";
-import StudentsClient, {
-  type StudentRow,
-  type StatItem,
-} from "./StudentsClient";
+import StudentsClient, { type StudentRow } from "./StudentsClient";
 
 export const dynamic = "force-dynamic";
 
@@ -137,6 +134,7 @@ export default async function StudentsPage() {
         started: s.started,
         finished: s.finished,
         githubUsername: s.github_username,
+        examProjectUrl: s.exam_project_url,
         notes: s.notes,
         homeworkRecords: records,
         statusRaw: s.status,
@@ -144,56 +142,13 @@ export default async function StudentsPage() {
     },
   );
 
-  const total = rows.length;
-  const avgProgress =
-    total > 0
-      ? Math.round(rows.reduce((sum, r) => sum + r.gradeNum, 0) / total)
-      : 0;
-  const onTrackCount = rows.filter((r) => r.gradeNum >= 70).length;
-  const atRiskCount = rows.filter((r) => r.gradeNum < 50).length;
-  const onTrackPct = total > 0 ? Math.round((onTrackCount / total) * 100) : 0;
-  const atRiskPct = total > 0 ? Math.round((atRiskCount / total) * 100) : 0;
-
-  const stats: StatItem[] = [
-    {
-      label: "On Track",
-      value: String(onTrackCount),
-      badge: `${onTrackPct}%`,
-      valueColor: "text-success",
-      badgeClasses: "bg-success-light text-success",
-    },
-    {
-      label: "At Risk",
-      value: String(atRiskCount),
-      badge: `${atRiskPct}%`,
-      valueColor: "text-error",
-      badgeClasses: "bg-error-light text-error",
-    },
-    {
-      label: "Avg. Progress",
-      value: `${avgProgress}%`,
-      badge: null,
-      valueColor: "text-primary",
-      badgeClasses: "",
-      iconName: "trending",
-    },
-    {
-      label: "Engagement",
-      value: avgProgress >= 80 ? "High" : avgProgress >= 60 ? "Good" : "Low",
-      badge: null,
-      valueColor: "text-secondary",
-      badgeClasses: "",
-      iconName: "zap",
-    },
-  ];
-
   const uniqueGroups = [...new Set((students ?? []).map((s) => s.group_name))];
 
   return (
     <div className="min-h-screen bg-surface">
       <TopBar breadcrumb={["Main Hub", "Students"]} />
       <section className="p-10">
-        <StudentsClient rows={rows} uniqueGroups={uniqueGroups} stats={stats} homeworks={homeworks ?? []} />
+        <StudentsClient rows={rows} uniqueGroups={uniqueGroups} homeworks={homeworks ?? []} />
       </section>
     </div>
   );

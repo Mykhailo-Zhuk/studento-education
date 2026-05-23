@@ -20,6 +20,7 @@ export async function POST(req: Request) {
         started: body.started,
         finished: body.finished ?? null,
         github_username: body.github_username ?? null,
+        exam_project_url: body.exam_project_url ?? null,
         notes: body.notes ?? null,
       })
       .select("*")

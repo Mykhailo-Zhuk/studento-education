@@ -8,7 +8,6 @@ import {
   Users,
   Calendar,
   GraduationCap,
-  Plus,
   ChevronLeft,
   PanelLeftClose,
   PanelLeftOpen,
@@ -16,9 +15,9 @@ import {
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/lessons", label: "Lessons", icon: Calendar },
   { href: "/homework", label: "Homework", icon: ClipboardList },
   { href: "/groups", label: "Groups", icon: Users },
-  { href: "/lessons", label: "Lessons", icon: Calendar },
   { href: "/students", label: "Students", icon: GraduationCap },
 ];
 
@@ -52,7 +51,7 @@ export default function Sidebar({
       >
         <div className={collapsed ? "md:hidden" : ""}>
           <h1 className="text-[22px] sm:text-[24px] font-bold leading-[1.3] text-primary-fixed">
-            EduOrchestrate
+            Studento Education
           </h1>
           <p className="text-[12px] text-text-muted mt-0.5">AI-Driven Learning</p>
         </div>
@@ -95,17 +94,6 @@ export default function Sidebar({
         })}
       </nav>
 
-      <div className="px-4 mt-auto">
-        <button
-          className={[
-            "w-full bg-primary-container text-on-primary-container py-3 rounded-lg font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity active:scale-95 text-[14px]",
-            collapsed ? "md:py-3 md:px-0" : "",
-          ].join(" ")}
-        >
-          <Plus size={18} />
-          <span className={collapsed ? "hidden" : ""}>New Session</span>
-        </button>
-      </div>
     </aside>
   );
 }

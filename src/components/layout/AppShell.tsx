@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
+import { NotificationsProvider } from "@/contexts/notifications";
 
 const STORAGE_KEY = "studento.sidebar.collapsed";
 
@@ -18,6 +19,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }, [sidebarCollapsed]);
 
   return (
+    <NotificationsProvider>
     <div className="min-h-screen bg-surface">
       <button
         onClick={() => setMobileOpen(true)}
@@ -47,5 +49,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {children}
       </div>
     </div>
+    </NotificationsProvider>
   );
 }

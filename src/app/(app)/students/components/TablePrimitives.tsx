@@ -2,8 +2,6 @@ import {
   ArrowUp,
   ArrowDown,
   Minus,
-  TrendingUp,
-  Zap,
   ChevronsUpDown,
 } from "lucide-react";
 import type { SortKey, SortDir } from "../types";
@@ -16,14 +14,6 @@ export function TrendIcon({ trend }: { trend: "up" | "down" | "flat" }) {
   if (trend === "down")
     return <ArrowDown size={14} className="text-error" />;
   return <Minus size={14} className="text-text-muted" />;
-}
-
-export function StatIcon({ iconName }: { iconName?: string }) {
-  if (iconName === "trending")
-    return <TrendingUp size={20} className="text-primary" />;
-  if (iconName === "zap")
-    return <Zap size={20} className="text-secondary" fill="#006b5f" />;
-  return null;
 }
 
 export const TH_BASE =

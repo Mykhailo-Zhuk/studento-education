@@ -8,6 +8,7 @@ export interface Student {
   started: string;
   finished: string | null;
   github_username: string | null;
+  exam_project_url: string | null;
   notes: string | null;
   created_at: string;
 }
