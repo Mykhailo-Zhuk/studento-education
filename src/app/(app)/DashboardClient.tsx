@@ -23,6 +23,7 @@ export default function DashboardClient({ students }: DashboardClientProps) {
 
   useEffect(() => {
     if (!selectedStudent) return;
+    const student = selectedStudent;
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
     async function fetchStudentData() {
@@ -31,18 +32,18 @@ export default function DashboardClient({ students }: DashboardClientProps) {
           fetch(`${baseUrl}/api/groups`).then((r) => r.json()) as Promise<Group[]>,
           fetch(`${baseUrl}/api/lessons`).then((r) => r.json()) as Promise<Lesson[]>,
           fetch(`${baseUrl}/api/homework`).then((r) => r.json()) as Promise<Homework[]>,
-          fetch(`${baseUrl}/api/students/${selectedStudent.id}/homework`).then((r) => r.json()) as Promise<StudentHomeworkRecord[]>,
+          fetch(`${baseUrl}/api/students/${student.id}/homework`).then((r) => r.json()) as Promise<StudentHomeworkRecord[]>,
         ]);
 
-        const group = groups.find((g) => g.name === selectedStudent.group_name);
-        const studentLessons = lessons.filter((l) => l.group_name === selectedStudent.group_name);
-        const studentRecords = records.filter((r) => r.student_id === selectedStudent.id);
+        const group = groups.find((g) => g.name === student.group_name);
+        const studentLessons = lessons.filter((l) => l.group_name === student.group_name);
+        const studentRecords = records.filter((r) => r.student_id === student.id);
         const studentHomework = homework.filter((hw) =>
           studentRecords.some((r) => r.homework_id === hw.id),
         );
 
         setSelectedStudentData({
-          student: selectedStudent,
+          student,
           group: group || null,
           lessons: studentLessons,
           homework: studentHomework,
