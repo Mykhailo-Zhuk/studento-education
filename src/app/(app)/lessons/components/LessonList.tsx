@@ -45,9 +45,78 @@ export default function LessonList({
                   <div className="flex-1 h-px bg-border-light" />
                 </div>
               )}
+              {/* Mobile card */}
+              <article
+                className={[
+                  "md:hidden bg-white border border-border-light rounded-xl shadow-sm overflow-hidden border-l-4",
+                  BORDER_COLOR[status],
+                  isCompleted ? "opacity-80" : "",
+                ].join(" ")}
+              >
+                <div className="flex items-center gap-3 px-4 py-3 border-b border-border-light">
+                  <div className="flex-1 min-w-0">
+                    <h3 className={`text-[15px] font-bold text-text-primary truncate ${isCompleted ? "line-through text-text-muted" : ""}`}>
+                      {lesson.title}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <StatusBadge status={status} />
+                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-surface-container text-primary font-semibold">
+                        {lesson.type}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      onMenuOpen(lesson.id, rect.bottom + 4, window.innerWidth - rect.right);
+                    }}
+                    className={`p-2 rounded-lg text-text-muted hover:text-primary hover:bg-surface-gray-light transition-colors shrink-0 ${openMenuId === lesson.id ? "bg-surface-container text-primary" : ""}`}
+                  >
+                    <MoreVertical size={16} />
+                  </button>
+                </div>
+                <div className="px-4 py-3 grid grid-cols-2 gap-x-4 gap-y-2 text-[13px]">
+                  <div>
+                    <span className="text-text-muted text-[11px]">Group</span>
+                    <p className="text-text-primary truncate">{lesson.group_name}</p>
+                  </div>
+                  <div>
+                    <span className="text-text-muted text-[11px]">Date</span>
+                    <p className="text-text-primary">{formatDisplayDate(lesson.date)}</p>
+                  </div>
+                  <div>
+                    <span className="text-text-muted text-[11px]">Duration</span>
+                    <p className="text-text-primary">{lesson.hours}h · {lesson.hours * 60} min</p>
+                  </div>
+                  <div>
+                    <span className="text-text-muted text-[11px]">Extras</span>
+                    <p className="flex gap-2 mt-0.5">
+                      {lesson.has_homework && <span className="text-[11px] text-warning font-semibold">📋 HW</span>}
+                      {lesson.has_feedback && <span className="text-[11px] text-success font-semibold">✓ FB</span>}
+                      {!lesson.has_homework && !lesson.has_feedback && <span className="text-text-muted">—</span>}
+                    </p>
+                  </div>
+                </div>
+                {(status !== "completed" || lesson.youtube_url || lesson.comment) && (
+                  <div className="px-4 py-2.5 border-t border-border-light flex flex-wrap items-center gap-3">
+                    {(status !== "completed" || lesson.youtube_url) && (
+                      <LessonAction
+                        status={status}
+                        youtubeUrl={lesson.youtube_url}
+                        onPrepareContent={() => onPrepareContent(lesson)}
+                      />
+                    )}
+                    {lesson.comment && (
+                      <span className="text-[12px] text-text-muted italic truncate">{lesson.comment}</span>
+                    )}
+                  </div>
+                )}
+              </article>
+
+              {/* Desktop card */}
               <div
                 className={[
-                  "bg-white/70 backdrop-blur-sm border border-border-light/80 rounded-xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row gap-4 sm:gap-6 md:items-center border-l-4",
+                  "hidden md:flex flex-col md:flex-row bg-white/70 backdrop-blur-sm border border-border-light/80 rounded-xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-all gap-4 sm:gap-6 md:items-center border-l-4",
                   BORDER_COLOR[status],
                   isCompleted ? "opacity-80" : "",
                 ].join(" ")}

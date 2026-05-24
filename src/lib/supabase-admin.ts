@@ -17,7 +17,7 @@ export type AdminFilterBuilder<T> = AdminListResponse<T> & {
   eq: (column: string, value: string) => AdminFilterBuilder<T>;
 };
 
-export type AdminQueryBuilder<T> = {
+export type AdminQueryBuilder<T> = AdminListResponse<T> & {
   order: (column: string, options?: { ascending?: boolean }) => AdminListResponse<T>;
   eq: (column: string, value: string) => AdminFilterBuilder<T>;
 };

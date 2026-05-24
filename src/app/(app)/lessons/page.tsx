@@ -13,7 +13,7 @@ export default async function LessonsPage() {
 
   return (
     <div className="min-h-screen bg-surface">
-      <TopBar breadcrumb={["Main Hub", "Lessons"]} />
+      <TopBar />
       <LessonsClient
         initialLessons={(lessons ?? [] as Lesson[]) as Lesson[]}
         groups={(groups ?? [] as Group[]) as Group[]}

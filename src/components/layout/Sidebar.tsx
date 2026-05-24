@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   PanelLeftClose,
   PanelLeftOpen,
+  Link2,
 } from "lucide-react";
 
 const navItems = [
@@ -20,6 +21,39 @@ const navItems = [
   { href: "/groups", label: "Groups", icon: Users },
   { href: "/students", label: "Students", icon: GraduationCap },
 ];
+
+function NavLink({
+  href,
+  label,
+  Icon,
+  active,
+  showLabels,
+  onClick,
+}: {
+  href: string;
+  label: string;
+  Icon: typeof Link2;
+  active: boolean;
+  showLabels: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className={[
+        "flex items-center rounded-lg text-[14px] transition-all duration-200 active:scale-95",
+        showLabels ? "gap-3 px-4 py-3" : "justify-center px-2 py-3",
+        active
+          ? "text-primary-fixed-dim bg-primary/10 border-l-4 border-primary"
+          : "text-text-muted hover:text-on-primary-fixed-variant hover:bg-surface-gray-dark/50",
+      ].join(" ")}
+    >
+      <Icon size={20} strokeWidth={1.5} />
+      <span className={showLabels ? "" : "hidden"}>{label}</span>
+    </Link>
+  );
+}
 
 export default function Sidebar({
   collapsed,
@@ -33,6 +67,7 @@ export default function Sidebar({
   onCloseMobile: () => void;
 }) {
   const pathname = usePathname();
+  const showLabels = mobileOpen || !collapsed;
 
   return (
     <aside
@@ -43,13 +78,14 @@ export default function Sidebar({
         "w-sidebar",
       ].join(" ")}
     >
+      {/* Header */}
       <div
         className={[
           "flex items-start gap-3 px-4 mb-6 transition-all",
-          collapsed ? "justify-center md:justify-center" : "justify-between",
+          showLabels ? "justify-between" : "justify-center",
         ].join(" ")}
       >
-        <div className={collapsed ? "md:hidden" : ""}>
+        <div className={showLabels ? "" : "md:hidden"}>
           <h1 className="text-[22px] sm:text-[24px] font-bold leading-[1.3] text-primary-fixed">
             Studento Education
           </h1>
@@ -71,29 +107,42 @@ export default function Sidebar({
         </button>
       </div>
 
+      {/* Main nav */}
       <nav className="flex-1 space-y-1 px-2 overflow-y-auto">
-        {navItems.map(({ href, label, icon: Icon }) => {
-          const active = pathname === href;
-          return (
-            <Link
-              key={href}
-              href={href}
-              onClick={onCloseMobile}
-              className={[
-                "flex items-center rounded-lg text-[14px] transition-all duration-200 active:scale-95",
-                collapsed ? "justify-center px-2 py-3" : "gap-3 px-4 py-3",
-                active
-                  ? "text-primary-fixed-dim bg-primary/10 border-l-4 border-primary"
-                  : "text-text-muted hover:text-on-primary-fixed-variant hover:bg-surface-gray-dark/50",
-              ].join(" ")}
-            >
-              <Icon size={20} strokeWidth={1.5} />
-              <span className={collapsed ? "hidden" : ""}>{label}</span>
-            </Link>
-          );
-        })}
+        {showLabels && (
+          <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+            Navigation
+          </p>
+        )}
+        {navItems.map(({ href, label, icon: Icon }) => (
+          <NavLink
+            key={href}
+            href={href}
+            label={label}
+            Icon={Icon}
+            active={pathname === href}
+            showLabels={showLabels}
+            onClick={onCloseMobile}
+          />
+        ))}
       </nav>
 
+      {/* Bottom section: Student Access */}
+      <div className="px-2 pt-3 mt-3 border-t border-border-dark shrink-0">
+        {showLabels && (
+          <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+            Sharing
+          </p>
+        )}
+        <NavLink
+          href="/student-access"
+          label="Student Access"
+          Icon={Link2}
+          active={pathname === "/student-access"}
+          showLabels={showLabels}
+          onClick={onCloseMobile}
+        />
+      </div>
     </aside>
   );
 }

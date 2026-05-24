@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { UserPlus, Zap } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { downloadJSON, downloadCSV, downloadExcel } from "@/lib/import-export";
 import ImportExportButtons from "@/components/ui/ImportExportButtons";
 import {
@@ -28,7 +28,11 @@ interface Props {
   homeworks: Homework[];
 }
 
-export default function StudentsClient({ rows, uniqueGroups, homeworks }: Props) {
+export default function StudentsClient({
+  rows,
+  uniqueGroups,
+  homeworks,
+}: Props) {
   const [search, setSearch] = useState("");
   const [groupFilter, setGroupFilter] = useState("All Groups");
   const [gradeFilter, setGradeFilter] = useState("All Grades");
@@ -40,7 +44,9 @@ export default function StudentsClient({ rows, uniqueGroups, homeworks }: Props)
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [editingStudent, setEditingStudent] = useState<StudentRow | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [localRecords, setLocalRecords] = useState<Record<string, StudentHomeworkRecord[]>>({});
+  const [localRecords, setLocalRecords] = useState<
+    Record<string, StudentHomeworkRecord[]>
+  >({});
 
   function toggleCol(id: ColumnId) {
     setVisibleCols((prev) => {
@@ -69,9 +75,12 @@ export default function StudentsClient({ rows, uniqueGroups, homeworks }: Props)
       [studentId]: current.filter((r) => r.id !== recordId),
     }));
     try {
-      const res = await fetch(`/api/students/${studentId}/homework/${recordId}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `/api/students/${studentId}/homework/${recordId}`,
+        {
+          method: "DELETE",
+        },
+      );
       if (!res.ok) {
         setLocalRecords((prev) => ({ ...prev, [studentId]: current }));
       }
@@ -80,7 +89,12 @@ export default function StudentsClient({ rows, uniqueGroups, homeworks }: Props)
     }
   }
 
-  async function handleHomeworkAdd(id: string, completed: boolean, date: string, homeworkId: string | null) {
+  async function handleHomeworkAdd(
+    id: string,
+    completed: boolean,
+    date: string,
+    homeworkId: string | null,
+  ) {
     const tempId = `tmp-${id}-${Date.now()}`;
     const tempRecord: StudentHomeworkRecord = {
       id: tempId,
@@ -93,7 +107,10 @@ export default function StudentsClient({ rows, uniqueGroups, homeworks }: Props)
 
     setLocalRecords((prev) => ({
       ...prev,
-      [id]: [...(prev[id] ?? rows.find((r) => r.id === id)?.homeworkRecords ?? []), tempRecord],
+      [id]: [
+        ...(prev[id] ?? rows.find((r) => r.id === id)?.homeworkRecords ?? []),
+        tempRecord,
+      ],
     }));
 
     try {
@@ -129,15 +146,48 @@ export default function StudentsClient({ rows, uniqueGroups, homeworks }: Props)
     setPage(1);
   }
 
-  const EXPORT_HEADERS = ["Name", "Telegram", "Group", "Type", "Status", "Started", "Finished", "GitHub", "Notes"];
+  const EXPORT_HEADERS = [
+    "Name",
+    "Telegram",
+    "Group",
+    "Type",
+    "Status",
+    "Started",
+    "Finished",
+    "GitHub",
+    "Notes",
+  ];
 
   function getExportRows() {
-    return rows.map((r) => [r.name, r.contact, r.group, r.type, r.statusLabel, r.started, r.finished ?? "", r.githubUsername ?? "", r.notes ?? ""]);
+    return rows.map((r) => [
+      r.name,
+      r.contact,
+      r.group,
+      r.type,
+      r.statusLabel,
+      r.started,
+      r.finished ?? "",
+      r.githubUsername ?? "",
+      r.notes ?? "",
+    ]);
   }
 
   function handleExport(format: "json" | "csv" | "excel") {
     if (format === "json") {
-      downloadJSON(rows.map((r) => ({ name: r.name, telegram: r.contact, group_name: r.group, type: r.type, status: r.statusLabel, started: r.started, finished: r.finished ?? null, github_username: r.githubUsername ?? null, notes: r.notes ?? null })), "students");
+      downloadJSON(
+        rows.map((r) => ({
+          name: r.name,
+          telegram: r.contact,
+          group_name: r.group,
+          type: r.type,
+          status: r.statusLabel,
+          started: r.started,
+          finished: r.finished ?? null,
+          github_username: r.githubUsername ?? null,
+          notes: r.notes ?? null,
+        })),
+        "students",
+      );
     } else if (format === "csv") {
       downloadCSV(EXPORT_HEADERS, getExportRows(), "students");
     } else {
@@ -156,7 +206,10 @@ export default function StudentsClient({ rows, uniqueGroups, homeworks }: Props)
           group_name: row["Group"] ?? row["group_name"] ?? "",
           type: row["Type"] ?? row["type"] ?? "",
           status: row["Status"] ?? row["status"] ?? "active",
-          started: row["Started"] ?? row["started"] ?? new Date().toISOString().slice(0, 10),
+          started:
+            row["Started"] ??
+            row["started"] ??
+            new Date().toISOString().slice(0, 10),
           finished: row["Finished"] ?? row["finished"] ?? null,
           github_username: row["GitHub"] ?? row["github_username"] ?? null,
           notes: row["Notes"] ?? row["notes"] ?? null,
@@ -217,12 +270,17 @@ export default function StudentsClient({ rows, uniqueGroups, homeworks }: Props)
               {rows.filter((r) => r.statusRaw === "In progress").length}
             </span>{" "}
             active of{" "}
-            <span className="font-semibold text-text-primary">{rows.length}</span>{" "}
+            <span className="font-semibold text-text-primary">
+              {rows.length}
+            </span>{" "}
             total students
           </p>
         </div>
         <div className="flex flex-wrap gap-3 items-center w-full lg:w-auto">
-          <ImportExportButtons onExport={handleExport} onImport={handleImport} />
+          <ImportExportButtons
+            onExport={handleExport}
+            onImport={handleImport}
+          />
           <button
             onClick={() => setShowAddModal(true)}
             className="px-4 py-3 bg-primary text-white rounded-lg text-[14px] font-semibold flex items-center justify-center gap-2 shadow-lg hover:bg-primary-hover transition-colors"
@@ -272,13 +330,6 @@ export default function StudentsClient({ rows, uniqueGroups, homeworks }: Props)
         onHomeworkDelete={handleHomeworkDelete}
         homeworks={homeworks}
       />
-
-      <button className="fixed bottom-10 right-10 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-50 group">
-        <Zap size={24} fill="white" />
-        <span className="absolute right-16 bg-bg-dark text-white px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-[14px] pointer-events-none">
-          Ask AI Assistant
-        </span>
-      </button>
 
       {showAddModal && (
         <AddStudentModal

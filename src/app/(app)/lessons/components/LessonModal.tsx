@@ -114,7 +114,7 @@ export default function LessonModal({ lesson, groups, onClose, onSaved }: Props)
             <input required value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="Lesson title" className={inputCls} />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-[13px] font-semibold text-text-secondary mb-1">Date *</label>
               <input required type="date" value={form.date} onChange={(e) => set("date", e.target.value)} className={inputCls} />
@@ -125,7 +125,7 @@ export default function LessonModal({ lesson, groups, onClose, onSaved }: Props)
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-[13px] font-semibold text-text-secondary mb-1">Group *</label>
               <CustomSelect

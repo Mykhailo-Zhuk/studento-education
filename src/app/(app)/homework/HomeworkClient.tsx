@@ -19,7 +19,6 @@ import {
   Plus,
   Terminal,
   Trash2,
-  TrendingUp,
   X,
 } from "lucide-react";
 import TopBar from "@/components/layout/TopBar";
@@ -1134,8 +1133,6 @@ export default function HomeworkClient({
     [filteredRows, effectiveSelectedId],
   );
 
-  const completedCount = rows.filter((row) => row.displayStatus === "completed").length;
-  const overallPct = rows.length > 0 ? Math.round((completedCount / rows.length) * 100) : 0;
   const { add: notify } = useNotifications();
 
   async function persistHomework(
@@ -1249,12 +1246,12 @@ export default function HomeworkClient({
   }
 
   return (
-    <div className="h-screen flex flex-col bg-surface-gray-light overflow-hidden">
-      <TopBar breadcrumb={["Main Hub", "Homework"]} />
+    <div className="min-h-screen md:h-screen flex flex-col bg-surface-gray-light md:overflow-hidden">
+      <TopBar onSearch={() => {}} />
 
       {/* Header + filters */}
       <div className="px-4 sm:px-6 pt-4 sm:pt-5 shrink-0">
-        <div className="flex items-end justify-between gap-4 mb-3">
+        <div className="flex flex-wrap items-end justify-between gap-3 mb-3">
           <div>
             <h1 className="text-2xl sm:text-[28px] font-bold text-text-primary tracking-tight">
               Homework Overview
@@ -1263,22 +1260,8 @@ export default function HomeworkClient({
               Manage and track assignments across all learning groups.
             </p>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <ImportExportButtons onExport={handleExport} onImport={handleImport} />
-            <div className="bg-primary text-white rounded-xl px-4 py-2.5 flex items-center gap-3 shrink-0 relative overflow-hidden">
-              <div className="relative z-10">
-                <p className="text-[10px] font-semibold uppercase tracking-wide opacity-80">
-                  Completion
-                </p>
-                <p className="text-[22px] font-black leading-none">
-                  {overallPct}%{" "}
-                  <span className="text-[11px] font-normal opacity-80">
-                    {completedCount}/{rows.length}
-                  </span>
-                </p>
-              </div>
-              <TrendingUp size={48} className="absolute -right-2 -bottom-2 opacity-15" />
-            </div>
           </div>
         </div>
         <HomeworkFilters
@@ -1297,9 +1280,9 @@ export default function HomeworkClient({
       </div>
 
       {/* Two-pane area */}
-      <div className="flex-1 overflow-hidden mx-4 sm:mx-6 my-4 flex bg-white border border-border-light rounded-xl shadow-sm">
+      <div className="flex-1 md:overflow-hidden mx-3 sm:mx-6 my-3 sm:my-4 flex flex-col md:flex-row bg-white border border-border-light rounded-xl shadow-sm">
         {/* Left: compact list */}
-        <div className="w-[35vw] min-w-55 max-w-105 border-r border-border-light overflow-y-auto shrink-0 flex flex-col">
+        <div className="h-64 md:h-auto w-full md:w-[35vw] md:min-w-[220px] md:max-w-[420px] border-b border-border-light md:border-b-0 md:border-r overflow-y-auto md:shrink-0 flex flex-col">
           {filteredRows.length === 0 ? (
             <p className="p-4 text-[12px] text-text-muted text-center mt-8">
               No homework matches the current filters.
@@ -1357,7 +1340,7 @@ export default function HomeworkClient({
         </div>
 
         {/* Right: content panel */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-y-auto md:overflow-hidden">
           {selectedRow ? (
             <ContentPanel row={selectedRow} />
           ) : (
@@ -1371,7 +1354,7 @@ export default function HomeworkClient({
       {/* FAB: add homework */}
       <button
         onClick={() => setModalHomework({} as Homework)}
-        className="fixed bottom-6 right-6 lg:bottom-10 lg:right-10 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-50"
+        className="fixed bottom-24 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-50"
       >
         <Plus size={24} />
       </button>

@@ -498,95 +498,108 @@ export default function StudentsTable({
           paginated.map((s) => (
             <article
               key={s.id}
-              className="bg-white rounded-2xl border border-border-light shadow-sm p-4 space-y-4"
+              className="bg-white rounded-xl border border-border-light shadow-sm"
             >
-              <div className="flex items-start gap-3">
+              {/* Header */}
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-border-light">
                 <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center text-white text-[13px] font-bold shrink-0"
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[12px] font-bold shrink-0"
                   style={{ background: `linear-gradient(135deg, ${s.gradientFrom}, ${s.gradientTo})` }}
                 >
                   {s.initials}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-[16px] font-semibold text-text-primary truncate">{s.name}</h3>
-                  <p className="text-[12px] text-text-muted truncate">{s.contact}</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <span className={`px-3 py-1 rounded-full text-[12px] whitespace-nowrap ${s.groupColor}`}>
-                      {s.group}
-                    </span>
-                    <span
-                      className={`px-3 py-1 rounded-full text-[12px] whitespace-nowrap ${TYPE_COLOR[s.type] ?? "bg-gray-50 text-gray-500 border border-gray-200"}`}
-                    >
-                      {s.type}
-                    </span>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-[15px] font-bold text-text-primary truncate">{s.name}</h3>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${s.groupColor}`}>{s.group}</span>
+                    <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${TYPE_COLOR[s.type] ?? "bg-gray-50 text-gray-500 border border-gray-200"}`}>{s.type}</span>
                   </div>
+                </div>
+                <div
+                  className="relative shrink-0"
+                  ref={openMenuId === s.id ? menuRef : null}
+                >
+                  <button
+                    onClick={() => setOpenMenuId(openMenuId === s.id ? null : s.id)}
+                    className="p-2 rounded-lg text-text-muted hover:text-primary hover:bg-surface-gray-light transition-colors"
+                  >
+                    <MoreVertical size={16} />
+                  </button>
+                  {openMenuId === s.id && (
+                    <div
+                      className="absolute right-0 top-9 z-20 bg-white border border-border-light rounded-lg shadow-lg py-1 min-w-32"
+                      onMouseDown={(e) => e.stopPropagation()}
+                    >
+                      <button
+                        onClick={() => { onEdit(s); setOpenMenuId(null); }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-[14px] text-text-primary hover:bg-surface-gray-light"
+                      >
+                        <Pencil size={14} className="text-text-secondary" /> Edit
+                      </button>
+                      <button
+                        onClick={() => { onDelete(s.id); setOpenMenuId(null); }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-[14px] text-error hover:bg-error-light"
+                      >
+                        <Trash2 size={14} /> Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 text-[13px]">
+              {/* Grid */}
+              <div className="px-4 py-3 grid grid-cols-2 gap-x-4 gap-y-2 text-[13px]">
                 <div>
-                  <p className="text-text-muted uppercase tracking-wider text-[10px] font-semibold">HW Score</p>
-                  <div className="mt-1 flex items-center gap-2">
+                  <span className="text-text-muted text-[11px]">HW Score</span>
+                  <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="font-semibold text-text-primary">{s.grade}</span>
                     <TrendIcon trend={s.gradeTrend} />
                     <span className="text-[11px] text-text-muted">({effectiveRecords(s).length})</span>
                   </div>
-                  <div className="mt-2">
-                    <HwCell s={s} />
-                  </div>
                 </div>
                 <div>
-                  <p className="text-text-muted uppercase tracking-wider text-[10px] font-semibold">Status</p>
-                  <div className="mt-1 flex items-center gap-1.5">
+                  <span className="text-text-muted text-[11px]">Status</span>
+                  <div className="flex items-center gap-1.5 mt-0.5">
                     <span className={`w-2 h-2 rounded-full shrink-0 ${s.statusDot}`} />
                     <span className={`font-semibold ${s.statusColor}`}>{s.statusLabel}</span>
                   </div>
                 </div>
                 <div>
-                  <p className="text-text-muted uppercase tracking-wider text-[10px] font-semibold">Started</p>
-                  <p className="mt-1 text-text-secondary">{formatDisplayDate(s.started)}</p>
+                  <span className="text-text-muted text-[11px]">Started</span>
+                  <p className="text-text-primary mt-0.5">{formatDisplayDate(s.started)}</p>
                 </div>
                 <div>
-                  <p className="text-text-muted uppercase tracking-wider text-[10px] font-semibold">Finished</p>
-                  <p className="mt-1 text-text-secondary">{formatDisplayDate(s.finished)}</p>
+                  <span className="text-text-muted text-[11px]">Finished</span>
+                  <p className="text-text-primary mt-0.5">{formatDisplayDate(s.finished)}</p>
                 </div>
               </div>
 
-              <div className="space-y-2 text-[13px]">
-                <div className="truncate">
-                  <span className="text-text-muted">GitHub: </span>
-                  {s.githubUsername ? (
-                    <a
-                      href={`https://github.com/${s.githubUsername}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-primary underline"
-                    >
+              {/* Footer */}
+              <div className="px-4 py-3 border-t border-border-light space-y-2 text-[13px]">
+                <div className="flex items-center gap-2">
+                  <span className="text-text-muted text-[11px] shrink-0">Homework</span>
+                  <HwCell s={s} />
+                </div>
+                {s.contact && (
+                  <div className="truncate">
+                    <span className="text-text-muted text-[11px]">Telegram </span>
+                    <span className="text-text-secondary">{s.contact}</span>
+                  </div>
+                )}
+                {s.githubUsername && (
+                  <div className="truncate">
+                    <span className="text-text-muted text-[11px]">GitHub </span>
+                    <a href={`https://github.com/${s.githubUsername}`} target="_blank" rel="noreferrer" className="text-primary hover:underline">
                       {s.githubUsername}
                     </a>
-                  ) : (
-                    <span className="text-text-secondary">—</span>
-                  )}
-                </div>
-                <div>
-                  <span className="text-text-muted">Notes: </span>
-                  <span className="text-text-secondary">{s.notes ?? "—"}</span>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <button
-                  onClick={() => onEdit(s)}
-                  className="px-4 py-2 rounded-xl border border-border-light text-[13px] font-semibold text-text-primary hover:bg-surface-gray-light transition-colors"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => onDelete(s.id)}
-                  className="px-4 py-2 rounded-xl border border-error text-[13px] font-semibold text-error hover:bg-error-light transition-colors"
-                >
-                  Delete
-                </button>
+                  </div>
+                )}
+                {s.notes && (
+                  <div>
+                    <span className="text-text-muted text-[11px]">Notes </span>
+                    <span className="text-text-secondary">{s.notes}</span>
+                  </div>
+                )}
               </div>
             </article>
           ))

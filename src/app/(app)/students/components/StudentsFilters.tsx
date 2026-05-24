@@ -47,8 +47,8 @@ export default function StudentsFilters({
   }, [colPickerOpen]);
 
   return (
-    <div className="bg-white p-4 rounded-xl border border-border-light shadow-sm mb-6 flex flex-wrap gap-3 items-center justify-between">
-      <div className="flex flex-1 min-w-[300px] items-center gap-3 px-3 py-2 bg-surface-gray-light border border-border-light rounded-lg">
+    <div className="bg-white p-3 sm:p-4 rounded-xl border border-border-light shadow-sm mb-6 flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:items-center justify-between">
+      <div className="flex flex-1 min-w-0 sm:min-w-[280px] items-center gap-3 px-3 py-2 bg-surface-gray-light border border-border-light rounded-lg">
         <Search size={16} className="text-text-muted" />
         <input
           type="text"
@@ -58,7 +58,7 @@ export default function StudentsFilters({
           className="bg-transparent border-none focus:ring-0 w-full text-[14px] outline-none placeholder:text-text-muted"
         />
       </div>
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-2 sm:gap-3">
         <div className="min-w-36">
           <CustomSelect
             value={groupFilter}

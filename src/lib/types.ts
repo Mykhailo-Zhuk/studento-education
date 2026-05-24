@@ -77,3 +77,38 @@ export interface StudentBundle {
   homework: Homework[];
   studentHomeworkRecords: StudentHomeworkRecord[];
 }
+
+export interface PublicStudentInfo {
+  id: string;
+  name: string;
+  status: string;
+  completedCount: number;
+  totalCount: number;
+  completionPct: number;
+}
+
+export interface StudentPrivateProfile {
+  id: string;
+  name: string;
+  github_username: string | null;
+  started: string;
+}
+
+export interface StudentHomeworkDetail {
+  homeworkId: string;
+  title: string;
+  date: string;
+  completed: boolean;
+}
+
+export interface GroupBundle {
+  type: "group";
+  group: Group;
+  students: PublicStudentInfo[];
+  lessons: Lesson[];
+  homework: Homework[];
+  expiresAt: string;
+  // Only present when ?student_id= is provided
+  privateStudent?: StudentPrivateProfile;
+  studentHomeworkDetails?: StudentHomeworkDetail[];
+}

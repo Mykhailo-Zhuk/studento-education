@@ -1,21 +1,38 @@
 "use client";
 
-import { Filter } from "lucide-react";
+import { Filter, Search } from "lucide-react";
 import { GROUP_TYPES } from "../types";
 
 interface Props {
   filterType: string | null;
   onChange: (value: string | null) => void;
   shownCount: number;
+  search: string;
+  onSearchChange: (v: string) => void;
 }
 
 export default function GroupFilters({
   filterType,
   onChange,
   shownCount,
+  search,
+  onSearchChange,
 }: Props) {
   return (
-    <div className="flex flex-wrap gap-3 mb-6">
+    <div className="flex flex-col gap-3 mb-6">
+      {/* Search row */}
+      <div className="flex items-center gap-3 px-3 py-2 bg-white border border-border-light rounded-lg">
+        <Search size={16} className="text-text-muted shrink-0" />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+          placeholder="Search groups..."
+          className="bg-transparent outline-none text-[14px] flex-1 placeholder:text-text-muted"
+        />
+      </div>
+      {/* Type filters row */}
+      <div className="flex flex-wrap gap-3 items-center">
       <button
         type="button"
         onClick={() => onChange(null)}
@@ -47,10 +64,7 @@ export default function GroupFilters({
         </button>
       ))}
 
-      <div className="ml-auto flex items-center gap-3">
-        <span className="text-[12px] text-text-muted">
-          Showing {shownCount} group{shownCount !== 1 ? "s" : ""}
-        </span>
+        <span className="ml-auto text-[12px] text-text-muted">Showing {shownCount}</span>
       </div>
     </div>
   );

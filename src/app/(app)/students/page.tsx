@@ -146,8 +146,8 @@ export default async function StudentsPage() {
 
   return (
     <div className="min-h-screen bg-surface">
-      <TopBar breadcrumb={["Main Hub", "Students"]} />
-      <section className="p-10">
+      <TopBar />
+      <section className="p-3 sm:p-6 lg:p-10">
         <StudentsClient rows={rows} uniqueGroups={uniqueGroups} homeworks={homeworks ?? []} />
       </section>
     </div>

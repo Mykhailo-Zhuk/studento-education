@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import {
   Bell,
   Settings,
-  ChevronRight,
   Search,
   X,
   CheckCircle2,
@@ -19,7 +18,6 @@ import { useNotifications, type Notification } from "@/contexts/notifications";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface TopBarProps {
-  breadcrumb?: string[];
   tabs?: { label: string; active?: boolean }[];
   rightContent?: React.ReactNode;
   searchPlaceholder?: string;
@@ -130,7 +128,6 @@ function SettingsModal({ onClose }: { onClose: () => void }) {
 }
 
 export default function TopBar({
-  breadcrumb,
   tabs,
   rightContent,
   searchPlaceholder,
@@ -171,21 +168,9 @@ export default function TopBar({
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full h-16 bg-surface/80 backdrop-blur-md border-b border-border-light shadow-sm flex items-center justify-between px-10">
+      <header className="sticky top-0 z-40 w-full h-16 bg-surface/80 backdrop-blur-md border-b border-border-light shadow-sm flex items-center justify-between px-4 sm:px-10">
         {/* Left */}
         <div className="flex items-center gap-6">
-          {breadcrumb && breadcrumb.length > 0 && (
-            <nav className="flex items-center gap-1 text-[14px] text-text-muted">
-              {breadcrumb.map((crumb, i) => (
-                <span key={crumb} className="flex items-center gap-1">
-                  {i > 0 && <ChevronRight size={14} className="text-text-muted" />}
-                  <span className={i === breadcrumb.length - 1 ? "text-primary font-bold" : ""}>
-                    {crumb}
-                  </span>
-                </span>
-              ))}
-            </nav>
-          )}
           {tabs && (
             <nav className="hidden md:flex gap-6">
               {tabs.map((tab) => (
@@ -237,7 +222,7 @@ export default function TopBar({
             </button>
 
             {showNotifs && (
-              <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-border-light rounded-2xl shadow-xl overflow-hidden z-50">
+              <div className="absolute right-0 top-full mt-2 w-80 max-w-[calc(100vw-2rem)] bg-white border border-border-light rounded-2xl shadow-xl overflow-hidden z-50">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-border-light">
                   <span className="text-[13px] font-bold text-text-primary">Notifications</span>
                   {notifications.length > 0 && (

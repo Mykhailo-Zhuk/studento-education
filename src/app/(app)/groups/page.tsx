@@ -18,7 +18,7 @@ import {
   type GroupRow,
   type MenuAnchor,
 } from "./types";
-import { UserPlus, Zap } from "lucide-react";
+import { Plus, UserPlus } from "lucide-react";
 import { downloadJSON, downloadCSV, downloadExcel } from "@/lib/import-export";
 import ImportExportButtons from "@/components/ui/ImportExportButtons";
 
@@ -183,10 +183,32 @@ export default function GroupsPage() {
     }
   }
 
-  const GROUP_HEADERS = ["Name", "Type", "Status", "Members", "Started", "Finished", "Schedule", "Journal URL", "Telegram URL", "Notes"];
+  const GROUP_HEADERS = [
+    "Name",
+    "Type",
+    "Status",
+    "Members",
+    "Started",
+    "Finished",
+    "Schedule",
+    "Journal URL",
+    "Telegram URL",
+    "Notes",
+  ];
 
   function getGroupRows() {
-    return groups.map((g) => [g.name, g.type, g.status, g.members ?? "", g.started, g.finished ?? "", g.schedule_time ?? "", g.journal_url ?? "", g.telegram_url ?? "", g.notes ?? ""]);
+    return groups.map((g) => [
+      g.name,
+      g.type,
+      g.status,
+      g.members ?? "",
+      g.started,
+      g.finished ?? "",
+      g.schedule_time ?? "",
+      g.journal_url ?? "",
+      g.telegram_url ?? "",
+      g.notes ?? "",
+    ]);
   }
 
   function handleExport(format: "json" | "csv" | "excel") {
@@ -209,7 +231,10 @@ export default function GroupsPage() {
           type: row["Type"] ?? row["type"] ?? "",
           status: row["Status"] ?? row["status"] ?? "active",
           members: row["Members"] ?? row["members"] ?? null,
-          started: row["Started"] ?? row["started"] ?? new Date().toISOString().slice(0, 10),
+          started:
+            row["Started"] ??
+            row["started"] ??
+            new Date().toISOString().slice(0, 10),
           finished: row["Finished"] ?? row["finished"] ?? null,
           schedule_time: row["Schedule"] ?? row["schedule_time"] ?? null,
           journal_url: row["Journal URL"] ?? row["journal_url"] ?? null,
@@ -223,11 +248,7 @@ export default function GroupsPage() {
 
   return (
     <div className="min-h-screen bg-surface">
-      <TopBar
-        breadcrumb={["Main Hub", "Groups"]}
-        searchPlaceholder="Search groups..."
-        onSearch={setSearch}
-      />
+      <TopBar onSearch={() => {}} />
 
       <section className="p-4 sm:p-6 lg:p-10">
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-end mb-6 sm:mb-8 gap-4">
@@ -237,15 +258,23 @@ export default function GroupsPage() {
             </h2>
             <p className="text-[13px] sm:text-[14px] text-text-secondary mt-1">
               <span className="font-semibold text-text-primary">
-                {groups.filter((g) => g.status.toLowerCase() !== "finished").length}
+                {
+                  groups.filter((g) => g.status.toLowerCase() !== "finished")
+                    .length
+                }
               </span>{" "}
               active of{" "}
-              <span className="font-semibold text-text-primary">{groups.length}</span>{" "}
+              <span className="font-semibold text-text-primary">
+                {groups.length}
+              </span>{" "}
               total groups
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-            <ImportExportButtons onExport={handleExport} onImport={handleImport} />
+            <ImportExportButtons
+              onExport={handleExport}
+              onImport={handleImport}
+            />
             <button
               onClick={openCreate}
               className="bg-primary hover:bg-primary-hover text-white px-6 py-3 rounded-lg text-[14px] font-semibold flex items-center justify-center gap-2 shadow-lg transition-colors"
@@ -260,6 +289,8 @@ export default function GroupsPage() {
           filterType={filterType}
           onChange={setFilterType}
           shownCount={rows.length}
+          search={search}
+          onSearchChange={setSearch}
         />
 
         <GroupsTable
@@ -269,14 +300,13 @@ export default function GroupsPage() {
           onShowTooltip={showCellTooltip}
           onHideTooltip={hideCellTooltip}
         />
-
       </section>
 
       <button
         onClick={openCreate}
-        className="fixed bottom-12 right-12 bg-primary text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-50"
+        className="fixed bottom-24 right-6 bg-primary text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-50"
       >
-        <Zap size={24} />
+        <Plus size={24} />
       </button>
 
       <GroupActionMenu

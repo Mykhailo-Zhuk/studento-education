@@ -37,7 +37,7 @@ export default function HomeworkDetailClient({
 
   return (
     <div className="min-h-screen bg-surface-gray-light">
-      <TopBar breadcrumb={["Main Hub", "Homework"]} />
+      <TopBar onSearch={() => {}} />
 
       <main className="p-10">
         {/* Breadcrumb + header */}
@@ -201,7 +201,7 @@ export default function HomeworkDetailClient({
       </main>
 
       {/* FAB */}
-      <button className="fixed bottom-10 right-10 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-50">
+      <button className="fixed bottom-24 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-50">
         <Bot size={24} />
       </button>
     </div>

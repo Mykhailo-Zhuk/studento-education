@@ -27,107 +27,39 @@ export default function GroupsTable({
 }: Props) {
   return (
     <>
-      <div className="md:hidden space-y-4">
-        {loading && (
-          <div className="bg-white border border-border-light rounded-xl p-4 text-center text-[14px] text-text-muted">
-            Loading…
-          </div>
-        )}
-        {!loading && rows.length === 0 && (
-          <div className="bg-white border border-border-light rounded-xl p-4 text-center text-[14px] text-text-muted">
-            No groups found.
-          </div>
-        )}
+      <div className="md:hidden space-y-3">
+        {loading && <p className="text-center text-[14px] text-text-muted py-8">Loading…</p>}
+        {!loading && rows.length === 0 && <p className="text-center text-[14px] text-text-muted py-8">No groups found.</p>}
         {rows.map((g) => (
-          <article
-            key={g.id}
-            className="bg-white border border-border-light rounded-2xl shadow-sm p-4 space-y-4"
-          >
-            <div className="flex items-start gap-3">
-              <div
-                className={`w-12 h-12 rounded-xl ${g.iconBg} flex items-center justify-center ${g.iconColor} shrink-0`}
-              >
-                <g.icon size={22} />
+          <article key={g.id} className="bg-white border border-border-light rounded-xl shadow-sm overflow-hidden">
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-border-light">
+              <div className={`w-9 h-9 rounded-lg ${g.iconBg} flex items-center justify-center ${g.iconColor} shrink-0`}>
+                <g.icon size={18} />
               </div>
-              <div className="min-w-0 flex-1">
-                <h3 className="text-[16px] font-bold text-text-primary truncate">
-                  {g.name}
-                </h3>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <span className={`text-[12px] px-3 py-1 rounded-full font-semibold ${g.typeClasses}`}>
-                    {g.type}
-                  </span>
-                  <span
-                    className={`text-[12px] px-3 py-1 rounded-full font-semibold ${
-                      g.isActive
-                        ? "bg-success-light text-success"
-                        : "bg-[#f1f5f9] text-text-muted"
-                    }`}
-                  >
-                    {g.status}
-                  </span>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-[15px] font-bold text-text-primary truncate">{g.name}</h3>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${g.typeClasses}`}>{g.type}</span>
+                  <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${g.isActive ? "bg-success-light text-success" : "bg-surface-gray-light text-text-muted"}`}>{g.status}</span>
                 </div>
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3 text-[13px]">
-              <div>
-                <p className="text-text-muted uppercase tracking-wider text-[10px] font-semibold">
-                  Members
-                </p>
-                <p className="text-text-primary mt-1 truncate">{g.members}</p>
-              </div>
-              <div>
-                <p className="text-text-muted uppercase tracking-wider text-[10px] font-semibold">
-                  Started
-                </p>
-                <p className="text-text-primary mt-1">{g.started}</p>
-              </div>
-              <div>
-                <p className="text-text-muted uppercase tracking-wider text-[10px] font-semibold">
-                  Finished
-                </p>
-                <p className="text-text-primary mt-1">{g.finished}</p>
-              </div>
-              <div>
-                <p className="text-text-muted uppercase tracking-wider text-[10px] font-semibold">
-                  Schedule
-                </p>
-                <p className="text-text-primary mt-1 truncate">{g.schedule}</p>
-              </div>
-            </div>
-            <div className="space-y-2 text-[13px]">
-              <div className="truncate">
-                <span className="text-text-muted">Journal: </span>
-                {g.journalUrl ? (
-                  <a className="text-primary underline" href={g.journalUrl} target="_blank" rel="noopener noreferrer">
-                    Open
-                  </a>
-                ) : (
-                  <span className="text-text-secondary">—</span>
-                )}
-              </div>
-              <div className="truncate">
-                <span className="text-text-muted">Telegram: </span>
-                {g.telegramUrl ? (
-                  <a className="text-primary underline" href={g.telegramUrl} target="_blank" rel="noopener noreferrer">
-                    Open
-                  </a>
-                ) : (
-                  <span className="text-text-secondary">—</span>
-                )}
-              </div>
-              <p className="text-text-secondary line-clamp-3">
-                {g.notes}
-              </p>
-            </div>
-            <div className="flex justify-end">
-              <button
-                onClick={(e) => onOpenMenu(e, g.group)}
-                className="px-4 py-2 rounded-xl border border-border-light text-[13px] font-semibold text-text-primary hover:bg-surface-gray-light transition-colors"
-              >
-                Actions
+              <button onClick={(e) => onOpenMenu(e, g.group)} className="p-2 rounded-lg text-text-muted hover:text-primary hover:bg-surface-gray-light transition-colors shrink-0">
+                <MoreVertical size={16} />
               </button>
             </div>
+            <div className="px-4 py-3 grid grid-cols-2 gap-x-4 gap-y-2 text-[13px]">
+              <div><span className="text-text-muted text-[11px]">Members</span><p className="text-text-primary truncate">{g.members}</p></div>
+              <div><span className="text-text-muted text-[11px]">Schedule</span><p className="text-text-primary truncate">{g.schedule}</p></div>
+              <div><span className="text-text-muted text-[11px]">Started</span><p className="text-text-primary">{g.started}</p></div>
+              <div><span className="text-text-muted text-[11px]">Finished</span><p className="text-text-primary">{g.finished}</p></div>
+            </div>
+            {(g.journalUrl || g.telegramUrl || (g.notes && g.notes !== "—")) && (
+              <div className="px-4 py-2 border-t border-border-light flex flex-wrap gap-3 text-[12px]">
+                {g.journalUrl && <a href={g.journalUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">📓 Journal</a>}
+                {g.telegramUrl && <a href={g.telegramUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">✈️ Telegram</a>}
+                {g.notes && g.notes !== "—" && <span className="text-text-secondary truncate">{g.notes}</span>}
+              </div>
+            )}
           </article>
         ))}
       </div>

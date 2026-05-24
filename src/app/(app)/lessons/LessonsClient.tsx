@@ -25,7 +25,10 @@ export default function LessonsClient({
   groups: Group[];
 }) {
   const [view, setView] = useState<"list" | "calendar">("list");
-  const [pagination, setPagination] = useState({ filterKey: "", count: PAGE_SIZE });
+  const [pagination, setPagination] = useState({
+    filterKey: "",
+    count: PAGE_SIZE,
+  });
   const [lessons, setLessons] = useState<Lesson[]>(initialLessons);
   const [search, setSearch] = useState("");
   const [groupFilter, setGroupFilter] = useState("all");
@@ -49,8 +52,8 @@ export default function LessonsClient({
 
   const groupNames = useMemo(
     () =>
-      [...new Set(lessons.map((l) => l.group_name).filter(Boolean))].sort((a, b) =>
-        a.localeCompare(b),
+      [...new Set(lessons.map((l) => l.group_name).filter(Boolean))].sort(
+        (a, b) => a.localeCompare(b),
       ),
     [lessons],
   );
@@ -72,7 +75,8 @@ export default function LessonsClient({
         lesson.group_name.toLowerCase().includes(query) ||
         lesson.date.toLowerCase().includes(query) ||
         formatDisplayDate(lesson.date).toLowerCase().includes(query);
-      const matchesGroup = groupFilter === "all" || lesson.group_name === groupFilter;
+      const matchesGroup =
+        groupFilter === "all" || lesson.group_name === groupFilter;
       const matchesType = typeFilter === "all" || lesson.type === typeFilter;
       return matchesSearch && matchesGroup && matchesType;
     });
@@ -84,17 +88,18 @@ export default function LessonsClient({
   );
 
   const filterKey = `${search}|${groupFilter}|${typeFilter}`;
-  const visibleCount = pagination.filterKey === filterKey ? pagination.count : PAGE_SIZE;
+  const visibleCount =
+    pagination.filterKey === filterKey ? pagination.count : PAGE_SIZE;
 
   const grouped = useMemo(() => {
-    return sorted.slice(0, visibleCount).reduce<
-      { lesson: Lesson; showDate: boolean }[]
-    >((acc, lesson) => {
-      const previousDate = acc.at(-1)?.lesson.date ?? "";
-      const showDate = !!(lesson.date && lesson.date !== previousDate);
-      acc.push({ lesson, showDate });
-      return acc;
-    }, []);
+    return sorted
+      .slice(0, visibleCount)
+      .reduce<{ lesson: Lesson; showDate: boolean }[]>((acc, lesson) => {
+        const previousDate = acc.at(-1)?.lesson.date ?? "";
+        const showDate = !!(lesson.date && lesson.date !== previousDate);
+        acc.push({ lesson, showDate });
+        return acc;
+      }, []);
   }, [sorted, visibleCount]);
 
   const weeklyData = useMemo(() => {
@@ -185,10 +190,32 @@ export default function LessonsClient({
     setTypeFilter("all");
   }
 
-  const LESSON_HEADERS = ["Title", "Group", "Type", "Date", "Status", "Hours", "YouTube URL", "Has Homework", "Has Feedback", "Comment"];
+  const LESSON_HEADERS = [
+    "Title",
+    "Group",
+    "Type",
+    "Date",
+    "Status",
+    "Hours",
+    "YouTube URL",
+    "Has Homework",
+    "Has Feedback",
+    "Comment",
+  ];
 
   function getLessonRows() {
-    return lessons.map((l) => [l.title, l.group_name, l.type, l.date, l.status, l.hours, l.youtube_url ?? "", l.has_homework ? "true" : "false", l.has_feedback ? "true" : "false", l.comment ?? ""]);
+    return lessons.map((l) => [
+      l.title,
+      l.group_name,
+      l.type,
+      l.date,
+      l.status,
+      l.hours,
+      l.youtube_url ?? "",
+      l.has_homework ? "true" : "false",
+      l.has_feedback ? "true" : "false",
+      l.comment ?? "",
+    ]);
   }
 
   function handleExport(format: "json" | "csv" | "excel") {
@@ -210,12 +237,15 @@ export default function LessonsClient({
           title: row["Title"] ?? row["title"] ?? "",
           group_name: row["Group"] ?? row["group_name"] ?? "",
           type: row["Type"] ?? row["type"] ?? "",
-          date: row["Date"] ?? row["date"] ?? new Date().toISOString().slice(0, 10),
+          date:
+            row["Date"] ?? row["date"] ?? new Date().toISOString().slice(0, 10),
           status: row["Status"] ?? row["status"] ?? "planned",
           hours: Number(row["Hours"] ?? row["hours"] ?? 1),
           youtube_url: row["YouTube URL"] ?? row["youtube_url"] ?? null,
-          has_homework: (row["Has Homework"] ?? row["has_homework"] ?? "false") === "true",
-          has_feedback: (row["Has Feedback"] ?? row["has_feedback"] ?? "false") === "true",
+          has_homework:
+            (row["Has Homework"] ?? row["has_homework"] ?? "false") === "true",
+          has_feedback:
+            (row["Has Feedback"] ?? row["has_feedback"] ?? "false") === "true",
           comment: row["Comment"] ?? row["comment"] ?? null,
         }),
       });
@@ -262,7 +292,10 @@ export default function LessonsClient({
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-            <ImportExportButtons onExport={handleExport} onImport={handleImport} />
+            <ImportExportButtons
+              onExport={handleExport}
+              onImport={handleImport}
+            />
             <button
               onClick={() => setReportOpen(true)}
               className="flex items-center gap-2 px-3 py-2 border border-border-light rounded-lg text-[13px] font-semibold text-text-secondary hover:bg-surface-gray-light transition-colors"
@@ -275,7 +308,7 @@ export default function LessonsClient({
                 <button
                   key={v}
                   onClick={() => setView(v)}
-                  className={`flex-1 sm:flex-none px-4 py-2 rounded-md text-[13px] font-bold transition-all ${
+                  className={`flex-1 sm:flex-none px-4 py-2 rounded-md whitespace-nowrap text-[13px] font-bold transition-all ${
                     view === v
                       ? "bg-white shadow-sm text-primary"
                       : "text-text-muted hover:text-text-primary"
@@ -301,15 +334,17 @@ export default function LessonsClient({
         />
 
         {view === "list" ? (
-        <LessonList
-          grouped={grouped}
-          totalCount={sorted.length}
-          visibleCount={visibleCount}
-          onLoadMore={() => setPagination({ filterKey, count: visibleCount + PAGE_SIZE })}
-          onMenuOpen={handleMenuOpen}
-          onPrepareContent={(lesson) => setPrepLesson(lesson)}
-          openMenuId={openMenu?.id ?? null}
-        />
+          <LessonList
+            grouped={grouped}
+            totalCount={sorted.length}
+            visibleCount={visibleCount}
+            onLoadMore={() =>
+              setPagination({ filterKey, count: visibleCount + PAGE_SIZE })
+            }
+            onMenuOpen={handleMenuOpen}
+            onPrepareContent={(lesson) => setPrepLesson(lesson)}
+            openMenuId={openMenu?.id ?? null}
+          />
         ) : (
           <CalendarView
             lessons={filteredLessons}
@@ -366,7 +401,7 @@ export default function LessonsClient({
 
       <button
         onClick={() => setModalLesson("new")}
-        className="fixed bottom-10 right-10 w-14 h-14 bg-secondary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-50"
+        className="fixed bottom-24 right-6 w-14 h-14 bg-secondary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-50"
       >
         <Plus size={24} />
       </button>
