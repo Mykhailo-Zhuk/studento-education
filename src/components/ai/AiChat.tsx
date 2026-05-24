@@ -230,6 +230,20 @@ export default function AiChat() {
   }, [open, lessons.length]);
 
   useEffect(() => {
+    if (!open) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const previousOverscroll = document.body.style.overscrollBehavior;
+    document.body.style.overflow = "hidden";
+    document.body.style.overscrollBehavior = "none";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.overscrollBehavior = previousOverscroll;
+    };
+  }, [open]);
+
+  useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, liveStatus]);
 
@@ -462,11 +476,11 @@ export default function AiChat() {
       {/* Chat panel */}
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
+          className="fixed inset-0 z-50 flex items-start justify-center p-2 pt-2 sm:items-center sm:p-4"
           onClick={() => setOpen(false)}
         >
           <div
-            className="relative flex h-[calc(100vh-1rem)] w-[calc(100vw-1rem)] flex-col overflow-hidden border border-white/10 bg-[#0b1020] shadow-[0_28px_90px_rgba(0,0,0,0.6)] sm:h-[min(860px,calc(100vh-2rem))] sm:w-full sm:max-w-[1080px] sm:rounded-[28px]"
+            className="relative mt-2 flex h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] flex-col overflow-hidden border border-white/10 bg-[#0b1020] shadow-[0_28px_90px_rgba(0,0,0,0.6)] sm:mt-0 sm:h-[min(860px,calc(100dvh-2rem))] sm:w-full sm:max-w-[1080px] sm:rounded-[28px]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,0.20),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(14,165,233,0.16),transparent_36%)]" />
