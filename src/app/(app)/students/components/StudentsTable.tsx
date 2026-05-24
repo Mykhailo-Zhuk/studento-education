@@ -254,7 +254,7 @@ function HomeworkDetailDrawer({
       }
     }
     load();
-  }, [homework?.title]);
+  }, [homework]);
 
   return (
     <>

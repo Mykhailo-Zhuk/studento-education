@@ -9,13 +9,12 @@ import AiChat from "@/components/ai/AiChat";
 const STORAGE_KEY = "studento.sidebar.collapsed";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored !== null) setSidebarCollapsed(stored === "true");
-  }, []);
+    return stored === "true";
+  });
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, String(sidebarCollapsed));

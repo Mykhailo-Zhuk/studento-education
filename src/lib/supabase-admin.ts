@@ -9,18 +9,15 @@ export type AdminSingleResponse<T> = Promise<{
 export type AdminListResponse<T> = Promise<{
   data: T[];
   error: { message: string } | null;
-}>;
-
-export type AdminFilterBuilder<T> = AdminListResponse<T> & {
+}> & {
   single: () => AdminSingleResponse<T>;
   order: (column: string, options?: { ascending?: boolean }) => AdminListResponse<T>;
-  eq: (column: string, value: string) => AdminFilterBuilder<T>;
+  eq: (column: string, value: string) => AdminListResponse<T>;
 };
 
-export type AdminQueryBuilder<T> = AdminListResponse<T> & {
-  order: (column: string, options?: { ascending?: boolean }) => AdminListResponse<T>;
-  eq: (column: string, value: string) => AdminFilterBuilder<T>;
-};
+export type AdminFilterBuilder<T> = AdminListResponse<T>;
+
+export type AdminQueryBuilder<T> = AdminListResponse<T>;
 
 export type AdminWriteBuilder<T> = {
   select: (columns?: string) => {
