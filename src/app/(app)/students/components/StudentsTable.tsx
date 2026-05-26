@@ -97,7 +97,7 @@ function HomeworkPopup({
   return createPortal(
     <div
       ref={ref}
-      style={{ position: "absolute", top, left }}
+      style={{ position: "fixed", top, left }}
       className="z-50 bg-white border border-border-light rounded-xl shadow-xl p-3 w-80"
     >
       <div className="flex items-center justify-between mb-3">
@@ -168,7 +168,7 @@ function HomeworkListPopup({
   return createPortal(
     <div
       ref={ref}
-      style={{ position: "absolute", top, left }}
+      style={{ position: "fixed", top, left }}
       className="z-9999 bg-white border border-border-light rounded-xl shadow-xl w-100 overflow-hidden"
     >
       <div className="flex items-center justify-between px-4 py-3 border-b border-border-light">
@@ -392,6 +392,7 @@ export default function StudentsTable({
   homeworks,
 }: Props) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [openMobileMenu, setOpenMobileMenu] = useState<{ id: string; top: number; right: number } | null>(null);
   const [hwPopup, setHwPopup] = useState<HwPopupState | null>(null);
   const [hwListPopup, setHwListPopup] = useState<HwListState | null>(null);
   const [hwDetail, setHwDetail] = useState<HwDetailState | null>(null);
@@ -415,10 +416,13 @@ export default function StudentsTable({
     e: React.MouseEvent<HTMLButtonElement>,
   ) {
     const rect = e.currentTarget.getBoundingClientRect();
-    const popupW = 320; // w-80
-    const top = rect.bottom + window.scrollY + 4;
-    const rawLeft = rect.right + window.scrollX - popupW;
-    const left = Math.max(8, Math.min(rawLeft, window.scrollX + window.innerWidth - popupW - 8));
+    const popupW = 320;
+    const popupH = 180;
+    const top = window.innerHeight - rect.bottom >= popupH
+      ? rect.bottom + 4
+      : rect.top - popupH - 4;
+    const rawLeft = rect.right - popupW;
+    const left = Math.max(8, Math.min(rawLeft, window.innerWidth - popupW - 8));
     setHwPopup({ studentId, studentGroup, completed, top, left });
     setHwListPopup(null);
     setOpenMenuId(null);
@@ -426,10 +430,13 @@ export default function StudentsTable({
 
   function openHwListPopup(studentId: string, e: React.MouseEvent<HTMLButtonElement>) {
     const rect = e.currentTarget.getBoundingClientRect();
-    const popupW = 400; // w-[400px]
-    const top = rect.bottom + window.scrollY + 4;
-    const rawLeft = rect.left + window.scrollX;
-    const left = Math.max(8, Math.min(rawLeft, window.scrollX + window.innerWidth - popupW - 8));
+    const popupW = 400;
+    const popupH = 320;
+    const top = window.innerHeight - rect.bottom >= popupH
+      ? rect.bottom + 4
+      : Math.max(8, rect.top - popupH - 4);
+    const rawLeft = rect.left;
+    const left = Math.max(8, Math.min(rawLeft, window.innerWidth - popupW - 8));
     setHwListPopup({ studentId, top, left });
     setHwPopup(null);
     setOpenMenuId(null);
@@ -486,19 +493,49 @@ export default function StudentsTable({
     );
   }
 
+
+  const openMobileMenuStudent = openMobileMenu
+    ? paginated.find((s) => s.id === openMobileMenu.id) ?? null
+    : null;
+
   return (
     <>
+      {/* Mobile card menu portal */}
+      {openMobileMenu && openMobileMenuStudent && createPortal(
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpenMobileMenu(null)} />
+          <div
+            style={{ position: "fixed", top: openMobileMenu.top, right: openMobileMenu.right, zIndex: 50 }}
+            className="bg-surface border border-border-light rounded-lg shadow-lg py-1 min-w-32"
+          >
+            <button
+              onClick={() => { onEdit(openMobileMenuStudent); setOpenMobileMenu(null); }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-[14px] text-text-primary hover:bg-surface-gray-light"
+            >
+              <Pencil size={14} className="text-text-secondary" /> Edit
+            </button>
+            <button
+              onClick={() => { onDelete(openMobileMenuStudent.id); setOpenMobileMenu(null); }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-[14px] text-error hover:bg-error-light"
+            >
+              <Trash2 size={14} /> Delete
+            </button>
+          </div>
+        </>,
+        document.body
+      )}
+
       {/* ── Mobile cards ───────────────────────────────────────────────────── */}
       <div className="md:hidden space-y-4">
         {paginated.length === 0 ? (
-          <div className="bg-white rounded-xl border border-border-light shadow-sm p-6 text-center text-[14px] text-text-muted">
+          <div className="bg-surface rounded-xl border border-border-light shadow-sm p-6 text-center text-[14px] text-text-muted">
             No students match your filters.
           </div>
         ) : (
           paginated.map((s) => (
             <article
               key={s.id}
-              className="bg-white rounded-xl border border-border-light shadow-sm"
+              className="bg-surface rounded-xl border border-border-light shadow-sm"
             >
               {/* Header */}
               <div className="flex items-center gap-3 px-4 py-3 border-b border-border-light">
@@ -515,35 +552,20 @@ export default function StudentsTable({
                     <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${TYPE_COLOR[s.type] ?? "bg-gray-50 text-gray-500 border border-gray-200"}`}>{s.type}</span>
                   </div>
                 </div>
-                <div
-                  className="relative shrink-0"
-                  ref={openMenuId === s.id ? menuRef : null}
-                >
+                <div className="shrink-0">
                   <button
-                    onClick={() => setOpenMenuId(openMenuId === s.id ? null : s.id)}
+                    onClick={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setOpenMobileMenu(openMobileMenu?.id === s.id ? null : {
+                        id: s.id,
+                        top: rect.bottom + 4,
+                        right: window.innerWidth - rect.right,
+                      });
+                    }}
                     className="p-2 rounded-lg text-text-muted hover:text-primary hover:bg-surface-gray-light transition-colors"
                   >
                     <MoreVertical size={16} />
                   </button>
-                  {openMenuId === s.id && (
-                    <div
-                      className="absolute right-0 top-9 z-20 bg-white border border-border-light rounded-lg shadow-lg py-1 min-w-32"
-                      onMouseDown={(e) => e.stopPropagation()}
-                    >
-                      <button
-                        onClick={() => { onEdit(s); setOpenMenuId(null); }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-[14px] text-text-primary hover:bg-surface-gray-light"
-                      >
-                        <Pencil size={14} className="text-text-secondary" /> Edit
-                      </button>
-                      <button
-                        onClick={() => { onDelete(s.id); setOpenMenuId(null); }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-[14px] text-error hover:bg-error-light"
-                      >
-                        <Trash2 size={14} /> Delete
-                      </button>
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -575,7 +597,7 @@ export default function StudentsTable({
               </div>
 
               {/* Footer */}
-              <div className="px-4 py-3 border-t border-border-light space-y-2 text-[13px]">
+              <div className="px-4 py-3 border-t border-border-light space-y-2 text-[13px] overflow-x-auto">
                 <div className="flex items-center gap-2">
                   <span className="text-text-muted text-[11px] shrink-0">Homework</span>
                   <HwCell s={s} />

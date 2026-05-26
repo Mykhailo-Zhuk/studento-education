@@ -44,9 +44,10 @@ export const EMPTY_FORM = {
   hours: 2,
   group_name: "",
   type: "",
-  status: "pending",
+  status: "planning",
   has_homework: false,
   has_feedback: false,
+  youtube_url: "",
   comment: "",
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, Copy, ExternalLink, X } from "lucide-react";
 import type { Lesson } from "@/lib/types";
 import { DAY_FULL, formatDisplayDate } from "../types";
@@ -12,6 +12,11 @@ interface Props {
 }
 
 export default function LessonPrepModal({ lesson, onClose, onEdit }: Props) {
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
   const [copied, setCopied] = useState(false);
   const dayName = useMemo(() => {
     const date = new Date(lesson.date);

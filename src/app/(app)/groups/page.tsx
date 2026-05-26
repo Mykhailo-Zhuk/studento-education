@@ -254,7 +254,7 @@ export default function GroupsPage() {
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-end mb-6 sm:mb-8 gap-4">
           <div>
             <h2 className="text-[26px] sm:text-[32px] font-bold text-text-primary tracking-tight">
-              Learning Cohorts
+              Groups
             </h2>
             <p className="text-[13px] sm:text-[14px] text-text-secondary mt-1">
               <span className="font-semibold text-text-primary">

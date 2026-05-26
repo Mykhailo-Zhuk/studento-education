@@ -1,6 +1,7 @@
 "use client";
 
-import { Filter, Search } from "lucide-react";
+import { useRef, useState } from "react";
+import { Filter, Search, X } from "lucide-react";
 import { GROUP_TYPES } from "../types";
 
 interface Props {
@@ -18,21 +19,25 @@ export default function GroupFilters({
   search,
   onSearchChange,
 }: Props) {
+  const [searchOpen, setSearchOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function openSearch() {
+    setSearchOpen(true);
+    setTimeout(() => inputRef.current?.focus(), 0);
+  }
+
+  function closeSearch() {
+    setSearchOpen(false);
+    onSearchChange("");
+  }
+
+  function handleBlur() {
+    if (!search) setSearchOpen(false);
+  }
+
   return (
-    <div className="flex flex-col gap-3 mb-6">
-      {/* Search row */}
-      <div className="flex items-center gap-3 px-3 py-2 bg-white border border-border-light rounded-lg">
-        <Search size={16} className="text-text-muted shrink-0" />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search groups..."
-          className="bg-transparent outline-none text-[14px] flex-1 placeholder:text-text-muted"
-        />
-      </div>
-      {/* Type filters row */}
-      <div className="flex flex-wrap gap-3 items-center">
+    <div className="flex flex-wrap gap-3 items-center mb-6">
       <button
         type="button"
         onClick={() => onChange(null)}
@@ -42,10 +47,7 @@ export default function GroupFilters({
             : "bg-white border-border-light hover:bg-surface-container-low"
         }`}
       >
-        <Filter
-          size={16}
-          className={filterType === null ? "text-white" : "text-primary"}
-        />
+        <Filter size={16} className={filterType === null ? "text-white" : "text-primary"} />
         <span className="text-[13px] font-semibold">All</span>
       </button>
 
@@ -64,8 +66,32 @@ export default function GroupFilters({
         </button>
       ))}
 
-        <span className="ml-auto text-[12px] text-text-muted">Showing {shownCount}</span>
-      </div>
+      <span className="ml-auto text-[12px] text-text-muted">Showing {shownCount}</span>
+
+      {searchOpen ? (
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-border-light rounded-full shadow-sm">
+          <Search size={14} className="text-text-muted shrink-0" />
+          <input
+            ref={inputRef}
+            type="text"
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            onBlur={handleBlur}
+            placeholder="Search groups..."
+            className="bg-transparent outline-none text-[13px] w-40 placeholder:text-text-muted"
+          />
+          <button onClick={closeSearch} className="text-text-muted hover:text-primary transition-colors shrink-0">
+            <X size={14} />
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={openSearch}
+          className="p-2 rounded-full border border-border-light bg-white shadow-sm hover:bg-surface-container-low transition-colors text-text-muted hover:text-primary"
+        >
+          <Search size={16} />
+        </button>
+      )}
     </div>
   );
 }

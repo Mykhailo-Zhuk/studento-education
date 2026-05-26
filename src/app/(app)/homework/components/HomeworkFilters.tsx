@@ -13,6 +13,7 @@ interface Props {
   statusFilter: string;
   onStatusChange: (v: string) => void;
   groups: string[];
+  activeGroups: string[];
   types: string[];
   onReset: () => void;
 }
@@ -27,11 +28,12 @@ export default function HomeworkFilters({
   statusFilter,
   onStatusChange,
   groups,
+  activeGroups,
   types,
   onReset,
 }: Props) {
   return (
-    <div className="bg-white p-4 rounded-xl border border-border-light shadow-sm flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+    <div className="bg-white p-4 rounded-xl border border-border-light shadow-sm flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:items-center sm:justify-between">
       <div className="flex w-full sm:flex-1 sm:min-w-50 items-center gap-3 px-3 py-2 bg-surface-gray-light border border-border-light rounded-lg">
         <Search size={16} className="text-text-muted shrink-0" />
         <input
@@ -42,7 +44,20 @@ export default function HomeworkFilters({
           className="bg-transparent border-none focus:ring-0 w-full text-[14px] outline-none placeholder:text-text-muted"
         />
       </div>
-      <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
+      <div className="flex flex-wrap gap-2 sm:gap-3 items-center">
+        {activeGroups.map((g) => (
+          <button
+            key={g}
+            onClick={() => onGroupChange(groupFilter === g ? "all" : g)}
+            className={`px-3 py-1 rounded-full text-[12px] font-semibold border transition-colors ${
+              groupFilter === g
+                ? "bg-warning text-white border-warning"
+                : "bg-warning-light text-warning border-warning/30 hover:bg-warning/20"
+            }`}
+          >
+            {g}
+          </button>
+        ))}
         <div className="min-w-36">
           <CustomSelect
             value={groupFilter}

@@ -63,6 +63,18 @@ function SettingsModal({ onClose }: { onClose: () => void }) {
     return localStorage.getItem("studento.link.defaultHours") ?? "24";
   });
 
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return document.documentElement.classList.contains("dark");
+  });
+
+  function toggleDarkMode() {
+    const next = !darkMode;
+    setDarkMode(next);
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("studento.theme", next ? "dark" : "light");
+  }
+
   function saveDefaults() {
     localStorage.setItem("studento.link.defaultHours", defaultHours);
     onClose();
@@ -70,7 +82,7 @@ function SettingsModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-border-light">
           <h3 className="text-[16px] font-bold text-text-primary">Settings</h3>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-container text-text-muted">
@@ -79,6 +91,31 @@ function SettingsModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="px-6 py-5 flex flex-col gap-6">
+          <section>
+            <h4 className="text-[12px] font-semibold text-text-muted uppercase tracking-wider mb-3">Appearance</h4>
+            <div className="flex items-center justify-between py-2">
+              <div>
+                <p className="text-[14px] font-semibold text-text-primary">Dark Mode</p>
+                <p className="text-[12px] text-text-muted">Switch to dark theme</p>
+              </div>
+              <button
+                onClick={toggleDarkMode}
+                aria-label="Toggle dark mode"
+                className={[
+                  "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200",
+                  darkMode ? "bg-primary" : "bg-border-light",
+                ].join(" ")}
+              >
+                <span
+                  className={[
+                    "inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200",
+                    darkMode ? "translate-x-6" : "translate-x-1",
+                  ].join(" ")}
+                />
+              </button>
+            </div>
+          </section>
+
           <section>
             <h4 className="text-[12px] font-semibold text-text-muted uppercase tracking-wider mb-3">General</h4>
             <div className="flex items-center justify-between py-2">
@@ -107,7 +144,7 @@ function SettingsModal({ onClose }: { onClose: () => void }) {
                 max="8760"
                 value={defaultHours}
                 onChange={(e) => setDefaultHours(e.target.value)}
-                className="mt-1.5 w-full border border-border-light rounded-lg px-3 py-2 text-[14px] outline-none focus:ring-2 focus:ring-primary/20"
+                className="mt-1.5 w-full border border-border-light rounded-lg px-3 py-2 text-[14px] outline-none focus:ring-2 focus:ring-primary/20 bg-surface text-text-primary"
               />
               <p className="text-[11px] text-text-muted mt-1">Used as the pre-selected duration when generating share links</p>
             </div>
@@ -222,7 +259,7 @@ export default function TopBar({
             </button>
 
             {showNotifs && (
-              <div className="absolute right-0 top-full mt-2 w-80 max-w-[calc(100vw-2rem)] bg-white border border-border-light rounded-2xl shadow-xl overflow-hidden z-50">
+              <div className="max-sm:fixed max-sm:right-4 max-sm:top-[72px] sm:absolute sm:right-0 sm:top-full sm:mt-2 w-80 max-w-[calc(100vw-2rem)] bg-surface border border-border-light rounded-2xl shadow-xl overflow-hidden z-50">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-border-light">
                   <span className="text-[13px] font-bold text-text-primary">Notifications</span>
                   {notifications.length > 0 && (
@@ -262,7 +299,7 @@ export default function TopBar({
             </button>
 
             {showAvatar && (
-              <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-border-light rounded-2xl shadow-xl overflow-hidden z-50">
+              <div className="absolute right-0 top-full mt-2 w-56 bg-surface border border-border-light rounded-2xl shadow-xl overflow-hidden z-50">
                 <div className="px-4 py-3 border-b border-border-light">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-linear-to-br from-primary to-secondary flex items-center justify-center text-white text-[11px] font-bold shrink-0">

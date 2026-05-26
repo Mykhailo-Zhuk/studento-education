@@ -1,5 +1,5 @@
-import { Users, MoreVertical } from "lucide-react";
-import type { Lesson } from "@/lib/types";
+import { Users, MoreVertical, FileSpreadsheet, ClipboardList } from "lucide-react";
+import type { Lesson, Group } from "@/lib/types";
 import { BORDER_COLOR, formatDisplayDate, mapStatus } from "../types";
 import { StatusBadge, LessonAction } from "./LessonBadges";
 
@@ -16,6 +16,7 @@ interface Props {
   onMenuOpen: (id: string, top: number, right: number) => void;
   onPrepareContent: (lesson: Lesson) => void;
   openMenuId: string | null;
+  groups: Group[];
 }
 
 export default function LessonList({
@@ -26,7 +27,10 @@ export default function LessonList({
   onMenuOpen,
   onPrepareContent,
   openMenuId,
+  groups,
 }: Props) {
+  const journalByGroup: Record<string, string | null> = {};
+  for (const g of groups) journalByGroup[g.name] = g.journal_url;
   const hasMore = visibleCount < totalCount;
 
   return (
@@ -35,6 +39,7 @@ export default function LessonList({
         {grouped.map(({ lesson, showDate }) => {
           const status = mapStatus(lesson.status);
           const isCompleted = status === "completed";
+          const journalUrl = journalByGroup[lesson.group_name] ?? null;
           return (
             <div key={lesson.id}>
               {showDate && (
@@ -65,6 +70,23 @@ export default function LessonList({
                       </span>
                     </div>
                   </div>
+                  {!lesson.has_feedback && journalUrl && (
+                    <a
+                      href={journalUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Open journal"
+                      onClick={(e) => e.stopPropagation()}
+                      className="p-2 rounded-lg text-success hover:text-success hover:bg-success-light transition-colors shrink-0"
+                    >
+                      <FileSpreadsheet size={16} />
+                    </a>
+                  )}
+                  {!lesson.has_homework && (
+                    <span title="Homework not assigned yet" className="p-2 text-warning shrink-0">
+                      <ClipboardList size={16} />
+                    </span>
+                  )}
                   <button
                     onClick={(e) => {
                       const rect = e.currentTarget.getBoundingClientRect();
@@ -161,6 +183,25 @@ export default function LessonList({
                     youtubeUrl={lesson.youtube_url}
                     onPrepareContent={() => onPrepareContent(lesson)}
                   />
+                  {!lesson.has_feedback && journalUrl && (
+                    <a
+                      href={journalUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Open journal"
+                      className="p-3 border border-border-light rounded-xl text-success hover:text-success hover:bg-success-light hover:border-success transition-all self-end sm:self-auto"
+                    >
+                      <FileSpreadsheet size={16} />
+                    </a>
+                  )}
+                  {!lesson.has_homework && (
+                    <span
+                      title="Homework not assigned yet"
+                      className="p-3 border border-border-light rounded-xl text-warning self-end sm:self-auto"
+                    >
+                      <ClipboardList size={16} />
+                    </span>
+                  )}
                   <button
                     onClick={(e) => {
                       const rect = e.currentTarget.getBoundingClientRect();

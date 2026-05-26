@@ -57,6 +57,24 @@
   --font-family-mono: "SF Mono", Monaco, "Cascadia Mono", monospace;
 }
 
+html.dark {
+  --color-surface: #0f172a;
+  --color-surface-gray-light: #1e293b;
+  --color-surface-container: #1a2540;
+  --color-surface-container-low: #141e35;
+  --color-surface-container-high: #212f4a;
+  --color-text-primary: #e2e8f0;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #475569;
+  --color-border-light: #2d3a50;
+  --color-bg-light: #0f172a;
+  --color-error-light: #2d0707;
+  --color-success-light: #052e16;
+  --color-warning-light: #422006;
+  --color-design-accent-light: #3b0a1f;
+  --color-surface-gray-dark: #0a1020;
+}
+
 * {
   box-sizing: border-box;
 }

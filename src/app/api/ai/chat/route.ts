@@ -184,6 +184,125 @@ async function updateGitHubFile(pathSegments: string[], content: string) {
   return { sha: data.content?.sha ?? sha ?? null };
 }
 
+function extractTopicKeywords(title: string, type: string): string[] {
+  const parenMatch = title.match(/\(([^)]+)\)/);
+  if (parenMatch) {
+    return parenMatch[1]
+      .toLowerCase()
+      .split(/[\s,]+/)
+      .filter((w) => w.length > 1);
+  }
+  const afterColon = title.split(":").slice(1).join(":").trim();
+  if (afterColon) {
+    const typeWords = new Set(type.toLowerCase().split(/[\s-]+/).filter((w) => w.length > 1));
+    return afterColon
+      .toLowerCase()
+      .split(/[\s,\-()+]+/)
+      .filter((w) => w.length > 1 && !typeWords.has(w) && !/^\d+$/.test(w));
+  }
+  return [];
+}
+
+async function findSimilarHomework(title: string, type: string) {
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) return { found: false, message: "GITHUB_TOKEN not configured" };
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    Accept: "application/vnd.github.v3+json",
+    "User-Agent": "studento-orchestrator",
+  };
+
+  const topicKeywords = extractTopicKeywords(title, type);
+  if (topicKeywords.length === 0) {
+    return { found: false, message: "Could not parse topic keywords from title" };
+  }
+
+  const basePath = resolveBasePath(type);
+  const encodedBase = basePath.split("/").map(encodeURIComponent).join("/");
+  const listRes = await fetch(
+    `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${encodedBase}`,
+    { headers },
+  );
+  if (!listRes.ok) return { found: false, message: "GitHub base path not found" };
+
+  const items = (await listRes.json()) as Array<{ name: string; type: string }>;
+  const folderNames = items.filter((i) => i.type === "dir").map((i) => i.name);
+
+  let bestFolder: string | null = null;
+  let bestScore = 0;
+  for (const folder of folderNames) {
+    const folderWords = new Set(
+      folder.toLowerCase().replace(/^l\d+(-\d+)?-/, "").split("-").filter((w) => w.length > 1),
+    );
+    const score = topicKeywords.filter((w) => folderWords.has(w)).length;
+    if (score > bestScore) { bestScore = score; bestFolder = folder; }
+  }
+
+  const titleSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const typeSlug = type.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const suggestedFolder = deriveFolder(titleSlug, typeSlug);
+
+  if (bestScore === 0 || !bestFolder) {
+    return {
+      found: false,
+      message: `No similar homework found for topic: ${topicKeywords.join(", ")}`,
+      suggestedFolder,
+    };
+  }
+
+  const folderSegments = [...basePath.split("/"), bestFolder];
+  const files = await Promise.all(
+    KNOWN_FILES.map(async (fileName) => {
+      const encodedPath = [...folderSegments, fileName].map(encodeURIComponent).join("/");
+      const res = await fetch(
+        `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${encodedPath}`,
+        { headers },
+      );
+      if (!res.ok) return null;
+      const data = (await res.json()) as { content: string };
+      const content = Buffer.from(data.content.replace(/\n/g, ""), "base64").toString("utf-8");
+      return { name: fileName, content };
+    }),
+  );
+
+  return {
+    found: true,
+    sourceFolder: bestFolder,
+    sourcePath: basePath,
+    matchedKeywords: topicKeywords.filter((w) =>
+      new Set(
+        bestFolder!.toLowerCase().replace(/^l\d+(-\d+)?-/, "").split("-").filter((w) => w.length > 1),
+      ).has(w),
+    ),
+    suggestedFolder,
+    files: files.filter((f): f is { name: string; content: string } => f !== null),
+  };
+}
+
+async function createHomeworkFiles(
+  title: string,
+  type: string,
+  files: Array<{ name: string; content: string }>,
+) {
+  const basePath = resolveBasePath(type);
+  const titleSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const typeSlug = type.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const folderName = deriveFolder(titleSlug, typeSlug);
+  if (!folderName) return { error: "Could not derive folder name from title" };
+
+  const folderSegments = [...basePath.split("/"), folderName];
+  const writtenFiles: string[] = [];
+
+  for (const file of files) {
+    const result = await updateGitHubFile([...folderSegments, file.name], file.content);
+    if (result.error) return { error: `Failed to write ${file.name}: ${result.error}` };
+    writtenFiles.push(file.name);
+  }
+
+  return { success: true, createdFolder: `${basePath}/${folderName}`, writtenFiles };
+}
+
 // ── OpenAI-compatible types ────────────────────────────────────────────────────
 
 interface OAIToolCall {
@@ -405,6 +524,64 @@ const tools: OAITool[] = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "find_similar_homework",
+      description:
+        "Search the course-type Homeworks directory on GitHub for a folder whose topic matches the lesson title. Parses topic keywords from parentheses or after the colon, scores existing folders by keyword overlap, and returns the best match with all available file contents (what-to-read.md, what-to-write.md, youtube-description.md) — or a not-found message with the suggested new folder name.",
+      parameters: {
+        type: "object",
+        properties: {
+          title: {
+            type: "string",
+            description:
+              'Lesson title with topic keywords, e.g. "Lesson 9: React (useContext, useReducer, Custom Hook)"',
+          },
+          type: {
+            type: "string",
+            description: 'Course type: "React", "Front-End", or "Web Workshop"',
+          },
+        },
+        required: ["title", "type"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "create_homework_files",
+      description:
+        "Create homework files in a new GitHub folder derived from the lesson title and type. The folder name is derived automatically. Use after find_similar_homework to copy content, or after generating content from scratch (without what-to-read.md).",
+      parameters: {
+        type: "object",
+        properties: {
+          title: {
+            type: "string",
+            description: "Full lesson title used to derive the GitHub folder name",
+          },
+          type: {
+            type: "string",
+            description: 'Course type: "React", "Front-End", or "Web Workshop"',
+          },
+          files: {
+            type: "array",
+            description:
+              'Files to write. Each item has "name" (what-to-read.md | what-to-write.md | youtube-description.md) and "content".',
+            items: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                content: { type: "string" },
+              },
+              required: ["name", "content"],
+            },
+          },
+        },
+        required: ["title", "type", "files"],
+      },
+    },
+  },
 ];
 
 const TOOL_STATUS: Record<string, string> = {
@@ -418,6 +595,8 @@ const TOOL_STATUS: Record<string, string> = {
   create_homework: "Створюю домашнє завдання...",
   update_lesson: "Оновлюю урок...",
   update_homework: "Оновлюю домашнє завдання...",
+  find_similar_homework: "Шукаю схожі домашні завдання на GitHub...",
+  create_homework_files: "Створюю файли домашнього завдання на GitHub...",
 };
 
 // ── Tool execution ─────────────────────────────────────────────────────────────
@@ -515,6 +694,12 @@ async function executeTool(name: string, input: Record<string, unknown>): Promis
       if (error) return { error: error.message };
       return { success: true, homework: data };
     }
+    case "find_similar_homework":
+      return findSimilarHomework(String(input.title ?? ""), String(input.type ?? ""));
+    case "create_homework_files": {
+      const files = (input.files as Array<{ name: string; content: string }> | undefined) ?? [];
+      return createHomeworkFiles(String(input.title ?? ""), String(input.type ?? ""), files);
+    }
     default:
       return { error: `Unknown tool: ${name}` };
   }
@@ -568,6 +753,17 @@ BEHAVIOR:
 - When the user asks to update a lesson's YouTube description file, call update_youtube_file with the exact lesson title, type, and the new content.
 - Admin-only CLI shortcut: if the user message starts with /crud, treat it as a request to work in command mode using the CRUD instructions file.
 - In CRUD command mode, translate the request into the exact admin CLI command(s) from the instructions and do not invent new commands.
+
+HOMEWORK COPY/CREATE WORKFLOW:
+When the user asks to find, copy, or create homework files for a lesson (e.g. "знайди домашнє завдання про урок 9: react (useContext, useReducer, Custom Hook)" or "create homework for lesson 9"):
+1. Call find_similar_homework with the lesson title and course type. The tool searches the course-type Homeworks folder on GitHub for an existing folder whose topic keywords best match the title.
+2. If found (found: true): Inform the user which source folder was matched, show the file contents, then call create_homework_files with the copied file contents (all three files: what-to-read.md, what-to-write.md, youtube-description.md) to create the new lesson's homework folder.
+3. If NOT found (found: false):
+   a. Inform the user that no similar homework was found.
+   b. Offer to create the homework from scratch — OMIT what-to-read.md entirely.
+   c. Generate what-to-write.md content using the Homework Generator instructions (or React Homework Generator for type=React).
+   d. Generate youtube-description.md content using the YouTube Video Description instructions.
+   e. Call create_homework_files with only the two generated files (what-to-write.md and youtube-description.md).
 
 CURRENT DATE: ${new Date().toISOString().split("T")[0]}`;
 

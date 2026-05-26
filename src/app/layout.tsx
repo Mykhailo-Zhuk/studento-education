@@ -11,6 +11,13 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="uk" className="h-full">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{if(localStorage.getItem('studento.theme')==='dark')document.documentElement.classList.add('dark')}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className="h-full">{children}</body>
     </html>
   );

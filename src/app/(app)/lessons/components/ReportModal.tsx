@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, Copy, Check } from "lucide-react";
 import type { Lesson } from "@/lib/types";
 
@@ -12,6 +12,11 @@ interface Props {
 type Period = "first-half" | "full-month";
 
 export default function ReportModal({ lessons, onClose }: Props) {
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
   const [period, setPeriod] = useState<Period>("first-half");
   const [copied, setCopied] = useState(false);
 

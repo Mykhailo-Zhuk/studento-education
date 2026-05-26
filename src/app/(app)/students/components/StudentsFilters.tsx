@@ -13,6 +13,7 @@ interface Props {
   gradeFilter: string;
   onGradeChange: (v: string) => void;
   uniqueGroups: string[];
+  activeGroups: string[];
   onReset: () => void;
   visibleCols: Set<ColumnId>;
   onToggleCol: (id: ColumnId) => void;
@@ -26,6 +27,7 @@ export default function StudentsFilters({
   gradeFilter,
   onGradeChange,
   uniqueGroups,
+  activeGroups,
   onReset,
   visibleCols,
   onToggleCol,
@@ -35,10 +37,7 @@ export default function StudentsFilters({
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
-      if (
-        colPickerRef.current &&
-        !colPickerRef.current.contains(e.target as Node)
-      ) {
+      if (colPickerRef.current && !colPickerRef.current.contains(e.target as Node)) {
         setColPickerOpen(false);
       }
     }
@@ -58,7 +57,20 @@ export default function StudentsFilters({
           className="bg-transparent border-none focus:ring-0 w-full text-[14px] outline-none placeholder:text-text-muted"
         />
       </div>
-      <div className="flex flex-wrap gap-2 sm:gap-3">
+      <div className="flex flex-wrap gap-2 sm:gap-3 items-center">
+        {activeGroups.map((g) => (
+          <button
+            key={g}
+            onClick={() => onGroupChange(groupFilter === g ? "All Groups" : g)}
+            className={`px-3 py-1 rounded-full text-[12px] font-semibold border transition-colors ${
+              groupFilter === g
+                ? "bg-primary text-white border-primary"
+                : "bg-primary/10 text-primary border-primary/30 hover:bg-primary/20"
+            }`}
+          >
+            {g}
+          </button>
+        ))}
         <div className="min-w-36">
           <CustomSelect
             value={groupFilter}
@@ -88,7 +100,6 @@ export default function StudentsFilters({
         >
           <RotateCcw size={16} />
         </button>
-
         <div className="relative" ref={colPickerRef}>
           <button
             onClick={() => setColPickerOpen((v) => !v)}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import type { Lesson, Group } from "@/lib/types";
 import { useNotifications } from "@/contexts/notifications";
@@ -15,6 +15,11 @@ interface Props {
 }
 
 export default function LessonModal({ lesson, groups, onClose, onSaved }: Props) {
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
   const isEdit = !!lesson;
   const { add: notify } = useNotifications();
   const groupNames = groups.map((g) => g.name);
@@ -28,9 +33,10 @@ export default function LessonModal({ lesson, groups, onClose, onSaved }: Props)
           hours: lesson.hours,
           group_name: lesson.group_name,
           type: lesson.type,
-          status: lesson.status,
+          status: (lesson.status?.toLowerCase() === "pending" ? "planning" : lesson.status?.toLowerCase()) ?? "planning",
           has_homework: lesson.has_homework,
           has_feedback: lesson.has_feedback,
+          youtube_url: lesson.youtube_url ?? "",
           comment: lesson.comment ?? "",
         }
       : EMPTY_FORM,
@@ -61,6 +67,7 @@ export default function LessonModal({ lesson, groups, onClose, onSaved }: Props)
       status: form.status,
       has_homework: form.has_homework,
       has_feedback: form.has_feedback,
+      youtube_url: form.youtube_url.trim() || null,
       comment: form.comment.trim() || null,
     };
 
@@ -162,11 +169,15 @@ export default function LessonModal({ lesson, groups, onClose, onSaved }: Props)
               value={form.status}
               onChange={(v) => set("status", v)}
               options={[
-                { value: "not started", label: "Not Started" },
                 { value: "planning", label: "Planning" },
                 { value: "completed", label: "Completed" },
               ]}
             />
+          </div>
+
+          <div>
+            <label className="block text-[13px] font-semibold text-text-secondary mb-1">YouTube URL</label>
+            <input value={form.youtube_url} onChange={(e) => set("youtube_url", e.target.value)} placeholder="https://youtube.com/watch?v=…" className={inputCls} />
           </div>
 
           <div className="flex gap-6">

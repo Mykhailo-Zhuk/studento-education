@@ -247,6 +247,13 @@ export default function AiChat() {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, liveStatus]);
 
+  useEffect(() => {
+    if (!input && inputRef.current) {
+      inputRef.current.style.height = "48px";
+      inputRef.current.style.overflowY = "hidden";
+    }
+  }, [input]);
+
   const mentionMatch = input.match(/@([^\s]*)$/);
   const mentionQuery = mentionMatch?.[1] ?? "";
   const showMentions = Boolean(mentionMatch);
@@ -445,7 +452,7 @@ export default function AiChat() {
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label="AI Асистент"
-        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-primary via-primary to-secondary text-white shadow-[0_18px_60px_rgba(99,14,212,0.45)] ring-1 ring-white/10 transition-all hover:scale-105 hover:shadow-[0_22px_70px_rgba(99,14,212,0.58)]"
+        className={`fixed bottom-6 right-6 z-[65] flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-primary via-primary to-secondary text-white shadow-[0_18px_60px_rgba(99,14,212,0.45)] ring-1 ring-white/10 transition-all hover:scale-105 hover:shadow-[0_22px_70px_rgba(99,14,212,0.58)] ${open ? "hidden sm:flex" : ""}`}
       >
         {open ? (
           <svg
@@ -467,7 +474,7 @@ export default function AiChat() {
       {/* Backdrop to close on outside click */}
       {open && (
         <div
-          className="fixed inset-0 z-40 bg-slate-950/55 backdrop-blur-md"
+          className="fixed inset-0 z-[63] bg-slate-950/55 backdrop-blur-md"
           onClick={() => setOpen(false)}
           aria-hidden
         />
@@ -476,7 +483,7 @@ export default function AiChat() {
       {/* Chat panel */}
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-start justify-center p-2 pt-2 sm:items-center sm:p-4"
+          className="fixed inset-0 z-[64] flex items-start justify-center p-2 pt-2 sm:items-center sm:p-4"
           onClick={() => setOpen(false)}
         >
           <div
@@ -503,7 +510,7 @@ export default function AiChat() {
                 </svg>
               </div>
 
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <p className="text-[15px] font-semibold tracking-tight text-white">
                     Studento AI
@@ -517,7 +524,7 @@ export default function AiChat() {
                 </p>
               </div>
 
-              <div className="ml-auto flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 <button
                   onClick={() => setShowHistory((v) => !v)}
                   className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-text-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white sm:hidden"
@@ -527,7 +534,7 @@ export default function AiChat() {
                 </button>
                 <button
                   onClick={createNewChat}
-                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-text-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+                  className="hidden sm:block rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-text-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
                   title="Новий чат"
                 >
                   New chat
@@ -541,7 +548,7 @@ export default function AiChat() {
                         updatedAt: new Date().toISOString(),
                       }))
                     }
-                    className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-text-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+                    className="hidden sm:block rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-text-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
                     title="Очистити чат"
                   >
                     Clear
@@ -569,8 +576,8 @@ export default function AiChat() {
             <div className="relative z-10 flex min-h-0 flex-1">
               <aside
                 className={[
-                  "hidden w-[320px] shrink-0 border-r border-white/10 bg-black/10 p-3 backdrop-blur-xl md:flex md:flex-col",
-                  showHistory ? "flex" : "",
+                  "w-[320px] shrink-0 border-r border-white/10 bg-black/10 p-3 backdrop-blur-xl",
+                  showHistory ? "flex flex-col" : "hidden md:flex md:flex-col",
                 ].join(" ")}
               >
                 <div className="mb-3 flex items-center justify-between px-1">
@@ -780,7 +787,13 @@ export default function AiChat() {
                 <textarea
                   ref={inputRef}
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                  onChange={(e) => {
+                    setInput(e.target.value);
+                    const el = e.target;
+                    el.style.height = "auto";
+                    el.style.height = `${Math.min(el.scrollHeight, 132)}px`;
+                    el.style.overflowY = el.scrollHeight > 132 ? "auto" : "hidden";
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === "Escape") {
                       setInput((prev) => prev.replace(/@([^\s]*)$/, ""));
@@ -794,8 +807,8 @@ export default function AiChat() {
                   placeholder="Ask anything... (@ to search lessons)"
                   rows={1}
                   disabled={loading}
-                  className="min-h-[48px] flex-1 resize-none bg-transparent px-2 py-2 text-[14px] text-white outline-none placeholder:text-text-muted disabled:opacity-50"
-                  style={{ maxHeight: "132px", overflowY: "auto" }}
+                  className="flex-1 resize-none bg-transparent px-2 py-2 text-[14px] text-white outline-none placeholder:text-text-muted disabled:opacity-50"
+                  style={{ height: "48px", maxHeight: "132px", overflowY: "hidden" }}
                 />
                 <button
                   onClick={loading ? stopGenerating : send}

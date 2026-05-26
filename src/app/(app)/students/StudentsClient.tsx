@@ -219,6 +219,14 @@ export default function StudentsClient({
     window.location.reload();
   }
 
+  const activeGroups = useMemo(
+    () =>
+      [...new Set(rows.filter((r) => r.statusRaw === "In progress").map((r) => r.group))].sort(
+        (a, b) => a.localeCompare(b),
+      ),
+    [rows],
+  );
+
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     return rows.filter((r) => {
@@ -308,6 +316,7 @@ export default function StudentsClient({
           setPage(1);
         }}
         uniqueGroups={uniqueGroups}
+        activeGroups={activeGroups}
         onReset={resetFilters}
         visibleCols={visibleCols}
         onToggleCol={toggleCol}

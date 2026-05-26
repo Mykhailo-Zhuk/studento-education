@@ -124,6 +124,11 @@ function sortByDateDesc(rows: Homework[]) {
 }
 
 function HomeworkModal({ homework, groups, types, onClose, onSaved }: HomeworkModalProps) {
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
   const isEdit = !!homework;
   const [form, setForm] = useState<HomeworkFormState>(
     homework
@@ -261,37 +266,31 @@ function HomeworkModal({ homework, groups, types, onClose, onSaved }: HomeworkMo
               <label className="text-[12px] font-semibold text-text-secondary uppercase tracking-wide">
                 Group *
               </label>
-              <input
-                required
-                list="homework-groups"
-                value={form.group_name}
-                onChange={(e) => setField("group_name", e.target.value)}
-                placeholder="Select or type group"
-                className={`mt-1 ${inputCls}`}
-              />
-              <datalist id="homework-groups">
-                {groups.map((group) => (
-                  <option key={group} value={group} />
-                ))}
-              </datalist>
+              <div className="mt-1">
+                <CustomSelect
+                  value={form.group_name}
+                  onChange={(v) => setField("group_name", v)}
+                  options={[
+                    { value: "", label: "Select group" },
+                    ...groups.map((g) => ({ value: g, label: g })),
+                  ]}
+                />
+              </div>
             </div>
             <div>
               <label className="text-[12px] font-semibold text-text-secondary uppercase tracking-wide">
                 Type *
               </label>
-              <input
-                required
-                list="homework-types"
-                value={form.type}
-                onChange={(e) => setField("type", e.target.value)}
-                placeholder="Select or type type"
-                className={`mt-1 ${inputCls}`}
-              />
-              <datalist id="homework-types">
-                {types.map((type) => (
-                  <option key={type} value={type} />
-                ))}
-              </datalist>
+              <div className="mt-1">
+                <CustomSelect
+                  value={form.type}
+                  onChange={(v) => setField("type", v)}
+                  options={[
+                    { value: "", label: "Select type" },
+                    ...types.map((t) => ({ value: t, label: t })),
+                  ]}
+                />
+              </div>
             </div>
           </div>
 
@@ -1078,6 +1077,17 @@ export default function HomeworkClient({
       ),
     [homework],
   );
+
+  const activeGroups = useMemo(
+    () =>
+      [...new Set(
+        homework
+          .filter((row) => row.status.toLowerCase() === "planning")
+          .map((row) => row.group_name)
+          .filter(Boolean),
+      )].sort((a, b) => a.localeCompare(b)),
+    [homework],
+  );
   const types = useMemo(
     () =>
       [...new Set(homework.map((row) => row.type).filter(Boolean))].sort((a, b) =>
@@ -1274,6 +1284,7 @@ export default function HomeworkClient({
           statusFilter={statusFilter}
           onStatusChange={setStatusFilter}
           groups={groups}
+          activeGroups={activeGroups}
           types={types}
           onReset={resetFilters}
         />

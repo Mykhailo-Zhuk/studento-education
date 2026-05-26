@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Trash2, Check } from "lucide-react";
+import { Pencil, Trash2, Check, ClipboardList, MessageSquare } from "lucide-react";
 import type { Lesson } from "@/lib/types";
 import { QUICK_STATUSES } from "../types";
 
@@ -10,9 +10,11 @@ interface Props {
   onEdit: () => void;
   onDelete: () => void;
   onStatusChange: (status: string) => void;
+  onToggleHomework: () => void;
+  onToggleFeedback: () => void;
 }
 
-export default function LessonMenu({ lesson, onEdit, onDelete, onStatusChange }: Props) {
+export default function LessonMenu({ lesson, onEdit, onDelete, onStatusChange, onToggleHomework, onToggleFeedback }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
@@ -46,6 +48,30 @@ export default function LessonMenu({ lesson, onEdit, onDelete, onStatusChange }:
           })}
         </div>
       </div>
+
+      <div className="my-1 border-t border-[#f1f5f9]" />
+
+      <button
+        onClick={onToggleHomework}
+        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] hover:bg-surface-gray-light transition-colors"
+      >
+        <ClipboardList size={14} className={lesson.has_homework ? "text-warning" : "text-text-muted"} />
+        <span className={lesson.has_homework ? "text-warning font-semibold" : "text-text-primary"}>
+          Has Homework
+        </span>
+        {lesson.has_homework && <Check size={12} className="ml-auto text-warning" />}
+      </button>
+
+      <button
+        onClick={onToggleFeedback}
+        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] hover:bg-surface-gray-light transition-colors"
+      >
+        <MessageSquare size={14} className={lesson.has_feedback ? "text-success" : "text-text-muted"} />
+        <span className={lesson.has_feedback ? "text-success font-semibold" : "text-text-primary"}>
+          Feedback Given
+        </span>
+        {lesson.has_feedback && <Check size={12} className="ml-auto text-success" />}
+      </button>
 
       <div className="my-1 border-t border-[#f1f5f9]" />
 

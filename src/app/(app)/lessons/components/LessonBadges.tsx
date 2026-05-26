@@ -59,8 +59,8 @@ export function LessonAction({
       </a>
     );
   return (
-    <button className="w-full sm:w-auto px-6 py-3 text-secondary font-bold hover:underline text-[14px]">
-      View Recording
-    </button>
+    <span className="w-full sm:w-auto px-6 py-3 text-text-muted text-[14px] italic">
+      No recording URL
+    </span>
   );
 }

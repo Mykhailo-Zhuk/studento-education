@@ -132,6 +132,20 @@ export default function LessonsClient({
     await fetchLessons();
   }
 
+  async function handleFieldToggle(id: string, field: "has_homework" | "has_feedback", value: boolean) {
+    const res = await fetch(`/api/lessons/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ [field]: value }),
+    });
+    if (!res.ok) {
+      notify("Failed to update lesson", "error");
+      return;
+    }
+    await fetchLessons();
+    setOpenMenu(null);
+  }
+
   async function handleStatusChange(id: string, status: string) {
     const lesson = lessons.find((l) => l.id === id);
     const res = await fetch(`/api/lessons/${id}`, {
@@ -175,6 +189,13 @@ export default function LessonsClient({
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!openMenu) return;
+    const close = () => setOpenMenu(null);
+    window.addEventListener("scroll", close, { passive: true });
+    return () => window.removeEventListener("scroll", close);
+  }, [openMenu]);
 
   function handleSaved() {
     void fetchLessons();
@@ -263,7 +284,7 @@ export default function LessonsClient({
             onClick={() => setOpenMenu(null)}
           />
           <div
-            className="fixed z-50 w-52 bg-white rounded-xl shadow-xl border border-border-light py-1.5"
+            className="fixed z-50 w-52 bg-surface rounded-xl shadow-xl border border-border-light py-1.5"
             style={{ top: openMenu.top, right: openMenu.right }}
           >
             <LessonMenu
@@ -274,6 +295,8 @@ export default function LessonsClient({
               }}
               onDelete={() => handleDelete(openMenuLesson.id)}
               onStatusChange={(s) => handleStatusChange(openMenuLesson.id, s)}
+              onToggleHomework={() => handleFieldToggle(openMenuLesson.id, "has_homework", !openMenuLesson.has_homework)}
+              onToggleFeedback={() => handleFieldToggle(openMenuLesson.id, "has_feedback", !openMenuLesson.has_feedback)}
             />
           </div>
         </>
@@ -344,6 +367,7 @@ export default function LessonsClient({
             onMenuOpen={handleMenuOpen}
             onPrepareContent={(lesson) => setPrepLesson(lesson)}
             openMenuId={openMenu?.id ?? null}
+            groups={groups}
           />
         ) : (
           <CalendarView
