@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import {
   AlertTriangle,
@@ -17,6 +17,7 @@ import {
   MoreVertical,
   Pencil,
   Plus,
+  RefreshCcw,
   Terminal,
   Trash2,
   X,
@@ -86,9 +87,14 @@ function formatDisplayDate(value: string | null): string {
   ).padStart(2, "0")}-${date.getFullYear()}`;
 }
 
-function getIconInfo(type: string): { icon: LucideIcon; bg: string; color: string } {
+function getIconInfo(type: string): {
+  icon: LucideIcon;
+  bg: string;
+  color: string;
+} {
   const t = type.toLowerCase();
-  if (t.includes("react")) return { icon: Terminal, bg: "bg-[#dbeafe]", color: "text-info" };
+  if (t.includes("react"))
+    return { icon: Terminal, bg: "bg-[#dbeafe]", color: "text-info" };
   if (t.includes("javascript") || t.includes("js"))
     return { icon: Terminal, bg: "bg-warning-light", color: "text-warning" };
   return { icon: BookOpen, bg: "bg-surface-container", color: "text-primary" };
@@ -120,13 +126,23 @@ function getStatusInfo(status: string): {
 }
 
 function sortByDateDesc(rows: Homework[]) {
-  return [...rows].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  return [...rows].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
 }
 
-function HomeworkModal({ homework, groups, types, onClose, onSaved }: HomeworkModalProps) {
+function HomeworkModal({
+  homework,
+  groups,
+  types,
+  onClose,
+  onSaved,
+}: HomeworkModalProps) {
   useEffect(() => {
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, []);
 
   const isEdit = !!homework;
@@ -137,7 +153,10 @@ function HomeworkModal({ homework, groups, types, onClose, onSaved }: HomeworkMo
           date: homework.date,
           group_name: homework.group_name,
           type: homework.type,
-          status: homework.status.toLowerCase() === "completed" ? "completed" : "planning",
+          status:
+            homework.status.toLowerCase() === "completed"
+              ? "completed"
+              : "planning",
           notes: homework.notes ?? "",
         }
       : EMPTY_FORM,
@@ -145,7 +164,10 @@ function HomeworkModal({ homework, groups, types, onClose, onSaved }: HomeworkMo
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  function setField<K extends keyof HomeworkFormState>(key: K, value: HomeworkFormState[K]) {
+  function setField<K extends keyof HomeworkFormState>(
+    key: K,
+    value: HomeworkFormState[K],
+  ) {
     setForm((current) => ({ ...current, [key]: value }));
   }
 
@@ -175,7 +197,11 @@ function HomeworkModal({ homework, groups, types, onClose, onSaved }: HomeworkMo
       const data = (await res.json()) as Homework | { error?: string };
 
       if (!res.ok) {
-        setError("error" in data && data.error ? data.error : "Failed to save homework");
+        setError(
+          "error" in data && data.error
+            ? data.error
+            : "Failed to save homework",
+        );
         setSaving(false);
         return;
       }
@@ -215,7 +241,9 @@ function HomeworkModal({ homework, groups, types, onClose, onSaved }: HomeworkMo
 
         <form onSubmit={handleSubmit} className="px-6 py-4 flex flex-col gap-4">
           {error && (
-            <p className="text-red-500 text-[13px] bg-red-50 px-3 py-2 rounded-lg">{error}</p>
+            <p className="text-red-500 text-[13px] bg-red-50 px-3 py-2 rounded-lg">
+              {error}
+            </p>
           )}
 
           <div>
@@ -351,7 +379,12 @@ function HomeworkActionMenu({
     <>
       <div className="fixed inset-0 z-40" onClick={onClose} />
       <div
-        style={{ position: "fixed", top: anchor.top, right: anchor.right, zIndex: 50 }}
+        style={{
+          position: "fixed",
+          top: anchor.top,
+          right: anchor.right,
+          zIndex: 50,
+        }}
         className="bg-white border border-border-light rounded-xl shadow-lg py-1 w-44"
       >
         <button
@@ -399,7 +432,9 @@ function HomeworkActionMenu({
 
         {confirmDelete ? (
           <div className="px-4 py-2 space-y-2">
-            <p className="text-[13px] text-error font-semibold">Delete this homework?</p>
+            <p className="text-[13px] text-error font-semibold">
+              Delete this homework?
+            </p>
             <div className="flex gap-2">
               <button
                 onClick={() => onDelete(anchor.homework)}
@@ -432,7 +467,11 @@ function HomeworkActionMenu({
 
 type GitHubFile = { name: string; content: string; sha: string };
 
-const CONTENT_FILES = ["what-to-read.md", "what-to-write.md", "youtube-description.md"];
+const CONTENT_FILES = [
+  "what-to-read.md",
+  "what-to-write.md",
+  "youtube-description.md",
+];
 
 function slugify(value: string): string {
   return value
@@ -491,23 +530,37 @@ function fileTabLabel(name: string): string {
 }
 
 function parseInline(text: string): React.ReactNode {
-  const parts = text.split(/(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*|\[[^\]]+\]\([^)]+\))/g);
+  const parts = text.split(
+    /(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*|\[[^\]]+\]\([^)]+\))/g,
+  );
   return parts.map((part, i) => {
     if (part.startsWith("`") && part.endsWith("`"))
       return (
-        <code key={i} className="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[12px] font-mono">
+        <code
+          key={i}
+          className="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[12px] font-mono"
+        >
           {part.slice(1, -1)}
         </code>
       );
     if (part.startsWith("**") && part.endsWith("**"))
-      return <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>;
+      return (
+        <strong key={i} className="font-semibold">
+          {part.slice(2, -2)}
+        </strong>
+      );
     if (part.startsWith("*") && part.endsWith("*"))
       return <em key={i}>{part.slice(1, -1)}</em>;
     const link = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
     if (link)
       return (
-        <a key={i} href={link[2]} target="_blank" rel="noopener noreferrer"
-          className="text-primary underline underline-offset-2 hover:opacity-75 transition-opacity">
+        <a
+          key={i}
+          href={link[2]}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary underline underline-offset-2 hover:opacity-75 transition-opacity"
+        >
           {link[1]}
         </a>
       );
@@ -549,19 +602,28 @@ function MarkdownContent({ text }: { text: string }) {
       nodes.push(<div key={i} className="h-1" />);
     } else if (t.startsWith("### ")) {
       nodes.push(
-        <h3 key={i} className="text-[15px] font-semibold text-text-primary mt-4 mb-1">
+        <h3
+          key={i}
+          className="text-[15px] font-semibold text-text-primary mt-4 mb-1"
+        >
           {t.slice(4)}
         </h3>,
       );
     } else if (t.startsWith("## ")) {
       nodes.push(
-        <h2 key={i} className="text-[16px] font-bold text-text-primary mt-5 mb-1.5">
+        <h2
+          key={i}
+          className="text-[16px] font-bold text-text-primary mt-5 mb-1.5"
+        >
           {t.slice(3)}
         </h2>,
       );
     } else if (t.startsWith("# ")) {
       nodes.push(
-        <h1 key={i} className="text-[18px] font-bold text-text-primary mt-5 mb-2">
+        <h1
+          key={i}
+          className="text-[18px] font-bold text-text-primary mt-5 mb-2"
+        >
           {t.slice(2)}
         </h1>,
       );
@@ -577,7 +639,9 @@ function MarkdownContent({ text }: { text: string }) {
       if (m) {
         nodes.push(
           <div key={i} className="flex gap-2 pl-2">
-            <span className="text-text-muted shrink-0 min-w-[1.5rem]">{m[1]}.</span>
+            <span className="text-text-muted shrink-0 min-w-[1.5rem]">
+              {m[1]}.
+            </span>
             <span>{parseInline(m[2])}</span>
           </div>,
         );
@@ -597,13 +661,19 @@ function MarkdownContent({ text }: { text: string }) {
 function MarkdownHelpTooltip() {
   const [open, setOpen] = useState(false);
   return (
-    <div className="relative" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+    <div
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
       <button className="p-1.5 rounded-lg text-text-muted hover:text-primary hover:bg-surface-container transition-colors">
         <HelpCircle size={16} />
       </button>
       {open && (
         <div className="absolute right-0 top-full mt-2 w-72 bg-white border border-border-light rounded-xl shadow-xl p-4 z-50">
-          <p className="text-[13px] font-bold text-text-primary mb-3">Markdown Cheatsheet</p>
+          <p className="text-[13px] font-bold text-text-primary mb-3">
+            Markdown Cheatsheet
+          </p>
           <div className="space-y-2 text-[12px] font-mono">
             {[
               ["# H1", "## H2", "### H3"],
@@ -616,7 +686,10 @@ function MarkdownHelpTooltip() {
             ].map((group, i) => (
               <div key={i} className="flex flex-wrap gap-1.5">
                 {group.map((item, j) => (
-                  <code key={j} className="bg-surface-container text-primary px-1.5 py-0.5 rounded text-[11px]">
+                  <code
+                    key={j}
+                    className="bg-surface-container text-primary px-1.5 py-0.5 rounded text-[11px]"
+                  >
                     {item}
                   </code>
                 ))}
@@ -630,7 +703,9 @@ function MarkdownHelpTooltip() {
 }
 
 function ContentPanel({ row }: { row: HomeworkRow }) {
-  const [status, setStatus] = useState<"loading" | "loaded" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "loaded" | "error">(
+    "loading",
+  );
   const [files, setFiles] = useState<GitHubFile[]>([]);
   const [folderPath, setFolderPath] = useState("");
   const [activeFile, setActiveFile] = useState("");
@@ -683,7 +758,9 @@ function ContentPanel({ row }: { row: HomeworkRow }) {
 
   const activeFileData = files.find((f) => f.name === activeFile);
   const activeContent = activeFileData?.content ?? "";
-  const missingFiles = CONTENT_FILES.filter((f) => !files.find((e) => e.name === f));
+  const missingFiles = CONTENT_FILES.filter(
+    (f) => !files.find((e) => e.name === f),
+  );
   const isEditing = editingFile !== null || addingFile !== null;
 
   async function handleSave() {
@@ -709,11 +786,18 @@ function ContentPanel({ row }: { row: HomeworkRow }) {
       }
       const newSha = (data as { sha: string }).sha;
       if (!fileData) {
-        setFiles((cur) => [...cur, { name: fileName, content: editContent, sha: newSha }]);
+        setFiles((cur) => [
+          ...cur,
+          { name: fileName, content: editContent, sha: newSha },
+        ]);
         setActiveFile(fileName);
       } else {
         setFiles((cur) =>
-          cur.map((f) => (f.name === fileName ? { ...f, content: editContent, sha: newSha } : f)),
+          cur.map((f) =>
+            f.name === fileName
+              ? { ...f, content: editContent, sha: newSha }
+              : f,
+          ),
         );
       }
       setEditingFile(null);
@@ -732,7 +816,10 @@ function ContentPanel({ row }: { row: HomeworkRow }) {
       const res = await fetch("/api/homework/github-content", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ path: `${folderPath}/${fileName}`, sha: fileData.sha }),
+        body: JSON.stringify({
+          path: `${folderPath}/${fileName}`,
+          sha: fileData.sha,
+        }),
       });
       if (!res.ok) {
         const err = (await res.json()) as { error?: string };
@@ -748,10 +835,12 @@ function ContentPanel({ row }: { row: HomeworkRow }) {
   }
 
   function handleCopy() {
-    navigator.clipboard.writeText(isEditing ? editContent : activeContent).then(() => {
-      setCopyDone(true);
-      setTimeout(() => setCopyDone(false), 2000);
-    });
+    navigator.clipboard
+      .writeText(isEditing ? editContent : activeContent)
+      .then(() => {
+        setCopyDone(true);
+        setTimeout(() => setCopyDone(false), 2000);
+      });
   }
 
   function startEdit(fileName: string) {
@@ -791,7 +880,10 @@ function ContentPanel({ row }: { row: HomeworkRow }) {
         const res = await fetch("/api/homework/github-content", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ path: `${newFolderPath}/${fileName}`, content: "" }),
+          body: JSON.stringify({
+            path: `${newFolderPath}/${fileName}`,
+            content: "",
+          }),
         });
         if (!res.ok) {
           const err = (await res.json()) as { error?: string };
@@ -805,7 +897,9 @@ function ContentPanel({ row }: { row: HomeworkRow }) {
       setActiveFile(created[0].name);
       setStatus("loaded");
     } catch (err) {
-      setCreateError(err instanceof Error ? err.message : "Failed to create folder");
+      setCreateError(
+        err instanceof Error ? err.message : "Failed to create folder",
+      );
     } finally {
       setCreating(false);
     }
@@ -822,7 +916,9 @@ function ContentPanel({ row }: { row: HomeworkRow }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
             <FileText size={15} className="text-text-muted shrink-0" />
-            <span className="text-[14px] text-text-muted font-medium">{row.group_name}</span>
+            <span className="text-[14px] text-text-muted font-medium">
+              {row.group_name}
+            </span>
             <span
               className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[12px] font-semibold ${row.statusBadgeBg} ${row.statusColor}`}
             >
@@ -830,7 +926,9 @@ function ContentPanel({ row }: { row: HomeworkRow }) {
               {row.statusLabel}
             </span>
           </div>
-          <h3 className="text-[18px] font-bold text-text-primary leading-tight">{row.title}</h3>
+          <h3 className="text-[18px] font-bold text-text-primary leading-tight">
+            {row.title}
+          </h3>
           <p className="text-[14px] text-text-muted mt-0.5">
             {row.displayDate} · {row.type}
           </p>
@@ -929,7 +1027,10 @@ function ContentPanel({ row }: { row: HomeworkRow }) {
                     </button>
                     {addMenuOpen && (
                       <>
-                        <div className="fixed inset-0 z-10" onClick={() => setAddMenuOpen(false)} />
+                        <div
+                          className="fixed inset-0 z-10"
+                          onClick={() => setAddMenuOpen(false)}
+                        />
                         <div className="absolute right-0 top-full mt-1 bg-white border border-border-light rounded-xl shadow-lg py-1 w-44 z-20">
                           {missingFiles.map((f) => (
                             <button
@@ -957,7 +1058,10 @@ function ContentPanel({ row }: { row: HomeworkRow }) {
       {saveError && (
         <div className="mx-5 mt-3 px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-[13px] text-error flex items-center justify-between shrink-0">
           {saveError}
-          <button onClick={() => setSaveError("")} className="ml-2 text-text-muted hover:text-error">
+          <button
+            onClick={() => setSaveError("")}
+            className="ml-2 text-text-muted hover:text-error"
+          >
             <X size={13} />
           </button>
         </div>
@@ -971,7 +1075,9 @@ function ContentPanel({ row }: { row: HomeworkRow }) {
               {editContent ? (
                 <MarkdownContent text={editContent} />
               ) : (
-                <p className="text-text-muted text-[14px] italic">Nothing to preview yet.</p>
+                <p className="text-text-muted text-[14px] italic">
+                  Nothing to preview yet.
+                </p>
               )}
             </div>
           ) : (
@@ -1015,7 +1121,9 @@ function ContentPanel({ row }: { row: HomeworkRow }) {
             {status === "error" && (
               <div className="flex flex-col items-center justify-center py-10 gap-3 text-center">
                 <AlertTriangle size={24} className="text-warning" />
-                <p className="text-[14px] font-semibold text-text-primary">Content not found</p>
+                <p className="text-[14px] font-semibold text-text-primary">
+                  Content not found
+                </p>
                 <p className="text-[12px] text-text-muted max-w-64">
                   {errorMsg === "Folder not found"
                     ? `No folder matching "${row.title}" in the GitHub repo for this group.`
@@ -1046,7 +1154,9 @@ function ContentPanel({ row }: { row: HomeworkRow }) {
               (activeContent ? (
                 <MarkdownContent text={activeContent} />
               ) : (
-                <p className="text-text-muted text-[14px] italic">This file is empty.</p>
+                <p className="text-text-muted text-[14px] italic">
+                  This file is empty.
+                </p>
               ))}
           </div>
         )}
@@ -1060,7 +1170,10 @@ export default function HomeworkClient({
 }: {
   initialHomework: Homework[];
 }) {
-  const [homework, setHomework] = useState(() => sortByDateDesc(initialHomework));
+  const [homework, setHomework] = useState(() =>
+    sortByDateDesc(initialHomework),
+  );
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [search, setSearch] = useState("");
   const [groupFilter, setGroupFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -1069,29 +1182,32 @@ export default function HomeworkClient({
   const [menuAnchor, setMenuAnchor] = useState<MenuAnchor | null>(null);
   const [actionBusyId, setActionBusyId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [copiedTitle, setCopiedTitle] = useState<string | null>(null);
 
   const groups = useMemo(
     () =>
-      [...new Set(homework.map((row) => row.group_name).filter(Boolean))].sort((a, b) =>
-        a.localeCompare(b),
+      [...new Set(homework.map((row) => row.group_name).filter(Boolean))].sort(
+        (a, b) => a.localeCompare(b),
       ),
     [homework],
   );
 
   const activeGroups = useMemo(
     () =>
-      [...new Set(
-        homework
-          .filter((row) => row.status.toLowerCase() === "planning")
-          .map((row) => row.group_name)
-          .filter(Boolean),
-      )].sort((a, b) => a.localeCompare(b)),
+      [
+        ...new Set(
+          homework
+            .filter((row) => row.status.toLowerCase() === "planning")
+            .map((row) => row.group_name)
+            .filter(Boolean),
+        ),
+      ].sort((a, b) => a.localeCompare(b)),
     [homework],
   );
   const types = useMemo(
     () =>
-      [...new Set(homework.map((row) => row.type).filter(Boolean))].sort((a, b) =>
-        a.localeCompare(b),
+      [...new Set(homework.map((row) => row.type).filter(Boolean))].sort(
+        (a, b) => a.localeCompare(b),
       ),
     [homework],
   );
@@ -1125,16 +1241,19 @@ export default function HomeworkClient({
         row.title.toLowerCase().includes(query) ||
         row.date.toLowerCase().includes(query) ||
         row.displayDate.toLowerCase().includes(query);
-      const matchesGroup = groupFilter === "all" || row.group_name === groupFilter;
+      const matchesGroup =
+        groupFilter === "all" || row.group_name === groupFilter;
       const matchesType = typeFilter === "all" || row.type === typeFilter;
-      const matchesStatus = statusFilter === "all" || row.displayStatus === statusFilter;
+      const matchesStatus =
+        statusFilter === "all" || row.displayStatus === statusFilter;
       return matchesSearch && matchesGroup && matchesType && matchesStatus;
     });
   }, [groupFilter, rows, search, statusFilter, typeFilter]);
 
   const effectiveSelectedId = useMemo(() => {
     if (filteredRows.length === 0) return null;
-    if (selectedId && filteredRows.find((r) => r.id === selectedId)) return selectedId;
+    if (selectedId && filteredRows.find((r) => r.id === selectedId))
+      return selectedId;
     return filteredRows[0].id;
   }, [filteredRows, selectedId]);
 
@@ -1144,6 +1263,35 @@ export default function HomeworkClient({
   );
 
   const { add: notify } = useNotifications();
+
+  const refreshHomework = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      const res = await fetch("/api/homework");
+      if (!res.ok) {
+        throw new Error("Failed to refresh homework");
+      }
+      const data = (await res.json()) as Homework[];
+      setHomework(sortByDateDesc(data));
+    } catch {
+      notify("Failed to refresh homework", "error");
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [notify]);
+
+  useEffect(() => {
+    const init = async () => {
+      await refreshHomework();
+    };
+    init();
+
+    const handleFocus = () => {
+      refreshHomework();
+    };
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [refreshHomework]);
 
   async function persistHomework(
     method: "POST" | "PATCH",
@@ -1157,7 +1305,9 @@ export default function HomeworkClient({
     });
     const data = (await res.json()) as Homework | { error?: string };
     if (!res.ok) {
-      throw new Error("error" in data && data.error ? data.error : "Failed to save homework");
+      throw new Error(
+        "error" in data && data.error ? data.error : "Failed to save homework",
+      );
     }
     return data as Homework;
   }
@@ -1176,7 +1326,11 @@ export default function HomeworkClient({
     setActionBusyId(row.id);
     let saved = false;
     try {
-      const updated = await persistHomework("PATCH", `/api/homework/${row.id}`, { status });
+      const updated = await persistHomework(
+        "PATCH",
+        `/api/homework/${row.id}`,
+        { status },
+      );
       upsertHomework(updated);
       notify(`"${row.title}" marked ${status}`);
       saved = true;
@@ -1215,6 +1369,17 @@ export default function HomeworkClient({
     });
   }
 
+  function copyTitleToClipboard(title: string, id: string) {
+    try {
+      navigator.clipboard.writeText(title);
+      setSelectedId(id);
+      setCopiedTitle(id);
+      window.setTimeout(() => setCopiedTitle(null), 1400);
+    } catch {
+      // ignore clipboard errors silently
+    }
+  }
+
   function resetFilters() {
     setGroupFilter("all");
     setTypeFilter("all");
@@ -1224,7 +1389,14 @@ export default function HomeworkClient({
   const HW_HEADERS = ["Title", "Date", "Group", "Type", "Status", "Notes"];
 
   function getHwRows() {
-    return homework.map((h) => [h.title, h.date, h.group_name, h.type, h.status, h.notes ?? ""]);
+    return homework.map((h) => [
+      h.title,
+      h.date,
+      h.group_name,
+      h.type,
+      h.status,
+      h.notes ?? "",
+    ]);
   }
 
   function handleExport(format: "json" | "csv" | "excel") {
@@ -1244,7 +1416,8 @@ export default function HomeworkClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: row["Title"] ?? row["title"] ?? "",
-          date: row["Date"] ?? row["date"] ?? new Date().toISOString().slice(0, 10),
+          date:
+            row["Date"] ?? row["date"] ?? new Date().toISOString().slice(0, 10),
           group_name: row["Group"] ?? row["group_name"] ?? "",
           type: row["Type"] ?? row["type"] ?? "",
           status: row["Status"] ?? row["status"] ?? "planning",
@@ -1271,7 +1444,23 @@ export default function HomeworkClient({
             </p>
           </div>
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <ImportExportButtons onExport={handleExport} onImport={handleImport} />
+            <button
+              onClick={refreshHomework}
+              type="button"
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border-light text-[13px] text-text-secondary hover:bg-surface-gray-light transition-colors"
+              disabled={isRefreshing}
+            >
+              {isRefreshing ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <RefreshCcw size={14} />
+              )}
+              Refresh
+            </button>
+            <ImportExportButtons
+              onExport={handleExport}
+              onImport={handleImport}
+            />
           </div>
         </div>
         <HomeworkFilters
@@ -1314,11 +1503,24 @@ export default function HomeworkClient({
                     <div className="flex items-center gap-1.5 mb-0.5">
                       <span
                         className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                          row.displayStatus === "completed" ? "bg-success" : "bg-warning"
+                          row.displayStatus === "completed"
+                            ? "bg-success"
+                            : "bg-warning"
                         }`}
                       />
-                      <span className="text-[16px] font-semibold text-text-primary truncate leading-tight">
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyTitleToClipboard(row.title, row.id);
+                        }}
+                        className="text-[16px] font-semibold text-text-primary truncate leading-tight cursor-pointer"
+                      >
                         {row.title}
+                        {copiedTitle === row.id && (
+                          <span className="ml-2 inline-flex items-center text-success">
+                            <CheckCheck size={14} />
+                          </span>
+                        )}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 pl-3 flex-wrap">
@@ -1356,7 +1558,9 @@ export default function HomeworkClient({
             <ContentPanel row={selectedRow} />
           ) : (
             <div className="flex items-center justify-center h-full text-text-muted">
-              <p className="text-[14px]">Select a homework to view its content.</p>
+              <p className="text-[14px]">
+                Select a homework to view its content.
+              </p>
             </div>
           )}
         </div>
@@ -1379,7 +1583,11 @@ export default function HomeworkClient({
           onClose={() => setModalHomework(null)}
           onSaved={(saved) => {
             const isNew = !homework.some((h) => h.id === saved.id);
-            notify(isNew ? `Homework "${saved.title}" added` : `Homework "${saved.title}" updated`);
+            notify(
+              isNew
+                ? `Homework "${saved.title}" added`
+                : `Homework "${saved.title}" updated`,
+            );
             upsertHomework(saved);
             setModalHomework(null);
           }}

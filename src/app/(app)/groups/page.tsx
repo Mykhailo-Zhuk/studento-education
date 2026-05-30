@@ -22,6 +22,12 @@ import { Plus, UserPlus } from "lucide-react";
 import { downloadJSON, downloadCSV, downloadExcel } from "@/lib/import-export";
 import ImportExportButtons from "@/components/ui/ImportExportButtons";
 
+const STATUS_PRIORITY: Record<string, number> = {
+  "In progress": 0,
+  "Not started": 1,
+  Finished: 2,
+};
+
 export default function GroupsPage() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,11 +72,20 @@ export default function GroupsPage() {
 
   const filtered = useMemo(
     () =>
-      groups
+      [...groups]
         .filter((g) => !filterType || g.type === filterType)
         .filter(
           (g) => !search || g.name.toLowerCase().includes(search.toLowerCase()),
-        ),
+        )
+        .sort((a, b) => {
+          const statusDiff =
+            (STATUS_PRIORITY[a.status] ?? 3) - (STATUS_PRIORITY[b.status] ?? 3);
+          if (statusDiff !== 0) return statusDiff;
+
+          const aStarted = a.started ? new Date(a.started).getTime() : 0;
+          const bStarted = b.started ? new Date(b.started).getTime() : 0;
+          return bStarted - aStarted;
+        }),
     [groups, filterType, search],
   );
 
