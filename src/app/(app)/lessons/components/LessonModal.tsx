@@ -132,7 +132,7 @@ export default function LessonModal({
         className="modal-panel bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center modal-header px-6 py-4 border-b border-border-light sticky top-0 bg-white z-10">
           <h2 className="text-[22px] font-bold text-text-primary">
             {isEdit ? "Edit Lesson" : "New Lesson"}
           </h2>

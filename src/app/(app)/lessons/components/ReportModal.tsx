@@ -55,7 +55,7 @@ export default function ReportModal({ lessons, onClose }: Props) {
         className="modal-panel bg-bg-dark rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center justify-between modal-header px-6 py-4 border-b border-white/10 sticky top-0 bg-bg-dark z-10">
           <h3 className="text-[16px] font-bold text-white">Generate Report</h3>
           <button
             onClick={onClose}

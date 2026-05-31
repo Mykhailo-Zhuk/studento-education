@@ -302,3 +302,19 @@ body {
 .modal-panel.rounded-2xl {
   box-shadow: 0 18px 60px rgba(2, 6, 23, 0.6) !important;
 }
+
+/* Modal header: sticky translucent top background for form modals */
+.modal-panel .modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(128, 128, 128, 0.06);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.dark .modal-panel .modal-header {
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom-color: var(--color-border-dark);
+}

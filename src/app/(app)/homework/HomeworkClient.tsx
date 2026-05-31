@@ -227,7 +227,7 @@ function HomeworkModal({
         className="modal-panel bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border-light sticky top-0 bg-white z-10">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border-light sticky top-0 bg-white z-10 modal-header">
           <h3 className="text-[16px] font-bold text-text-primary">
             {isEdit ? "Edit Homework" : "Add Homework"}
           </h3>
@@ -639,9 +639,7 @@ function MarkdownContent({ text }: { text: string }) {
       if (m) {
         nodes.push(
           <div key={i} className="flex gap-2 pl-2">
-            <span className="text-text-muted shrink-0 min-w-6">
-              {m[1]}.
-            </span>
+            <span className="text-text-muted shrink-0 min-w-6">{m[1]}.</span>
             <span>{parseInline(m[2])}</span>
           </div>,
         );
