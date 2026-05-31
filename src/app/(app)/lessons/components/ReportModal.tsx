@@ -43,14 +43,8 @@ export default function ReportModal({ lessons, onClose }: Props) {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        className="bg-bg-dark rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 border border-white/10"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay" onClick={onClose}>
+      <div className="modal-panel bg-bg-dark rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-[16px] font-bold text-white">Generate Report</h3>
           <button onClick={onClose} className="p-1 text-text-muted hover:text-white transition-colors">

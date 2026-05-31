@@ -16,8 +16,8 @@ export default function DeleteGroupDialog({
   onDelete,
 }: Props) {
   return (
-    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4">
+      <div className="modal-panel bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
         <h3 className="text-[16px] font-bold text-text-primary mb-2">
           Delete Group
         </h3>

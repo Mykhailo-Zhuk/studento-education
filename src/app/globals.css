@@ -275,3 +275,27 @@ body {
 .dark .app-sidebar h1 {
   color: #ffffff !important;
 }
+
+/* Standard modal overlay and panel styles */
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.modal-panel {
+  background-color: var(--color-surface) !important;
+  color: var(--color-text-primary) !important;
+  border: 1px solid var(--color-border-light) !important;
+}
+
+.dark .modal-panel {
+  background-color: var(--color-surface) !important;
+  border-color: var(--color-border-dark) !important;
+  color: var(--color-text-primary) !important;
+}
+
+/* Ensure modal panels have elevated shadow and overflow handling */
+.modal-panel.rounded-2xl {
+  box-shadow: 0 18px 60px rgba(2, 6, 23, 0.6) !important;
+}

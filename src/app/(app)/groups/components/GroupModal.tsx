@@ -84,8 +84,8 @@ export default function GroupModal({ group, onClose, onSaved }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-bg-dark rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto border border-white/10">
+    <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4" onClick={onClose}>
+      <div className="modal-panel bg-bg-dark rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 sticky top-0 bg-bg-dark z-10">
           <h3 className="text-[16px] font-bold text-white">
             {isEdit ? "Edit Group" : "Create New Group"}

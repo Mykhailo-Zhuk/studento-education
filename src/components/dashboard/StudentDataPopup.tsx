@@ -442,12 +442,9 @@ export default function StudentDataPopup({ onClose, type, data }: StudentDataPop
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay" onClick={onClose}>
       <div
-        className={`bg-bg-dark rounded-2xl shadow-2xl w-full ${maxW} mx-4 flex flex-col border border-white/10 max-h-[80vh]`}
+        className={`modal-panel bg-bg-dark rounded-2xl shadow-2xl w-full ${maxW} mx-4 flex flex-col max-h-[80vh]`}
         onClick={(e) => e.stopPropagation()}
       >
         {isDrillDown ? (

@@ -106,8 +106,8 @@ export default function LessonModal({ lesson, groups, onClose, onSaved }: Props)
   const inputCls = "w-full border border-border-light rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/20";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay" onClick={onClose}>
+      <div className="modal-panel bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-[22px] font-bold text-text-primary">{isEdit ? "Edit Lesson" : "New Lesson"}</h2>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface-container transition-colors">

@@ -70,14 +70,8 @@ export default function GenerateLinkModal({ student, onClose }: GenerateLinkModa
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        className="bg-bg-dark rounded-2xl shadow-2xl w-full max-w-md mx-4 flex flex-col border border-white/10"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay" onClick={onClose}>
+      <div className="modal-panel bg-bg-dark rounded-2xl shadow-2xl w-full max-w-md mx-4 flex flex-col" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between px-8 pt-8 pb-4 border-b border-white/10">
           <h3 className="text-white text-[20px] font-bold">Generate Share Link</h3>

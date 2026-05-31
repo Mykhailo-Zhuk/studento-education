@@ -35,12 +35,9 @@ export default function StudentSelectorModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay" onClick={onClose}>
       <div
-        className="bg-bg-dark rounded-2xl shadow-2xl w-full max-w-2xl mx-4 flex flex-col max-h-[90vh] border border-white/10"
+        className="modal-panel bg-bg-dark rounded-2xl shadow-2xl w-full max-w-2xl mx-4 flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
