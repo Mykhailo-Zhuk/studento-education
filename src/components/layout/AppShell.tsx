@@ -23,14 +23,33 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // Set CSS variable --vh to handle mobile browser UI showing/hiding
   useEffect(() => {
     const setVh = () => {
-      document.documentElement.style.setProperty(
-        "--vh",
-        `${window.innerHeight * 0.01}px`
-      );
+      const h = window.visualViewport?.height ?? window.innerHeight;
+      document.documentElement.style.setProperty("--vh", `${h * 0.01}px`);
     };
+
+    let raf = 0;
+    const onVisualResize = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(setVh);
+    };
+
     setVh();
-    window.addEventListener("resize", setVh);
-    return () => window.removeEventListener("resize", setVh);
+    window.addEventListener("resize", onVisualResize);
+    window.addEventListener("orientationchange", onVisualResize);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", onVisualResize);
+      window.visualViewport.addEventListener("scroll", onVisualResize);
+    }
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onVisualResize);
+      window.removeEventListener("orientationchange", onVisualResize);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", onVisualResize);
+        window.visualViewport.removeEventListener("scroll", onVisualResize);
+      }
+    };
   }, []);
 
   return (
