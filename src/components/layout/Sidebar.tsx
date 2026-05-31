@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { ComponentType } from "react";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -31,7 +32,7 @@ function NavLink({
 }: {
   href: string;
   label: string;
-  Icon: typeof Link2;
+  Icon: ComponentType<any>;
   active: boolean;
   showLabels: boolean;
   onClick: () => void;
