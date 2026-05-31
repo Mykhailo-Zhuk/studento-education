@@ -140,9 +140,7 @@ function MarkdownContent({ text }: { text: string }) {
       if (m)
         nodes.push(
           <div key={i} className="flex gap-2 pl-2 text-white/85">
-            <span className="text-text-muted shrink-0 min-w-[1.5rem]">
-              {m[1]}.
-            </span>
+            <span className="text-text-muted shrink-0 min-w-6">{m[1]}.</span>
             <span>{parseInline(m[2])}</span>
           </div>,
         );

@@ -43,7 +43,7 @@ export default function DeleteStudentModal({ id, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center pb-20 modal-overlay">
+    <div className="fixed inset-0 z-70 flex items-center justify-center pb-20 modal-overlay">
       <div className="modal-panel bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4">
         <h3 className="text-[18px] font-bold text-text-primary mb-2">
           Delete student?

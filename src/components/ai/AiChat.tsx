@@ -56,19 +56,25 @@ function safeParseThreads(value: string | null): ChatThread[] {
   }
 }
 
-function getInitialChatState(): { threads: ChatThread[]; activeThreadId: string | null } {
+function getInitialChatState(): {
+  threads: ChatThread[];
+  activeThreadId: string | null;
+} {
   if (typeof window === "undefined") {
     const fallback = createThread("New chat");
     return { threads: [fallback], activeThreadId: fallback.id };
   }
 
-  const storedThreads = safeParseThreads(localStorage.getItem(CHAT_STORAGE_KEY));
-  const threads = storedThreads.length > 0 ? storedThreads : [createThread("New chat")];
+  const storedThreads = safeParseThreads(
+    localStorage.getItem(CHAT_STORAGE_KEY),
+  );
+  const threads =
+    storedThreads.length > 0 ? storedThreads : [createThread("New chat")];
   const storedActiveId = localStorage.getItem(ACTIVE_CHAT_KEY);
   const activeThreadId =
     storedActiveId && threads.some((thread) => thread.id === storedActiveId)
       ? storedActiveId
-      : threads[0]?.id ?? null;
+      : (threads[0]?.id ?? null);
 
   return { threads, activeThreadId };
 }
@@ -99,14 +105,10 @@ const QUICK_PROMPTS = [
 
 const mdComponents: Components = {
   h1: ({ children }) => (
-    <h1 className="mb-1 mt-2 text-sm font-bold text-white">
-      {children}
-    </h1>
+    <h1 className="mb-1 mt-2 text-sm font-bold text-white">{children}</h1>
   ),
   h2: ({ children }) => (
-    <h2 className="mb-1 mt-2 text-sm font-semibold text-white">
-      {children}
-    </h2>
+    <h2 className="mb-1 mt-2 text-sm font-semibold text-white">{children}</h2>
   ),
   h3: ({ children }) => (
     <h3 className="mb-0.5 mt-1.5 text-xs font-semibold text-white">
@@ -114,35 +116,25 @@ const mdComponents: Components = {
     </h3>
   ),
   p: ({ children }) => (
-    <p className="mb-1.5 text-xs leading-relaxed text-white">
-      {children}
-    </p>
+    <p className="mb-1.5 text-xs leading-relaxed text-white">{children}</p>
   ),
   ul: ({ children }) => (
-    <ul className="mb-1.5 ml-3 list-disc space-y-0.5 text-white">
-      {children}
-    </ul>
+    <ul className="mb-1.5 ml-3 list-disc space-y-0.5 text-white">{children}</ul>
   ),
   ol: ({ children }) => (
     <ol className="mb-1.5 ml-3 list-decimal space-y-0.5 text-white">
       {children}
     </ol>
   ),
-  li: ({ children }) => (
-    <li className="text-xs text-white">{children}</li>
-  ),
+  li: ({ children }) => <li className="text-xs text-white">{children}</li>,
   strong: ({ children }) => (
     <strong className="font-semibold text-white">{children}</strong>
   ),
-  em: ({ children }) => (
-    <em className="italic text-white">{children}</em>
-  ),
+  em: ({ children }) => <em className="italic text-white">{children}</em>,
   code: ({ className, children }) => {
     if (className) {
       return (
-        <code className="font-mono text-[11px] text-white">
-          {children}
-        </code>
+        <code className="font-mono text-[11px] text-white">{children}</code>
       );
     }
     return (
@@ -192,8 +184,12 @@ const mdComponents: Components = {
 export default function AiChat() {
   const initialChatState = getInitialChatState();
   const [open, setOpen] = useState(false);
-  const [threads, setThreads] = useState<ChatThread[]>(initialChatState.threads);
-  const [activeThreadId, setActiveThreadId] = useState<string | null>(initialChatState.activeThreadId);
+  const [threads, setThreads] = useState<ChatThread[]>(
+    initialChatState.threads,
+  );
+  const [activeThreadId, setActiveThreadId] = useState<string | null>(
+    initialChatState.activeThreadId,
+  );
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [liveStatus, setLiveStatus] = useState<string | null>(null);
@@ -281,7 +277,9 @@ export default function AiChat() {
     (updater: (thread: ChatThread) => ChatThread) => {
       if (!activeThreadId) return;
       setThreads((prev) =>
-        prev.map((thread) => (thread.id === activeThreadId ? updater(thread) : thread)),
+        prev.map((thread) =>
+          thread.id === activeThreadId ? updater(thread) : thread,
+        ),
       );
     },
     [activeThreadId],
@@ -299,20 +297,17 @@ export default function AiChat() {
     setShowHistory(false);
   }, []);
 
-  const renameThread = useCallback(
-    (thread: ChatThread) => {
-      const nextTitle = window.prompt("New chat title", thread.title)?.trim();
-      if (!nextTitle) return;
-      setThreads((prev) =>
-        prev.map((item) =>
-          item.id === thread.id
-            ? { ...item, title: nextTitle, updatedAt: new Date().toISOString() }
-            : item,
-        ),
-      );
-    },
-    [],
-  );
+  const renameThread = useCallback((thread: ChatThread) => {
+    const nextTitle = window.prompt("New chat title", thread.title)?.trim();
+    if (!nextTitle) return;
+    setThreads((prev) =>
+      prev.map((item) =>
+        item.id === thread.id
+          ? { ...item, title: nextTitle, updatedAt: new Date().toISOString() }
+          : item,
+      ),
+    );
+  }, []);
 
   const deleteThread = useCallback(
     (threadId: string) => {
@@ -354,7 +349,8 @@ export default function AiChat() {
       messages: nextMessages,
       updatedAt: new Date().toISOString(),
       title:
-        thread.messages.length === 0 && /^(New chat|Getting started)$/i.test(thread.title)
+        thread.messages.length === 0 &&
+        /^(New chat|Getting started)$/i.test(thread.title)
           ? text.slice(0, 40)
           : thread.title,
     }));
@@ -380,7 +376,9 @@ export default function AiChat() {
 
       if (!res.ok) {
         const fallbackText = await res.text().catch(() => "");
-        throw new Error(fallbackText || `Request failed with HTTP ${res.status}`);
+        throw new Error(
+          fallbackText || `Request failed with HTTP ${res.status}`,
+        );
       }
 
       if (!res.body) throw new Error("No response stream");
@@ -403,7 +401,10 @@ export default function AiChat() {
           } else if (event.type === "done") {
             updateActiveThread((thread) => ({
               ...thread,
-              messages: [...thread.messages, { role: "assistant", content: event.text }],
+              messages: [
+                ...thread.messages,
+                { role: "assistant", content: event.text },
+              ],
               updatedAt: new Date().toISOString(),
             }));
             setLiveStatus(null);
@@ -425,7 +426,10 @@ export default function AiChat() {
         setLiveStatus(null);
         return;
       }
-      const message = error instanceof Error ? error.message : "Не вдалося отримати відповідь";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Не вдалося отримати відповідь";
       updateActiveThread((thread) => ({
         ...thread,
         messages: [
@@ -452,7 +456,7 @@ export default function AiChat() {
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label="AI Асистент"
-        className={`fixed bottom-6 right-6 z-[65] flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-primary via-primary to-secondary text-white shadow-[0_18px_60px_rgba(99,14,212,0.45)] ring-1 ring-white/10 transition-all hover:scale-105 hover:shadow-[0_22px_70px_rgba(99,14,212,0.58)] cursor-pointer ${open ? "hidden sm:flex" : ""}`}
+        className={`fixed bottom-6 right-6 z-65 flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-primary via-primary to-secondary text-white shadow-[0_18px_60px_rgba(99,14,212,0.45)] ring-1 ring-white/10 transition-all hover:scale-105 hover:shadow-[0_22px_70px_rgba(99,14,212,0.58)] cursor-pointer ${open ? "hidden sm:flex" : ""}`}
       >
         {open ? (
           <svg
@@ -474,7 +478,7 @@ export default function AiChat() {
       {/* Backdrop to close on outside click */}
       {open && (
         <div
-          className="fixed inset-0 z-[63] bg-slate-950/55 backdrop-blur-md"
+          className="fixed inset-0 z-63 bg-slate-950/55 backdrop-blur-md"
           onClick={() => setOpen(false)}
           aria-hidden
         />
@@ -483,15 +487,15 @@ export default function AiChat() {
       {/* Chat panel */}
       {open && (
         <div
-          className="fixed inset-0 z-[64] flex items-start justify-center p-2 pt-2 sm:items-center sm:p-4"
+          className="fixed inset-0 z-64 flex items-start justify-center p-2 pt-2 sm:items-center sm:p-4"
           onClick={() => setOpen(false)}
         >
           <div
-            className="relative mt-2 flex h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] flex-col overflow-hidden border border-white/10 bg-[#0b1020] shadow-[0_28px_90px_rgba(0,0,0,0.6)] sm:mt-0 sm:h-[min(860px,calc(100dvh-2rem))] sm:w-full sm:max-w-[1080px] sm:rounded-[28px]"
+            className="relative mt-2 flex h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] flex-col overflow-hidden border border-white/10 bg-[#0b1020] shadow-[0_28px_90px_rgba(0,0,0,0.6)] sm:mt-0 sm:h-[min(860px,calc(100dvh-2rem))] sm:w-full sm:max-w-270 sm:rounded-[28px]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(139,92,246,0.20),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(14,165,233,0.16),transparent_36%)]" />
-            <div className="pointer-events-none absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:28px_28px]" />
+            <div className="pointer-events-none absolute inset-0 opacity-[0.18] bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-size-[28px_28px]" />
 
             <div className="relative z-10 flex items-center gap-3 border-b border-white/10 bg-white/5 px-4 py-3.5 backdrop-blur-xl">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-secondary shadow-[0_16px_40px_rgba(99,14,212,0.35)]">
@@ -505,8 +509,22 @@ export default function AiChat() {
                 >
                   <path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z" />
                   <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-                  <line x1="9" y1="9" x2="9.01" y2="9" strokeWidth="3" strokeLinecap="round" />
-                  <line x1="15" y1="9" x2="15.01" y2="9" strokeWidth="3" strokeLinecap="round" />
+                  <line
+                    x1="9"
+                    y1="9"
+                    x2="9.01"
+                    y2="9"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                  />
+                  <line
+                    x1="15"
+                    y1="9"
+                    x2="15.01"
+                    y2="9"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                  />
                 </svg>
               </div>
 
@@ -617,7 +635,9 @@ export default function AiChat() {
                         </div>
                         <div className="mt-1 flex items-center justify-between text-[10px] text-text-muted">
                           <span>{thread.messages.length} messages</span>
-                          <span>{new Date(thread.updatedAt).toLocaleDateString()}</span>
+                          <span>
+                            {new Date(thread.updatedAt).toLocaleDateString()}
+                          </span>
                         </div>
                       </button>
 
@@ -643,218 +663,249 @@ export default function AiChat() {
               <main className="relative flex min-w-0 flex-1 flex-col">
                 <div className="flex min-h-0 flex-1 flex-col">
                   <div className="flex-1 overflow-y-auto px-3 py-4 sm:px-5 sm:py-6">
-            {messages.length === 0 && (
-              <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-                <div className="rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-[0_16px_50px_rgba(0,0,0,0.18)] backdrop-blur-xl">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/15 px-3 py-1 text-[11px] text-text-muted">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                    AI assistant
-                  </div>
-                  <h2 className="mt-4 text-[28px] font-semibold tracking-tight text-white sm:text-[34px]">
-                    Ask like you would in ChatGPT or Gemini
-                  </h2>
-                  <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-text-muted">
-                    Start with a question, jump to a lesson with <span className="text-white">@</span>, or use one of the quick prompts.
-                  </p>
-                  <div className="mt-6 flex flex-wrap gap-2">
-                    {QUICK_PROMPTS.slice(0, 3).map((p) => (
-                      <button
-                        key={p.text}
-                        onClick={() => setInput(p.text)}
-                        className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[12px] text-white transition-colors hover:border-primary/40 hover:bg-primary/10 cursor-pointer"
-                      >
-                        {p.icon} {p.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                    {messages.length === 0 && (
+                      <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+                        <div className="rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-[0_16px_50px_rgba(0,0,0,0.18)] backdrop-blur-xl">
+                          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/15 px-3 py-1 text-[11px] text-text-muted">
+                            <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                            AI assistant
+                          </div>
+                          <h2 className="mt-4 text-[28px] font-semibold tracking-tight text-white sm:text-[34px]">
+                            Ask like you would in ChatGPT or Gemini
+                          </h2>
+                          <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-text-muted">
+                            Start with a question, jump to a lesson with{" "}
+                            <span className="text-white">@</span>, or use one of
+                            the quick prompts.
+                          </p>
+                          <div className="mt-6 flex flex-wrap gap-2">
+                            {QUICK_PROMPTS.slice(0, 3).map((p) => (
+                              <button
+                                key={p.text}
+                                onClick={() => setInput(p.text)}
+                                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[12px] text-white transition-colors hover:border-primary/40 hover:bg-primary/10 cursor-pointer"
+                              >
+                                {p.icon} {p.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
 
-                <div className="rounded-[28px] border border-white/10 bg-black/15 p-5 backdrop-blur-xl">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-text-muted">
-                    Tips
-                  </p>
-                  <div className="mt-4 space-y-3">
-                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                      <p className="text-[13px] font-medium text-white">Use short prompts</p>
-                      <p className="mt-1 text-[12px] leading-relaxed text-text-muted">
-                        Try asking for lists, summaries, or one specific task.
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                      <p className="text-[13px] font-medium text-white">Use @ for lessons</p>
-                      <p className="mt-1 text-[12px] leading-relaxed text-text-muted">
-                        Mention a lesson title to help the assistant find the right context.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {messages.map((msg, i) => {
-              const isUser = msg.role === "user";
-              return (
-                <div
-                  key={i}
-                  className={`mb-4 flex items-end gap-3 ${isUser ? "justify-end" : "justify-start"}`}
-                >
-                  {!isUser && (
-                    <div className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-secondary text-[12px] font-semibold text-white shadow-[0_14px_30px_rgba(99,14,212,0.25)] sm:flex">
-                      AI
-                    </div>
-                  )}
-                  <div
-                    className={[
-                      "max-w-[min(740px,88%)] rounded-[24px] px-4 py-3 text-[14px] leading-relaxed shadow-sm",
-                      isUser
-                        ? "rounded-br-md bg-linear-to-br from-primary to-secondary text-white shadow-[0_14px_30px_rgba(99,14,212,0.25)]"
-                        : "rounded-bl-md border border-white/10 bg-white/7 text-white backdrop-blur-xl",
-                    ].join(" ")}
-                  >
-                    {isUser ? (
-                      <p className="whitespace-pre-wrap">{msg.content}</p>
-                    ) : (
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={mdComponents}
-                      >
-                        {msg.content}
-                      </ReactMarkdown>
+                        <div className="rounded-[28px] border border-white/10 bg-black/15 p-5 backdrop-blur-xl">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-text-muted">
+                            Tips
+                          </p>
+                          <div className="mt-4 space-y-3">
+                            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                              <p className="text-[13px] font-medium text-white">
+                                Use short prompts
+                              </p>
+                              <p className="mt-1 text-[12px] leading-relaxed text-text-muted">
+                                Try asking for lists, summaries, or one specific
+                                task.
+                              </p>
+                            </div>
+                            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                              <p className="text-[13px] font-medium text-white">
+                                Use @ for lessons
+                              </p>
+                              <p className="mt-1 text-[12px] leading-relaxed text-text-muted">
+                                Mention a lesson title to help the assistant
+                                find the right context.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     )}
-                  </div>
-                </div>
-              );
-            })}
 
-            {liveStatus && (
-              <div className="mb-4 flex justify-start gap-3">
-                <div className="hidden h-9 w-9 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-secondary text-[12px] font-semibold text-white sm:flex">
-                  AI
-                </div>
-                <div className="rounded-[24px] border border-white/10 bg-white/7 px-4 py-3 text-[13px] text-text-muted backdrop-blur-xl">
-                  <span className="inline-flex items-center gap-2">
-                    <span className="inline-flex gap-1">
-                      {[0, 1, 2].map((i) => (
-                        <span
+                    {messages.map((msg, i) => {
+                      const isUser = msg.role === "user";
+                      return (
+                        <div
                           key={i}
-                          className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce"
-                          style={{ animationDelay: `${i * 150}ms` }}
-                        />
+                          className={`mb-4 flex items-end gap-3 ${isUser ? "justify-end" : "justify-start"}`}
+                        >
+                          {!isUser && (
+                            <div className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-secondary text-[12px] font-semibold text-white shadow-[0_14px_30px_rgba(99,14,212,0.25)] sm:flex">
+                              AI
+                            </div>
+                          )}
+                          <div
+                            className={[
+                              "max-w-[min(740px,88%)] rounded-3xl px-4 py-3 text-[14px] leading-relaxed shadow-sm",
+                              isUser
+                                ? "rounded-br-md bg-linear-to-br from-primary to-secondary text-white shadow-[0_14px_30px_rgba(99,14,212,0.25)]"
+                                : "rounded-bl-md border border-white/10 bg-white/7 text-white backdrop-blur-xl",
+                            ].join(" ")}
+                          >
+                            {isUser ? (
+                              <p className="whitespace-pre-wrap">
+                                {msg.content}
+                              </p>
+                            ) : (
+                              <ReactMarkdown
+                                remarkPlugins={[remarkGfm]}
+                                components={mdComponents}
+                              >
+                                {msg.content}
+                              </ReactMarkdown>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {liveStatus && (
+                      <div className="mb-4 flex justify-start gap-3">
+                        <div className="hidden h-9 w-9 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-secondary text-[12px] font-semibold text-white sm:flex">
+                          AI
+                        </div>
+                        <div className="rounded-3xl border border-white/10 bg-white/7 px-4 py-3 text-[13px] text-text-muted backdrop-blur-xl">
+                          <span className="inline-flex items-center gap-2">
+                            <span className="inline-flex gap-1">
+                              {[0, 1, 2].map((i) => (
+                                <span
+                                  key={i}
+                                  className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce"
+                                  style={{ animationDelay: `${i * 150}ms` }}
+                                />
+                              ))}
+                            </span>
+                            {liveStatus}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div ref={scrollRef} />
+                  </div>
+
+                  {showMentions && filteredLessons.length > 0 && (
+                    <div className="relative z-10 mx-3 mb-3 max-h-48 overflow-y-auto rounded-2xl border border-white/10 bg-bg-dark/95 shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:mx-5">
+                      <div className="flex items-center justify-between border-b border-white/10 px-4 py-2">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-text-muted">
+                          Lessons
+                        </p>
+                        <span className="text-[10px] text-text-muted">
+                          {filteredLessons.length}
+                        </span>
+                      </div>
+                      {filteredLessons.map((lesson) => (
+                        <button
+                          key={lesson.id}
+                          onClick={() => insertMention(lesson)}
+                          className="flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-white/5"
+                        >
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/5 text-sm">
+                            📚
+                          </span>
+                          <span className="min-w-0 flex-1 truncate text-[13px] text-white">
+                            {lesson.title}
+                          </span>
+                          <span className="shrink-0 text-[11px] text-text-muted">
+                            {lesson.group_name}
+                          </span>
+                        </button>
                       ))}
-                    </span>
-                    {liveStatus}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            <div ref={scrollRef} />
-          </div>
-
-          {showMentions && filteredLessons.length > 0 && (
-            <div className="relative z-10 mx-3 mb-3 max-h-48 overflow-y-auto rounded-2xl border border-white/10 bg-[#0f172a]/95 shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:mx-5">
-              <div className="flex items-center justify-between border-b border-white/10 px-4 py-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-text-muted">
-                  Lessons
-                </p>
-                <span className="text-[10px] text-text-muted">
-                  {filteredLessons.length}
-                </span>
-              </div>
-              {filteredLessons.map((lesson) => (
-                <button
-                  key={lesson.id}
-                  onClick={() => insertMention(lesson)}
-                  className="flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-white/5"
-                >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/5 text-sm">
-                    📚
-                  </span>
-                  <span className="min-w-0 flex-1 truncate text-[13px] text-white">
-                    {lesson.title}
-                  </span>
-                  <span className="shrink-0 text-[11px] text-text-muted">
-                    {lesson.group_name}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-
-          <div className="relative z-10 border-t border-white/10 bg-black/15 px-3 py-3 backdrop-blur-xl sm:px-5">
-            <div className="rounded-[26px] border border-white/10 bg-white/6 p-3 shadow-[0_18px_50px_rgba(0,0,0,0.25)]">
-              <div className="flex items-end gap-2">
-                <textarea
-                  ref={inputRef}
-                  value={input}
-                  onChange={(e) => {
-                    setInput(e.target.value);
-                    const el = e.target;
-                    el.style.height = "auto";
-                    el.style.height = `${Math.min(el.scrollHeight, 132)}px`;
-                    el.style.overflowY = el.scrollHeight > 132 ? "auto" : "hidden";
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") {
-                      setInput((prev) => prev.replace(/@([^\s]*)$/, ""));
-                      return;
-                    }
-                    if (e.key === "Enter" && !e.shiftKey && !showMentions) {
-                      e.preventDefault();
-                      send();
-                    }
-                  }}
-                  placeholder="Ask anything... (@ to search lessons)"
-                  rows={1}
-                  disabled={loading}
-                  className="flex-1 resize-none bg-transparent px-2 py-2 text-[14px] text-white outline-none placeholder:text-text-muted disabled:opacity-50"
-                  style={{ height: "48px", maxHeight: "132px", overflowY: "hidden" }}
-                />
-                <button
-                  onClick={loading ? stopGenerating : send}
-                  disabled={!loading && !input.trim()}
-                  className={[
-                    "flex h-11 shrink-0 items-center justify-center rounded-2 la text-white shadow-[0_16px_30px_rgba(99,14,212,0.3)] transition-all hover:scale-[1.03] hover:shadow-[0_18px_34px_rgba(99,14,212,0.38)] disabled:scale-100 disabled:opacity-40 cursor-pointer",
-                    loading
-                      ? "w-auto gap-2 bg-linear-to-br from-rose-500 to-orange-500 px-4"
-                      : "w-11 bg-linear-to-br from-primary to-secondary",
-                  ].join(" ")}
-                  aria-label={loading ? "Зупинити генерацію" : "Надіслати"}
-                >
-                  {loading ? (
-                    <>
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        aria-hidden
-                      >
-                        <rect x="6" y="6" width="12" height="12" rx="2" />
-                      </svg>
-                      <span className="text-[12px] font-medium">Stop</span>
-                    </>
-                  ) : (
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <line x1="22" y1="2" x2="11" y2="13" />
-                      <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                    </svg>
+                    </div>
                   )}
-                </button>
-              </div>
-              <div className="mt-2 flex items-center justify-between px-2 text-[10px] text-text-muted">
-                <span>Shift + Enter for a new line</span>
-                <span>@ lessons search</span>
-              </div>
-            </div>
-          </div>
+
+                  <div className="relative z-10 border-t border-white/10 bg-black/15 px-3 py-3 backdrop-blur-xl sm:px-5">
+                    <div className="rounded-[26px] border border-white/10 bg-white/6 p-3 shadow-[0_18px_50px_rgba(0,0,0,0.25)]">
+                      <div className="flex items-end gap-2">
+                        <textarea
+                          ref={inputRef}
+                          value={input}
+                          onChange={(e) => {
+                            setInput(e.target.value);
+                            const el = e.target;
+                            el.style.height = "auto";
+                            el.style.height = `${Math.min(el.scrollHeight, 132)}px`;
+                            el.style.overflowY =
+                              el.scrollHeight > 132 ? "auto" : "hidden";
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Escape") {
+                              setInput((prev) =>
+                                prev.replace(/@([^\s]*)$/, ""),
+                              );
+                              return;
+                            }
+                            if (
+                              e.key === "Enter" &&
+                              !e.shiftKey &&
+                              !showMentions
+                            ) {
+                              e.preventDefault();
+                              send();
+                            }
+                          }}
+                          placeholder="Ask anything... (@ to search lessons)"
+                          rows={1}
+                          disabled={loading}
+                          className="flex-1 resize-none bg-transparent px-2 py-2 text-[14px] text-white outline-none placeholder:text-text-muted disabled:opacity-50"
+                          style={{
+                            height: "48px",
+                            maxHeight: "132px",
+                            overflowY: "hidden",
+                          }}
+                        />
+                        <button
+                          onClick={loading ? stopGenerating : send}
+                          disabled={!loading && !input.trim()}
+                          className={[
+                            "flex h-11 shrink-0 items-center justify-center rounded-2 la text-white shadow-[0_16px_30px_rgba(99,14,212,0.3)] transition-all hover:scale-[1.03] hover:shadow-[0_18px_34px_rgba(99,14,212,0.38)] disabled:scale-100 disabled:opacity-40 cursor-pointer",
+                            loading
+                              ? "w-auto gap-2 bg-linear-to-br from-rose-500 to-orange-500 px-4"
+                              : "w-11 bg-linear-to-br from-primary to-secondary",
+                          ].join(" ")}
+                          aria-label={
+                            loading ? "Зупинити генерацію" : "Надіслати"
+                          }
+                        >
+                          {loading ? (
+                            <>
+                              <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                aria-hidden
+                              >
+                                <rect
+                                  x="6"
+                                  y="6"
+                                  width="12"
+                                  height="12"
+                                  rx="2"
+                                />
+                              </svg>
+                              <span className="text-[12px] font-medium">
+                                Stop
+                              </span>
+                            </>
+                          ) : (
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <line x1="22" y1="2" x2="11" y2="13" />
+                              <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                      <div className="mt-2 flex items-center justify-between px-2 text-[10px] text-text-muted">
+                        <span>Shift + Enter for a new line</span>
+                        <span>@ lessons search</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </main>
             </div>

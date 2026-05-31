@@ -76,7 +76,7 @@ export default function Sidebar({
         mobileOpen
           ? "translate-x-0 md:translate-x-0"
           : "-translate-x-full md:translate-x-0",
-        collapsed ? "md:w-[72px]" : "md:w-sidebar",
+        collapsed ? "md:w-18" : "md:w-sidebar",
         "w-sidebar",
       ].join(" ")}
     >

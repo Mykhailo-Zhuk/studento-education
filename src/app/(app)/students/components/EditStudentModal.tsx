@@ -85,7 +85,7 @@ export default function EditStudentModal({
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-center justify-center pb-20 modal-overlay"
+      className="fixed inset-0 z-70 flex items-center justify-center pb-20 modal-overlay"
       onClick={onClose}
     >
       <div

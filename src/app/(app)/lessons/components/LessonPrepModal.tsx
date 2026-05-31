@@ -122,7 +122,7 @@ export default function LessonPrepModal({ lesson, onClose, onEdit }: Props) {
                 {copied ? "Copied" : "Copy brief"}
               </button>
             </div>
-            <pre className="whitespace-pre-wrap break-words rounded-xl border border-border-light bg-surface-gray-light p-4 text-[13px] leading-6 text-text-primary overflow-auto">
+            <pre className="whitespace-pre-wrap wrap-break-word rounded-xl border border-border-light bg-surface-gray-light p-4 text-[13px] leading-6 text-text-primary overflow-auto">
               {brief}
             </pre>
           </div>

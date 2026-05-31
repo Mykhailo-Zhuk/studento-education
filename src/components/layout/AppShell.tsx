@@ -80,7 +80,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <div
           className={[
             "min-dvh-screen min-w-0 transition-[margin-left] duration-300",
-            sidebarCollapsed ? "md:ml-[72px]" : "md:ml-sidebar",
+            sidebarCollapsed ? "md:ml-18" : "md:ml-sidebar",
           ].join(" ")}
         >
           {children}

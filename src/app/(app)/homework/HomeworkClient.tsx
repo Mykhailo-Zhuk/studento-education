@@ -416,7 +416,7 @@ function HomeworkActionMenu({
                   } ${value === "completed" ? "text-success" : "text-warning"}`}
                 >
                   <span
-                    className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                    className={`w-2 h-2 rounded-full shrink-0 ${
                       value === "completed" ? "bg-success" : "bg-warning"
                     }`}
                   />
@@ -639,7 +639,7 @@ function MarkdownContent({ text }: { text: string }) {
       if (m) {
         nodes.push(
           <div key={i} className="flex gap-2 pl-2">
-            <span className="text-text-muted shrink-0 min-w-[1.5rem]">
+            <span className="text-text-muted shrink-0 min-w-6">
               {m[1]}.
             </span>
             <span>{parseInline(m[2])}</span>
@@ -1482,7 +1482,7 @@ export default function HomeworkClient({
       {/* Two-pane area */}
       <div className="flex-1 md:overflow-hidden mx-3 sm:mx-6 my-3 sm:my-4 flex flex-col md:flex-row bg-white border border-border-light rounded-xl shadow-sm">
         {/* Left: compact list */}
-        <div className="h-64 md:h-auto w-full md:w-[35vw] md:min-w-[220px] md:max-w-[420px] border-b border-border-light md:border-b-0 md:border-r overflow-y-auto md:shrink-0 flex flex-col">
+        <div className="h-64 md:h-auto w-full md:w-[35vw] md:min-w-55 md:max-w-105 border-b border-border-light md:border-b-0 md:border-r overflow-y-auto md:shrink-0 flex flex-col">
           {filteredRows.length === 0 ? (
             <p className="p-4 text-[12px] text-text-muted text-center mt-8">
               No homework matches the current filters.
@@ -1527,7 +1527,7 @@ export default function HomeworkClient({
                       <span className="text-[14px] text-text-muted shrink-0">
                         {row.displayDate}
                       </span>
-                      <span className="text-[14px] px-1.5 py-0.5 rounded-full bg-surface-container text-primary font-bold truncate max-w-[90px]">
+                      <span className="text-[14px] px-1.5 py-0.5 rounded-full bg-surface-container text-primary font-bold truncate max-w-22.5">
                         {row.group_name}
                       </span>
                     </div>
