@@ -66,6 +66,13 @@ function NotificationItem({
 }
 
 function SettingsModal({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
   const [defaultHours, setDefaultHours] = useState(() => {
     if (typeof window === "undefined") return "24";
     return localStorage.getItem("studento.link.defaultHours") ?? "24";
@@ -90,11 +97,11 @@ function SettingsModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+      className="fixed inset-0 z-90 flex items-center justify-center modal-overlay p-4"
       onClick={onClose}
     >
       <div
-        className="bg-surface rounded-2xl shadow-2xl w-full max-w-md mx-4"
+        className="modal-panel bg-bg-dark rounded-2xl shadow-2xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-border-light">
