@@ -189,6 +189,9 @@ body {
 .dark .bg-success-light {
   background-color: rgba(124, 58, 237, 0.14) !important;
 }
+.dark .bg-success-light:hover {
+  background-color: rgba(124, 58, 237, 0.513) !important;
+}
 .dark .border-blue-100,
 .dark .border-amber-100,
 .dark .border-green-200 {
@@ -198,6 +201,11 @@ body {
 .dark .text-warning,
 .dark .text-success {
   color: rgba(196, 181, 253, 0.92) !important;
+}
+
+.dark .cross-hover:hover {
+  background-color: rgba(255, 255, 255, 0.269) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
 }
 
 /* Text */

@@ -385,7 +385,7 @@ function HomeworkActionMenu({
           right: anchor.right,
           zIndex: 50,
         }}
-        className="bg-white border border-border-light rounded-xl shadow-lg py-1 w-44"
+        className="bg-white border border-border-light rounded-xl shadow-lg py-1 w-44 modal-panel"
       >
         <button
           onClick={() => onEdit(anchor.homework)}

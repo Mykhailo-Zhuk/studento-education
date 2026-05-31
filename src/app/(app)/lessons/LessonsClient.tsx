@@ -284,7 +284,7 @@ export default function LessonsClient({
             onClick={() => setOpenMenu(null)}
           />
           <div
-            className="fixed z-50 w-52 bg-surface rounded-xl shadow-xl border border-border-light py-1.5"
+            className="fixed z-50 w-52 bg-surface rounded-xl shadow-xl border border-border-light py-1.5 modal-panel"
             style={{ top: openMenu.top, right: openMenu.right }}
           >
             <LessonMenu

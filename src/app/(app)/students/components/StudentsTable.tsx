@@ -96,7 +96,7 @@ function HomeworkPopup({
     <div
       ref={ref}
       style={{ position: "fixed", top, left }}
-      className="z-50 bg-white border border-border-light rounded-xl shadow-xl p-3 w-80"
+      className="z-50 bg-white border border-border-light rounded-xl shadow-xl p-3 w-80 modal-panel"
     >
       <div className="flex items-center justify-between mb-3">
         <span
@@ -177,7 +177,7 @@ function HomeworkListPopup({
     <div
       ref={ref}
       style={{ position: "fixed", top, left }}
-      className="z-9999 bg-white border border-border-light rounded-xl shadow-xl w-100 overflow-hidden"
+      className="z-9999 bg-white border border-border-light rounded-xl shadow-xl w-100 overflow-hidden modal-panel"
     >
       <div className="flex items-center justify-between px-4 py-3 border-b border-border-light">
         <span className="text-[13px] font-semibold text-text-primary">
@@ -534,21 +534,21 @@ export default function StudentsTable({
           <button
             onClick={(e) => openHwPopup(s.id, s.group, true, e)}
             title="Mark homework done"
-            className={`${hwBtnBase} bg-success-light text-success hover:bg-success hover:text-white`}
+            className={`${hwBtnBase} bg-success-light text-success hover:bg-success hover:text-white active:scale-95 transition-all duration-200 cursor-pointer`}
           >
             +
           </button>
           <button
             onClick={(e) => openHwPopup(s.id, s.group, false, e)}
             title="Mark homework missed"
-            className={`${hwBtnBase} bg-error-light text-error hover:bg-error hover:text-white`}
+            className={`${hwBtnBase} bg-error-light text-error hover:bg-[#dc262684] hover:text-white active:scale-95 transition-all duration-200 cursor-pointer`}
           >
             −
           </button>
           <button
             onClick={(e) => openHwListPopup(s.id, e)}
             title="Manage homework records"
-            className={`${hwBtnBase} bg-surface-gray-light text-text-muted hover:bg-border-light hover:text-text-primary`}
+            className={`${hwBtnBase} bg-surface-gray-light text-text-muted hover:bg-primary hover:text-white cross-hover active:scale-95 transition-all duration-200 cursor-pointer`}
           >
             <X size={12} />
           </button>
@@ -983,7 +983,7 @@ export default function StudentsTable({
                         <MoreVertical size={16} />
                       </button>
                       {openMenuId === s.id && (
-                        <div className="absolute right-0 top-9 z-20 bg-white border border-border-light rounded-lg shadow-lg py-1 min-w-32.5">
+                        <div className="absolute right-0 top-9 z-20 bg-white border border-border-light rounded-lg shadow-lg py-1 min-w-32.5 modal-panel">
                           <button
                             onClick={() => {
                               onEdit(s);

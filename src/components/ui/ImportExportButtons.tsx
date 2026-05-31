@@ -1,7 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Download, Upload, ChevronDown, FileJson, FileText, Sheet } from "lucide-react";
+import {
+  Download,
+  Upload,
+  ChevronDown,
+  FileJson,
+  FileText,
+  Sheet,
+} from "lucide-react";
 import { parseImportFile } from "@/lib/import-export";
 
 interface ImportExportButtonsProps {
@@ -73,13 +80,19 @@ export default function ImportExportButtons({
         >
           <Download size={14} />
           Export
-          <ChevronDown size={12} className={`transition-transform ${exportOpen ? "rotate-180" : ""}`} />
+          <ChevronDown
+            size={12}
+            className={`transition-transform ${exportOpen ? "rotate-180" : ""}`}
+          />
         </button>
 
         {exportOpen && (
           <>
-            <div className="fixed inset-0 z-10" onClick={() => setExportOpen(false)} />
-            <div className="absolute right-0 top-full mt-1 bg-white border border-border-light rounded-xl shadow-lg py-1 w-36 z-20">
+            <div
+              className="fixed inset-0 z-10"
+              onClick={() => setExportOpen(false)}
+            />
+            <div className="absolute right-0 top-full mt-1 bg-white border border-border-light rounded-xl shadow-lg py-1 w-36 z-20 modal-panel">
               {EXPORT_FORMATS.map(({ id, label, Icon }) => (
                 <button
                   key={id}

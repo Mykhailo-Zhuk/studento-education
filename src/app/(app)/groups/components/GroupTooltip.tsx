@@ -29,7 +29,7 @@ export default function GroupTooltip({
           left: tooltip.left,
           width: 360,
         }}
-        className="fixed z-70 rounded-xl border border-border-light bg-white shadow-2xl p-4 pointer-events-auto"
+        className="fixed z-70 rounded-xl border border-border-light bg-white shadow-2xl p-4 pointer-events-auto modal-panel"
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
@@ -55,7 +55,7 @@ export default function GroupTooltip({
             {copiedValue === tooltip.value ? "Copied" : "Copy"}
           </button>
         </div>
-        <div className="max-h-40 overflow-auto rounded-lg border border-[#f1f5f9] bg-surface-gray-light p-3">
+        <div className="max-h-40 overflow-auto rounded-lg border border-border-light bg-surface-gray-light p-3">
           <p className="text-[13px] leading-5 text-text-primary whitespace-pre-wrap select-text wrap-break-word">
             {tooltip.value}
           </p>
