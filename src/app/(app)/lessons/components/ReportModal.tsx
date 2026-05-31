@@ -14,7 +14,9 @@ type Period = "first-half" | "full-month";
 export default function ReportModal({ lessons, onClose }: Props) {
   useEffect(() => {
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, []);
 
   const [period, setPeriod] = useState<Period>("first-half");
@@ -29,7 +31,9 @@ export default function ReportModal({ lessons, onClose }: Props) {
   const fromDate = `${year}-${monthStr}-01`;
   const toDate = `${year}-${monthStr}-${String(toDay).padStart(2, "0")}`;
 
-  const periodLessons = lessons.filter((l) => l.date >= fromDate && l.date <= toDate);
+  const periodLessons = lessons.filter(
+    (l) => l.date >= fromDate && l.date <= toDate,
+  );
   const count = periodLessons.length;
   const totalHours = periodLessons.reduce((sum, l) => sum + (l.hours ?? 2), 0);
   const payment = 450 * totalHours;
@@ -43,11 +47,20 @@ export default function ReportModal({ lessons, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay" onClick={onClose}>
-      <div className="modal-panel bg-bg-dark rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center modal-overlay"
+      onClick={onClose}
+    >
+      <div
+        className="modal-panel bg-bg-dark rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-[16px] font-bold text-white">Generate Report</h3>
-          <button onClick={onClose} className="p-1 text-text-muted hover:text-white transition-colors">
+          <button
+            onClick={onClose}
+            className="p-1 text-text-muted hover:text-white transition-colors"
+          >
             <X size={18} />
           </button>
         </div>

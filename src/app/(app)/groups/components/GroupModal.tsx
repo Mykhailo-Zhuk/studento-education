@@ -4,11 +4,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import type { Group } from "@/lib/types";
 import { useNotifications } from "@/contexts/notifications";
-import {
-  GROUP_STATUSES,
-  GROUP_TYPES,
-  type GroupFormState,
-} from "../types";
+import { GROUP_STATUSES, GROUP_TYPES, type GroupFormState } from "../types";
 import { CustomSelect } from "@/components/ui/CustomSelect";
 
 interface Props {
@@ -60,10 +56,10 @@ export default function GroupModal({ group, onClose, onSaved }: Props) {
     const body = isEdit
       ? payload
       : {
-        id: crypto.randomUUID(),
-        ...payload,
-        members: null,
-      };
+          id: crypto.randomUUID(),
+          ...payload,
+          members: null,
+        };
 
     const res = await fetch(endpoint, {
       method,
@@ -79,12 +75,17 @@ export default function GroupModal({ group, onClose, onSaved }: Props) {
       return;
     }
 
-    notify(isEdit ? `Group "${form.name}" updated` : `Group "${form.name}" created`);
+    notify(
+      isEdit ? `Group "${form.name}" updated` : `Group "${form.name}" created`,
+    );
     onSaved();
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4"
+      onClick={onClose}
+    >
       <div className="modal-panel bg-bg-dark rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 sticky top-0 bg-bg-dark z-10">
           <h3 className="text-[16px] font-bold text-white">

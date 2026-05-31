@@ -14,16 +14,25 @@ interface Props {
   onSaved: (l: Lesson) => void;
 }
 
-export default function LessonModal({ lesson, groups, onClose, onSaved }: Props) {
+export default function LessonModal({
+  lesson,
+  groups,
+  onClose,
+  onSaved,
+}: Props) {
   useEffect(() => {
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, []);
 
   const isEdit = !!lesson;
   const { add: notify } = useNotifications();
   const groupNames = groups.map((g) => g.name);
-  const uniqueTypes = [...new Set(groups.map((g) => g.type).filter(Boolean))].sort();
+  const uniqueTypes = [
+    ...new Set(groups.map((g) => g.type).filter(Boolean)),
+  ].sort();
 
   const [form, setForm] = useState<LessonForm>(
     lesson
@@ -33,7 +42,10 @@ export default function LessonModal({ lesson, groups, onClose, onSaved }: Props)
           hours: lesson.hours,
           group_name: lesson.group_name,
           type: lesson.type,
-          status: (lesson.status?.toLowerCase() === "pending" ? "planning" : lesson.status?.toLowerCase()) ?? "planning",
+          status:
+            (lesson.status?.toLowerCase() === "pending"
+              ? "planning"
+              : lesson.status?.toLowerCase()) ?? "planning",
           has_homework: lesson.has_homework,
           has_feedback: lesson.has_feedback,
           youtube_url: lesson.youtube_url ?? "",
@@ -84,14 +96,19 @@ export default function LessonModal({ lesson, groups, onClose, onSaved }: Props)
       const data = (await res.json()) as Lesson | { error?: string };
 
       if (!res.ok) {
-        const msg = "error" in data && data.error ? data.error : "Failed to save lesson";
+        const msg =
+          "error" in data && data.error ? data.error : "Failed to save lesson";
         setError(msg);
         notify(msg, "error");
         setSaving(false);
         return;
       }
 
-      notify(isEdit ? `Lesson "${form.title}" updated` : `Lesson "${form.title}" added`);
+      notify(
+        isEdit
+          ? `Lesson "${form.title}" updated`
+          : `Lesson "${form.title}" added`,
+      );
       setSaving(false);
       onSaved(data as Lesson);
       onClose();
@@ -103,38 +120,79 @@ export default function LessonModal({ lesson, groups, onClose, onSaved }: Props)
     }
   }
 
-  const inputCls = "w-full border border-border-light rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/20";
+  const inputCls =
+    "w-full border border-border-light rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/20";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay" onClick={onClose}>
-      <div className="modal-panel bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center modal-overlay"
+      onClick={onClose}
+    >
+      <div
+        className="modal-panel bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8 max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-[22px] font-bold text-text-primary">{isEdit ? "Edit Lesson" : "New Lesson"}</h2>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface-container transition-colors">
+          <h2 className="text-[22px] font-bold text-text-primary">
+            {isEdit ? "Edit Lesson" : "New Lesson"}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-surface-container transition-colors"
+          >
             <X size={18} className="text-text-secondary" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-[13px] font-semibold text-text-secondary mb-1">Title *</label>
-            <input required value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="Lesson title" className={inputCls} />
+            <label className="block text-[13px] font-semibold text-text-secondary mb-1">
+              Title *
+            </label>
+            <input
+              required
+              value={form.title}
+              onChange={(e) => set("title", e.target.value)}
+              placeholder="Lesson title"
+              className={inputCls}
+            />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[13px] font-semibold text-text-secondary mb-1">Date *</label>
-              <input required type="date" value={form.date} onChange={(e) => set("date", e.target.value)} className={inputCls} />
+              <label className="block text-[13px] font-semibold text-text-secondary mb-1">
+                Date *
+              </label>
+              <input
+                required
+                type="date"
+                value={form.date}
+                onChange={(e) => set("date", e.target.value)}
+                className={inputCls}
+              />
             </div>
             <div>
-              <label className="block text-[13px] font-semibold text-text-secondary mb-1">Hours *</label>
-              <input required type="number" min={0.5} max={8} step={0.5} value={form.hours} onChange={(e) => set("hours", Number(e.target.value))} className={inputCls} />
+              <label className="block text-[13px] font-semibold text-text-secondary mb-1">
+                Hours *
+              </label>
+              <input
+                required
+                type="number"
+                min={0.5}
+                max={8}
+                step={0.5}
+                value={form.hours}
+                onChange={(e) => set("hours", Number(e.target.value))}
+                className={inputCls}
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[13px] font-semibold text-text-secondary mb-1">Group *</label>
+              <label className="block text-[13px] font-semibold text-text-secondary mb-1">
+                Group *
+              </label>
               <CustomSelect
                 value={form.group_name}
                 onChange={handleGroupChange}
@@ -148,7 +206,9 @@ export default function LessonModal({ lesson, groups, onClose, onSaved }: Props)
               />
             </div>
             <div>
-              <label className="block text-[13px] font-semibold text-text-secondary mb-1">Type</label>
+              <label className="block text-[13px] font-semibold text-text-secondary mb-1">
+                Type
+              </label>
               <CustomSelect
                 value={form.type}
                 onChange={(v) => set("type", v)}
@@ -164,7 +224,9 @@ export default function LessonModal({ lesson, groups, onClose, onSaved }: Props)
           </div>
 
           <div>
-            <label className="block text-[13px] font-semibold text-text-secondary mb-1">Status</label>
+            <label className="block text-[13px] font-semibold text-text-secondary mb-1">
+              Status
+            </label>
             <CustomSelect
               value={form.status}
               onChange={(v) => set("status", v)}
@@ -176,33 +238,66 @@ export default function LessonModal({ lesson, groups, onClose, onSaved }: Props)
           </div>
 
           <div>
-            <label className="block text-[13px] font-semibold text-text-secondary mb-1">YouTube URL</label>
-            <input value={form.youtube_url} onChange={(e) => set("youtube_url", e.target.value)} placeholder="https://youtube.com/watch?v=…" className={inputCls} />
+            <label className="block text-[13px] font-semibold text-text-secondary mb-1">
+              YouTube URL
+            </label>
+            <input
+              value={form.youtube_url}
+              onChange={(e) => set("youtube_url", e.target.value)}
+              placeholder="https://youtube.com/watch?v=…"
+              className={inputCls}
+            />
           </div>
 
           <div className="flex gap-6">
             <label className="flex items-center gap-2 text-[14px] text-text-secondary cursor-pointer">
-              <input type="checkbox" checked={form.has_homework} onChange={(e) => set("has_homework", e.target.checked)} className="accent-primary" />
+              <input
+                type="checkbox"
+                checked={form.has_homework}
+                onChange={(e) => set("has_homework", e.target.checked)}
+                className="accent-primary"
+              />
               Has Homework
             </label>
             <label className="flex items-center gap-2 text-[14px] text-text-secondary cursor-pointer">
-              <input type="checkbox" checked={form.has_feedback} onChange={(e) => set("has_feedback", e.target.checked)} className="accent-primary" />
+              <input
+                type="checkbox"
+                checked={form.has_feedback}
+                onChange={(e) => set("has_feedback", e.target.checked)}
+                className="accent-primary"
+              />
               Feedback Given
             </label>
           </div>
 
           <div>
-            <label className="block text-[13px] font-semibold text-text-secondary mb-1">Comment</label>
-            <textarea value={form.comment} onChange={(e) => set("comment", e.target.value)} rows={2} placeholder="Optional notes" className={`${inputCls} resize-none`} />
+            <label className="block text-[13px] font-semibold text-text-secondary mb-1">
+              Comment
+            </label>
+            <textarea
+              value={form.comment}
+              onChange={(e) => set("comment", e.target.value)}
+              rows={2}
+              placeholder="Optional notes"
+              className={`${inputCls} resize-none`}
+            />
           </div>
 
           {error && <p className="text-[13px] text-error">{error}</p>}
 
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 py-2.5 border border-border-light rounded-xl text-text-secondary font-semibold text-[14px] hover:bg-surface-gray-light transition-all">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-2.5 border border-border-light rounded-xl text-text-secondary font-semibold text-[14px] hover:bg-surface-gray-light transition-all"
+            >
               Cancel
             </button>
-            <button type="submit" disabled={saving} className="flex-1 py-2.5 bg-primary text-white rounded-xl font-semibold text-[14px] hover:bg-primary-hover transition-all disabled:opacity-60 flex items-center justify-center gap-2">
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 py-2.5 bg-primary text-white rounded-xl font-semibold text-[14px] hover:bg-primary-hover transition-all disabled:opacity-60 flex items-center justify-center gap-2"
+            >
               {saving && <Loader2 size={16} className="animate-spin" />}
               {saving ? "Saving…" : isEdit ? "Save Changes" : "Add Lesson"}
             </button>

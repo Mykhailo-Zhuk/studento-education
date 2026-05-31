@@ -14,33 +14,46 @@ interface Props {
 export default function LessonPrepModal({ lesson, onClose, onEdit }: Props) {
   useEffect(() => {
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, []);
 
   const [copied, setCopied] = useState(false);
   const dayName = useMemo(() => {
     const date = new Date(lesson.date);
-    return Number.isNaN(date.getTime()) ? lesson.date : DAY_FULL[(date.getDay() + 6) % 7];
+    return Number.isNaN(date.getTime())
+      ? lesson.date
+      : DAY_FULL[(date.getDay() + 6) % 7];
   }, [lesson.date]);
 
   const brief = useMemo(
-    () => [
-      `Lesson prep: ${lesson.title}`,
-      `Date: ${formatDisplayDate(lesson.date)}`,
-      `Group: ${lesson.group_name}`,
-      `Type: ${lesson.type}`,
-      `Duration: ${lesson.hours}h`,
-      `Status: ${lesson.status}`,
-      "",
-      "Checklist:",
-      "- Confirm topic and examples",
-      "- Prepare slides / demo / exercises",
-      "- Review homework or previous notes",
-      "- Plan a short recap and wrap-up",
-      "",
-      `Best preparation day suggestion: ${dayName}`,
-    ].join("\n"),
-    [dayName, lesson.date, lesson.group_name, lesson.hours, lesson.status, lesson.title, lesson.type],
+    () =>
+      [
+        `Lesson prep: ${lesson.title}`,
+        `Date: ${formatDisplayDate(lesson.date)}`,
+        `Group: ${lesson.group_name}`,
+        `Type: ${lesson.type}`,
+        `Duration: ${lesson.hours}h`,
+        `Status: ${lesson.status}`,
+        "",
+        "Checklist:",
+        "- Confirm topic and examples",
+        "- Prepare slides / demo / exercises",
+        "- Review homework or previous notes",
+        "- Plan a short recap and wrap-up",
+        "",
+        `Best preparation day suggestion: ${dayName}`,
+      ].join("\n"),
+    [
+      dayName,
+      lesson.date,
+      lesson.group_name,
+      lesson.hours,
+      lesson.status,
+      lesson.title,
+      lesson.type,
+    ],
   );
 
   async function handleCopy() {
@@ -88,7 +101,9 @@ export default function LessonPrepModal({ lesson, onClose, onEdit }: Props) {
               <p className="text-text-muted uppercase tracking-wider text-[11px] font-semibold">
                 Status
               </p>
-              <p className="mt-1 font-semibold text-text-primary">{lesson.status}</p>
+              <p className="mt-1 font-semibold text-text-primary">
+                {lesson.status}
+              </p>
               <p className="text-text-secondary">{lesson.hours}h planned</p>
             </div>
           </div>

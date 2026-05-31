@@ -69,8 +69,14 @@ export default function AddStudentModal({ uniqueGroups, onClose }: Props) {
     "text-[12px] font-semibold text-text-secondary uppercase tracking-wider";
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center pb-20 modal-overlay" onClick={onClose}>
-      <div className="modal-panel bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 flex flex-col max-h-[calc(90vh-5rem)]" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-[70] flex items-center justify-center pb-20 modal-overlay"
+      onClick={onClose}
+    >
+      <div
+        className="modal-panel bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 flex flex-col max-h-[calc(90vh-5rem)]"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between px-8 pt-8 pb-4 shrink-0">
           <h3 className="text-[20px] font-bold text-text-primary">
             Add Student

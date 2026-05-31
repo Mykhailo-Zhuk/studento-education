@@ -16,7 +16,10 @@ const DURATION_PRESETS = [
   { label: "30 Days", hours: 30 * 24 },
 ];
 
-export default function GenerateLinkModal({ student, onClose }: GenerateLinkModalProps) {
+export default function GenerateLinkModal({
+  student,
+  onClose,
+}: GenerateLinkModalProps) {
   const { add: notify } = useNotifications();
   const [selectedDuration, setSelectedDuration] = useState<number | null>(null);
   const [customHours, setCustomHours] = useState("");
@@ -27,7 +30,8 @@ export default function GenerateLinkModal({ student, onClose }: GenerateLinkModa
 
   const handleGenerateLink = async () => {
     setError(null);
-    const durationHours = selectedDuration !== null ? selectedDuration : parseInt(customHours);
+    const durationHours =
+      selectedDuration !== null ? selectedDuration : parseInt(customHours);
 
     if (!durationHours || durationHours <= 0) {
       setError("Please select or enter a valid duration");
@@ -70,11 +74,19 @@ export default function GenerateLinkModal({ student, onClose }: GenerateLinkModa
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay" onClick={onClose}>
-      <div className="modal-panel bg-bg-dark rounded-2xl shadow-2xl w-full max-w-md mx-4 flex flex-col" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center modal-overlay"
+      onClick={onClose}
+    >
+      <div
+        className="modal-panel bg-bg-dark rounded-2xl shadow-2xl w-full max-w-md mx-4 flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-8 pt-8 pb-4 border-b border-white/10">
-          <h3 className="text-white text-[20px] font-bold">Generate Share Link</h3>
+          <h3 className="text-white text-[20px] font-bold">
+            Generate Share Link
+          </h3>
           <button
             onClick={onClose}
             className="text-text-muted hover:text-white transition-colors"
@@ -88,11 +100,14 @@ export default function GenerateLinkModal({ student, onClose }: GenerateLinkModa
           {!generatedLink ? (
             <>
               <p className="text-text-muted text-[14px] mb-6">
-                Generate a temporary link for <span className="text-white font-semibold">{student.name}</span>
+                Generate a temporary link for{" "}
+                <span className="text-white font-semibold">{student.name}</span>
               </p>
 
               <div className="mb-6">
-                <p className="text-white text-[14px] font-semibold mb-3">Link Duration</p>
+                <p className="text-white text-[14px] font-semibold mb-3">
+                  Link Duration
+                </p>
                 <div className="space-y-2">
                   {DURATION_PRESETS.map((preset) => (
                     <button
@@ -114,7 +129,9 @@ export default function GenerateLinkModal({ student, onClose }: GenerateLinkModa
               </div>
 
               <div className="mb-6">
-                <p className="text-white text-[12px] font-semibold mb-2">Custom Duration (hours)</p>
+                <p className="text-white text-[12px] font-semibold mb-2">
+                  Custom Duration (hours)
+                </p>
                 <input
                   type="number"
                   min="1"
@@ -138,12 +155,16 @@ export default function GenerateLinkModal({ student, onClose }: GenerateLinkModa
           ) : (
             <>
               <div className="mb-6">
-                <p className="text-text-muted text-[12px] mb-2">Share this link with {student.name}:</p>
+                <p className="text-text-muted text-[12px] mb-2">
+                  Share this link with {student.name}:
+                </p>
                 <div className="bg-white/5 dark:bg-gray-800 border border-white/10 rounded-lg p-3 break-all">
                   <p className="text-white text-[12px]">{generatedLink}</p>
                 </div>
               </div>
-              <p className="text-text-muted text-[12px]">The link will be valid until the expiration time.</p>
+              <p className="text-text-muted text-[12px]">
+                The link will be valid until the expiration time.
+              </p>
             </>
           )}
         </div>

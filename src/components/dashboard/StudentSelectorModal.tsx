@@ -18,9 +18,10 @@ export default function StudentSelectorModal({
   const [search, setSearch] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
-  const filtered = students.filter((s) =>
-    s.name.toLowerCase().includes(search.toLowerCase()) ||
-    s.group_name.toLowerCase().includes(search.toLowerCase()),
+  const filtered = students.filter(
+    (s) =>
+      s.name.toLowerCase().includes(search.toLowerCase()) ||
+      s.group_name.toLowerCase().includes(search.toLowerCase()),
   );
 
   const handleSelectStudent = (student: Student) => {
@@ -35,7 +36,10 @@ export default function StudentSelectorModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center modal-overlay"
+      onClick={onClose}
+    >
       <div
         className="modal-panel bg-bg-dark rounded-2xl shadow-2xl w-full max-w-2xl mx-4 flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
@@ -81,8 +85,12 @@ export default function StudentSelectorModal({
                         : "bg-white/5 text-white hover:bg-white/10"
                     }`}
                   >
-                    <div className="font-semibold text-[14px]">{student.name}</div>
-                    <div className="text-[12px] mt-1 opacity-75">{student.group_name}</div>
+                    <div className="font-semibold text-[14px]">
+                      {student.name}
+                    </div>
+                    <div className="text-[12px] mt-1 opacity-75">
+                      {student.group_name}
+                    </div>
                   </button>
                 ))
               ) : (
@@ -100,19 +108,27 @@ export default function StudentSelectorModal({
               <div className="space-y-3 flex-1 overflow-y-auto">
                 <div>
                   <p className="text-text-muted text-[12px]">Name</p>
-                  <p className="text-white font-semibold">{selectedStudent.name}</p>
+                  <p className="text-white font-semibold">
+                    {selectedStudent.name}
+                  </p>
                 </div>
                 <div>
                   <p className="text-text-muted text-[12px]">Group</p>
-                  <p className="text-white font-semibold">{selectedStudent.group_name}</p>
+                  <p className="text-white font-semibold">
+                    {selectedStudent.group_name}
+                  </p>
                 </div>
                 <div>
                   <p className="text-text-muted text-[12px]">Type</p>
-                  <p className="text-white font-semibold">{selectedStudent.type}</p>
+                  <p className="text-white font-semibold">
+                    {selectedStudent.type}
+                  </p>
                 </div>
                 <div>
                   <p className="text-text-muted text-[12px]">Status</p>
-                  <p className="text-white font-semibold capitalize">{selectedStudent.status}</p>
+                  <p className="text-white font-semibold capitalize">
+                    {selectedStudent.status}
+                  </p>
                 </div>
                 <div>
                   <p className="text-text-muted text-[12px]">Started</p>
@@ -123,13 +139,17 @@ export default function StudentSelectorModal({
                 {selectedStudent.telegram && (
                   <div>
                     <p className="text-text-muted text-[12px]">Telegram</p>
-                    <p className="text-white text-[14px]">{selectedStudent.telegram}</p>
+                    <p className="text-white text-[14px]">
+                      {selectedStudent.telegram}
+                    </p>
                   </div>
                 )}
                 {selectedStudent.notes && (
                   <div>
                     <p className="text-text-muted text-[12px]">Notes</p>
-                    <p className="text-white text-[14px]">{selectedStudent.notes}</p>
+                    <p className="text-white text-[14px]">
+                      {selectedStudent.notes}
+                    </p>
                   </div>
                 )}
               </div>
