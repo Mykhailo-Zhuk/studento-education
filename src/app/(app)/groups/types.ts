@@ -8,24 +8,40 @@ export const TYPE_ICON: Record<
   { icon: LucideIcon; bg: string; color: string }
 > = {
   "Front-End": { icon: Terminal, bg: "bg-primary/10", color: "text-primary" },
-  React: { icon: Sparkles, bg: "bg-[#dbeafe]", color: "text-info" },
+  React: {
+    icon: Sparkles,
+    bg: "bg-[#dbeafe] dark:bg-primary/10",
+    color: "text-info dark:text-primary",
+  },
   "Web Workshop": {
     icon: BookOpen,
     bg: "bg-success-light",
     color: "text-success",
   },
-  Other: { icon: BookOpen, bg: "bg-blue-50", color: "text-info" },
+  Other: {
+    icon: BookOpen,
+    bg: "bg-blue-50 dark:bg-primary/10",
+    color: "text-info dark:text-primary",
+  },
 };
 
 export const TYPE_BADGE: Record<string, string> = {
-  "Front-End": "bg-primary/10 text-primary border border-primary/20",
-  React: "bg-blue-50 text-info border border-blue-100",
-  "Web Workshop": "bg-emerald-50 text-success border border-emerald-100",
-  Other: "bg-blue-50 text-info border border-blue-100",
+  "Front-End":
+    "bg-primary/10 text-primary border border-primary/20 dark:bg-primary/15 dark:border-primary/20 dark:text-primary",
+  React:
+    "bg-blue-50 text-info border border-blue-100 dark:bg-primary/15 dark:border-primary/20 dark:text-primary",
+  "Web Workshop":
+    "bg-success-light text-success border border-green-200 dark:bg-primary/15 dark:border-primary/20 dark:text-primary",
+  Other:
+    "bg-blue-50 text-info border border-blue-100 dark:bg-primary/15 dark:border-primary/20 dark:text-primary",
 };
 
 export const GROUP_TYPES = ["Front-End", "React", "Web Workshop"] as const;
-export const GROUP_STATUSES = ["Not started", "In progress", "Finished"] as const;
+export const GROUP_STATUSES = [
+  "Not started",
+  "In progress",
+  "Finished",
+] as const;
 
 export function memberCount(members: string | null): number {
   if (!members) return 0;

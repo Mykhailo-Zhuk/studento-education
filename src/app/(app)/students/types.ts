@@ -1,7 +1,10 @@
 export const TYPE_COLOR: Record<string, string> = {
-  React: "bg-blue-50 text-info border border-blue-100",
-  "Front-End": "bg-amber-50 text-warning border border-amber-100",
-  "Web Workshop": "bg-success-light text-success border border-green-200",
+  React:
+    "bg-blue-50 text-info border border-blue-100 dark:bg-primary/15 dark:border-primary/20 dark:text-primary",
+  "Front-End":
+    "bg-amber-50 text-warning border border-amber-100 dark:bg-primary/15 dark:border-primary/20 dark:text-primary",
+  "Web Workshop":
+    "bg-success-light text-success border border-green-200 dark:bg-primary/15 dark:border-primary/20 dark:text-primary",
 };
 
 export type StudentRow = {

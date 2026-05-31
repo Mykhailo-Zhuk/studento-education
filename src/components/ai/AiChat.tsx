@@ -99,48 +99,48 @@ const QUICK_PROMPTS = [
 
 const mdComponents: Components = {
   h1: ({ children }) => (
-    <h1 className="mb-1 mt-2 text-sm font-bold text-primary-fixed">
+    <h1 className="mb-1 mt-2 text-sm font-bold text-white">
       {children}
     </h1>
   ),
   h2: ({ children }) => (
-    <h2 className="mb-1 mt-2 text-sm font-semibold text-primary-fixed">
+    <h2 className="mb-1 mt-2 text-sm font-semibold text-white">
       {children}
     </h2>
   ),
   h3: ({ children }) => (
-    <h3 className="mb-0.5 mt-1.5 text-xs font-semibold text-primary-fixed">
+    <h3 className="mb-0.5 mt-1.5 text-xs font-semibold text-white">
       {children}
     </h3>
   ),
   p: ({ children }) => (
-    <p className="mb-1.5 text-xs leading-relaxed text-primary-fixed">
+    <p className="mb-1.5 text-xs leading-relaxed text-white">
       {children}
     </p>
   ),
   ul: ({ children }) => (
-    <ul className="mb-1.5 ml-3 list-disc space-y-0.5 text-primary-fixed">
+    <ul className="mb-1.5 ml-3 list-disc space-y-0.5 text-white">
       {children}
     </ul>
   ),
   ol: ({ children }) => (
-    <ol className="mb-1.5 ml-3 list-decimal space-y-0.5 text-primary-fixed">
+    <ol className="mb-1.5 ml-3 list-decimal space-y-0.5 text-white">
       {children}
     </ol>
   ),
   li: ({ children }) => (
-    <li className="text-xs text-primary-fixed">{children}</li>
+    <li className="text-xs text-white">{children}</li>
   ),
   strong: ({ children }) => (
-    <strong className="font-semibold text-primary-fixed">{children}</strong>
+    <strong className="font-semibold text-white">{children}</strong>
   ),
   em: ({ children }) => (
-    <em className="italic text-primary-fixed">{children}</em>
+    <em className="italic text-white">{children}</em>
   ),
   code: ({ className, children }) => {
     if (className) {
       return (
-        <code className="font-mono text-[11px] text-primary-fixed">
+        <code className="font-mono text-[11px] text-white">
           {children}
         </code>
       );
@@ -152,7 +152,7 @@ const mdComponents: Components = {
     );
   },
   pre: ({ children }) => (
-    <pre className="mb-1.5 overflow-x-auto rounded-lg bg-black/20 p-2 font-mono text-[11px] text-primary-fixed">
+    <pre className="mb-1.5 overflow-x-auto rounded-lg bg-black/20 p-2 font-mono text-[11px] text-white">
       {children}
     </pre>
   ),
@@ -162,12 +162,12 @@ const mdComponents: Components = {
     </div>
   ),
   th: ({ children }) => (
-    <th className="border border-border-dark px-2 py-1 text-left font-semibold text-primary-fixed">
+    <th className="border border-border-dark px-2 py-1 text-left font-semibold text-white">
       {children}
     </th>
   ),
   td: ({ children }) => (
-    <td className="border border-border-dark px-2 py-1 text-primary-fixed">
+    <td className="border border-border-dark px-2 py-1 text-white">
       {children}
     </td>
   ),
@@ -452,7 +452,7 @@ export default function AiChat() {
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label="AI Асистент"
-        className={`fixed bottom-6 right-6 z-[65] flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-primary via-primary to-secondary text-white shadow-[0_18px_60px_rgba(99,14,212,0.45)] ring-1 ring-white/10 transition-all hover:scale-105 hover:shadow-[0_22px_70px_rgba(99,14,212,0.58)] ${open ? "hidden sm:flex" : ""}`}
+        className={`fixed bottom-6 right-6 z-[65] flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-primary via-primary to-secondary text-white shadow-[0_18px_60px_rgba(99,14,212,0.45)] ring-1 ring-white/10 transition-all hover:scale-105 hover:shadow-[0_22px_70px_rgba(99,14,212,0.58)] cursor-pointer ${open ? "hidden sm:flex" : ""}`}
       >
         {open ? (
           <svg
@@ -527,14 +527,14 @@ export default function AiChat() {
               <div className="flex shrink-0 items-center gap-2">
                 <button
                   onClick={() => setShowHistory((v) => !v)}
-                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-text-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white sm:hidden"
+                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-text-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white sm:hidden cursor-pointer"
                   title="Історія чатів"
                 >
                   History
                 </button>
                 <button
                   onClick={createNewChat}
-                  className="hidden sm:block rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-text-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+                  className="hidden sm:block rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-text-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white cursor-pointer"
                   title="Новий чат"
                 >
                   New chat
@@ -548,7 +548,7 @@ export default function AiChat() {
                         updatedAt: new Date().toISOString(),
                       }))
                     }
-                    className="hidden sm:block rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-text-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+                    className="hidden sm:block rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-text-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white cursor-pointer"
                     title="Очистити чат"
                   >
                     Clear
@@ -556,7 +556,7 @@ export default function AiChat() {
                 )}
                 <button
                   onClick={() => setOpen(false)}
-                  className="rounded-xl border border-white/10 bg-white/5 p-2 text-text-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+                  className="rounded-xl border border-white/10 bg-white/5 p-2 text-text-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white cursor-pointer"
                 >
                   <svg
                     width="16"
@@ -591,7 +591,7 @@ export default function AiChat() {
                   </div>
                   <button
                     onClick={createNewChat}
-                    className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-text-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+                    className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-text-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white cursor-pointer"
                   >
                     + New
                   </button>
@@ -624,13 +624,13 @@ export default function AiChat() {
                       <div className="mt-3 flex items-center gap-2 opacity-80 transition-opacity group-hover:opacity-100">
                         <button
                           onClick={() => renameThread(thread)}
-                          className="rounded-full border border-white/10 bg-black/10 px-2.5 py-1 text-[10px] text-text-muted transition-colors hover:border-white/20 hover:text-white"
+                          className="rounded-full border border-white/10 bg-black/10 px-2.5 py-1 text-[10px] text-text-muted transition-colors hover:border-white/20 hover:text-white cursor-pointer"
                         >
                           Rename
                         </button>
                         <button
                           onClick={() => deleteThread(thread.id)}
-                          className="rounded-full border border-white/10 bg-black/10 px-2.5 py-1 text-[10px] text-text-muted transition-colors hover:border-error/40 hover:text-error"
+                          className="rounded-full border border-white/10 bg-black/10 px-2.5 py-1 text-[10px] text-text-muted transition-colors hover:border-error/40 hover:text-error cursor-pointer"
                         >
                           Delete
                         </button>
@@ -661,7 +661,7 @@ export default function AiChat() {
                       <button
                         key={p.text}
                         onClick={() => setInput(p.text)}
-                        className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[12px] text-white transition-colors hover:border-primary/40 hover:bg-primary/10"
+                        className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[12px] text-white transition-colors hover:border-primary/40 hover:bg-primary/10 cursor-pointer"
                       >
                         {p.icon} {p.label}
                       </button>
@@ -814,7 +814,7 @@ export default function AiChat() {
                   onClick={loading ? stopGenerating : send}
                   disabled={!loading && !input.trim()}
                   className={[
-                    "flex h-11 shrink-0 items-center justify-center rounded-2xl text-white shadow-[0_16px_30px_rgba(99,14,212,0.3)] transition-all hover:scale-[1.03] hover:shadow-[0_18px_34px_rgba(99,14,212,0.38)] disabled:scale-100 disabled:opacity-40",
+                    "flex h-11 shrink-0 items-center justify-center rounded-2 la text-white shadow-[0_16px_30px_rgba(99,14,212,0.3)] transition-all hover:scale-[1.03] hover:shadow-[0_18px_34px_rgba(99,14,212,0.38)] disabled:scale-100 disabled:opacity-40 cursor-pointer",
                     loading
                       ? "w-auto gap-2 bg-linear-to-br from-rose-500 to-orange-500 px-4"
                       : "w-11 bg-linear-to-br from-primary to-secondary",

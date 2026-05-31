@@ -2,6 +2,8 @@ import { supabase } from "@/lib/supabase";
 import type { Homework } from "@/lib/types";
 import HomeworkClient from "./HomeworkClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomeworkPage() {
   const { data: homework } = await supabase
     .from("homework")

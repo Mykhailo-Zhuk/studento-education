@@ -135,86 +135,88 @@ export default function DashboardClient({ students }: DashboardClientProps) {
 
       {/* Canvas */}
       <div className="flex-1 p-10 flex items-center justify-center relative overflow-hidden">
-        {/* Ambient glows */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] pointer-events-none" />
+        <>
+          {/* Ambient glows */}
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] pointer-events-none" />
 
-        {selectedStudent ? (
-          <>
-            {/* Radial Diagram with selected student data */}
-            <div className="relative w-130 h-130 flex items-center justify-center">
-              {/* Orbit ring */}
-              <div className="absolute w-120 h-120 rounded-full border-2 border-dashed border-primary/20" />
+          {selectedStudent ? (
+            <>
+              {/* Radial Diagram with selected student data */}
+              <div className="relative w-130 h-130 flex items-center justify-center">
+                {/* Orbit ring */}
+                <div className="absolute w-120 h-120 rounded-full border-2 border-dashed border-primary/20" />
 
-              {/* Center node */}
-              <button
-                onClick={() => handleShowDataPopup("report")}
-                className="relative z-20 flex flex-col items-center justify-center cursor-pointer group hover:scale-110 transition-transform"
-              >
-                <div className="w-32 h-32 rounded-full bg-linear-to-tr from-primary to-primary-container shadow-[0_0_40px_rgba(99,14,212,0.6)] flex items-center justify-center border-4 border-white/20 group-hover:shadow-[0_0_60px_rgba(99,14,212,0.8)] transition-all">
-                  <span className="text-4xl">🎯</span>
-                </div>
-                <div className="mt-3 text-center">
-                  <h2 className="text-white text-[24px] font-bold tracking-tight">
-                    {selectedStudent.name}
-                  </h2>
-                  <span className="inline-flex items-center gap-1.5 bg-success/20 text-success text-[12px] px-3 py-0.5 rounded-full border border-success/30 mt-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                    Active
-                  </span>
-                </div>
-              </button>
-
-              {/* Orbit nodes */}
-              {orbitNodes.map((node) => (
-                <div key={node.label} className={`absolute ${node.pos}`}>
-                  <div
-                    className="orbit-connector w-45"
-                    style={{ transform: `rotate(${node.rotate})` }}
-                  />
-                  <button
-                    onClick={node.onClick}
-                    className="relative z-10 w-24 h-24 bg-surface-gray-dark border border-white/10 rounded-2xl flex flex-col items-center justify-center shadow-2xl hover:scale-105 transition-transform cursor-pointer"
-                  >
-                    <div
-                      className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px] font-bold shadow-lg"
-                      style={{ backgroundColor: node.color }}
-                    >
-                      {node.count}
-                    </div>
-                    <span className="text-2xl mb-1">{node.icon}</span>
-                    <span className="text-white text-[12px] font-semibold tracking-wide">
-                      {node.label}
+                {/* Center node */}
+                <button
+                  onClick={() => handleShowDataPopup("report")}
+                  className="relative z-20 flex flex-col items-center justify-center cursor-pointer group hover:scale-110 transition-transform"
+                >
+                  <div className="w-32 h-32 rounded-full bg-linear-to-tr from-primary to-primary-container shadow-[0_0_40px_rgba(99,14,212,0.6)] flex items-center justify-center border-4 border-white/20 group-hover:shadow-[0_0_60px_rgba(99,14,212,0.8)] transition-all">
+                    <span className="text-4xl">🎯</span>
+                  </div>
+                  <div className="mt-3 text-center">
+                    <h2 className="text-white text-[24px] font-bold tracking-tight">
+                      {selectedStudent.name}
+                    </h2>
+                    <span className="inline-flex items-center gap-1.5 bg-success/20 text-success text-[12px] px-3 py-0.5 rounded-full border border-success/30 mt-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+                      Active
                     </span>
-                  </button>
-                </div>
-              ))}
-            </div>
+                  </div>
+                </button>
 
-            {/* Generate Link Button */}
-            <button
-              onClick={() => setShowGenerateLinkModal(true)}
-              className="absolute bottom-10 left-10 px-6 py-3 bg-success text-white rounded-lg hover:bg-success/80 transition-colors text-[14px] font-semibold"
-            >
-              Generate Share Link
-            </button>
-          </>
-        ) : (
-          <div className="text-center">
-            <h2 className="text-white text-[32px] font-bold mb-4">
-              Welcome to Studento Education
-            </h2>
-            <p className="text-text-muted text-[16px] mb-8">
-              Select a student to view their data and generate a share link
-            </p>
-            <button
-              onClick={() => setShowSelectorModal(true)}
-              className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-container transition-colors text-[14px] font-semibold"
-            >
-              Select Student
-            </button>
-          </div>
-        )}
+                {/* Orbit nodes */}
+                {orbitNodes.map((node) => (
+                  <div key={node.label} className={`absolute ${node.pos}`}>
+                    <div
+                      className="orbit-connector w-45"
+                      style={{ transform: `rotate(${node.rotate})` }}
+                    />
+                    <button
+                      onClick={node.onClick}
+                      className="relative z-10 w-24 h-24 bg-surface-gray-dark border border-white/10 rounded-2xl flex flex-col items-center justify-center shadow-2xl hover:scale-105 transition-transform cursor-pointer"
+                    >
+                      <div
+                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px] font-bold shadow-lg"
+                        style={{ backgroundColor: node.color }}
+                      >
+                        {node.count}
+                      </div>
+                      <span className="text-2xl mb-1">{node.icon}</span>
+                      <span className="text-white text-[12px] font-semibold tracking-wide">
+                        {node.label}
+                      </span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Generate Link Button */}
+              <button
+                onClick={() => setShowGenerateLinkModal(true)}
+                className="absolute bottom-10 left-10 px-6 py-3 bg-success text-white rounded-lg hover:bg-success/80 transition-colors text-[14px] font-semibold"
+              >
+                Generate Share Link
+              </button>
+            </>
+          ) : (
+            <div className="text-center">
+              <h2 className="text-white text-[32px] font-bold mb-4">
+                Welcome to Studento Education
+              </h2>
+              <p className="text-text-muted text-[16px] mb-8">
+                Select a student to view their data and generate a share link
+              </p>
+              <button
+                onClick={() => setShowSelectorModal(true)}
+                className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-container transition-colors text-[14px] font-semibold"
+              >
+                Select Student
+              </button>
+            </div>
+          )}
+        </>
       </div>
 
       {/* Modals */}

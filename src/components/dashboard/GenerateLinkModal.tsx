@@ -145,7 +145,7 @@ export default function GenerateLinkModal({ student, onClose }: GenerateLinkModa
             <>
               <div className="mb-6">
                 <p className="text-text-muted text-[12px] mb-2">Share this link with {student.name}:</p>
-                <div className="bg-white/5 border border-white/10 rounded-lg p-3 break-all">
+                <div className="bg-white/5 dark:bg-gray-800 border border-white/10 rounded-lg p-3 break-all">
                   <p className="text-white text-[12px]">{generatedLink}</p>
                 </div>
               </div>

@@ -36,7 +36,7 @@ export function SortTh({
   return (
     <th
       onClick={() => onSort(sortKey)}
-      className={`${TH_BASE} cursor-pointer select-none group hover:bg-[#f1f5f9]`}
+      className={`${TH_BASE} cursor-pointer select-none group hover:bg-surface-gray-light dark:hover:bg-surface-gray-dark`}
     >
       <div className="flex items-center gap-1">
         {label}

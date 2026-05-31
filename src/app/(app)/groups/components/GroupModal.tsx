@@ -84,27 +84,27 @@ export default function GroupModal({ group, onClose, onSaved }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border-light sticky top-0 bg-white z-10">
-          <h3 className="text-[16px] font-bold text-text-primary">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-bg-dark rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto border border-white/10">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 sticky top-0 bg-bg-dark z-10">
+          <h3 className="text-[16px] font-bold text-white">
             {isEdit ? "Edit Group" : "Create New Group"}
           </h3>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-surface-container text-text-muted hover:text-primary transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/10 text-text-muted hover:text-white transition-colors"
           >
             <X size={18} />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="px-6 py-4 flex flex-col gap-4">
           {error && (
-            <p className="text-red-500 text-[13px] bg-red-50 px-3 py-2 rounded-lg">
+            <p className="text-error text-[13px] bg-error/10 px-3 py-2 rounded-lg">
               {error}
             </p>
           )}
-          <div>
-            <label className="text-[12px] font-semibold text-text-secondary uppercase tracking-wide">
+          <div className="flex flex-col gap-1">
+            <label className="text-[12px] font-semibold text-text-muted uppercase tracking-wide">
               Name *
             </label>
             <input
@@ -112,12 +112,12 @@ export default function GroupModal({ group, onClose, onSaved }: Props) {
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
               placeholder="Group name"
-              className="mt-1 w-full border border-border-light rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-[14px] text-white focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-text-muted"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-[12px] font-semibold text-text-secondary uppercase tracking-wide">
+            <div className="flex flex-col gap-1">
+              <label className="text-[12px] font-semibold text-text-muted uppercase tracking-wide">
                 Type *
               </label>
               <div className="mt-1">
@@ -128,8 +128,8 @@ export default function GroupModal({ group, onClose, onSaved }: Props) {
                 />
               </div>
             </div>
-            <div>
-              <label className="text-[12px] font-semibold text-text-secondary uppercase tracking-wide">
+            <div className="flex flex-col gap-1">
+              <label className="text-[12px] font-semibold text-text-muted uppercase tracking-wide">
                 Status *
               </label>
               <div className="mt-1">
@@ -142,8 +142,8 @@ export default function GroupModal({ group, onClose, onSaved }: Props) {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-[12px] font-semibold text-text-secondary uppercase tracking-wide">
+            <div className="flex flex-col gap-1">
+              <label className="text-[12px] font-semibold text-text-muted uppercase tracking-wide">
                 Started *
               </label>
               <input
@@ -151,79 +151,79 @@ export default function GroupModal({ group, onClose, onSaved }: Props) {
                 type="date"
                 value={form.started}
                 onChange={(e) => set("started", e.target.value)}
-                className="mt-1 w-full border border-border-light rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-[14px] text-white focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
-            <div>
-              <label className="text-[12px] font-semibold text-text-secondary uppercase tracking-wide">
+            <div className="flex flex-col gap-1">
+              <label className="text-[12px] font-semibold text-text-muted uppercase tracking-wide">
                 Finished
               </label>
               <input
                 type="date"
                 value={form.finished}
                 onChange={(e) => set("finished", e.target.value)}
-                className="mt-1 w-full border border-border-light rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-[14px] text-white focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
           </div>
-          <div>
-            <label className="text-[12px] font-semibold text-text-secondary uppercase tracking-wide">
+          <div className="flex flex-col gap-1">
+            <label className="text-[12px] font-semibold text-text-muted uppercase tracking-wide">
               Schedule
             </label>
             <input
               value={form.schedule_time}
               onChange={(e) => set("schedule_time", e.target.value)}
               placeholder="e.g. Mon/Wed 18:00"
-              className="mt-1 w-full border border-border-light rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-[14px] text-white focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-text-muted"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-[12px] font-semibold text-text-secondary uppercase tracking-wide">
+            <div className="flex flex-col gap-1">
+              <label className="text-[12px] font-semibold text-text-muted uppercase tracking-wide">
                 Journal URL
               </label>
               <input
                 value={form.journal_url}
                 onChange={(e) => set("journal_url", e.target.value)}
                 placeholder="https://..."
-                className="mt-1 w-full border border-border-light rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-[14px] text-white focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-text-muted"
               />
             </div>
-            <div>
-              <label className="text-[12px] font-semibold text-text-secondary uppercase tracking-wide">
+            <div className="flex flex-col gap-1">
+              <label className="text-[12px] font-semibold text-text-muted uppercase tracking-wide">
                 Telegram URL
               </label>
               <input
                 value={form.telegram_url}
                 onChange={(e) => set("telegram_url", e.target.value)}
                 placeholder="https://t.me/..."
-                className="mt-1 w-full border border-border-light rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-[14px] text-white focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-text-muted"
               />
             </div>
           </div>
-          <div>
-            <label className="text-[12px] font-semibold text-text-secondary uppercase tracking-wide">
+          <div className="flex flex-col gap-1">
+            <label className="text-[12px] font-semibold text-text-muted uppercase tracking-wide">
               Notes
             </label>
             <textarea
               value={form.notes}
               onChange={(e) => set("notes", e.target.value)}
               rows={2}
-              className="mt-1 w-full border border-border-light rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-[14px] text-white focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
             />
           </div>
-          <div className="flex justify-end gap-3 pt-2 border-t border-border-light">
+          <div className="flex justify-end gap-3 pt-2 border-t border-white/10">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-border-light rounded-lg text-[14px] font-semibold text-text-secondary hover:bg-surface-gray-light transition-colors"
+              className="px-4 py-2 border border-white/10 rounded-lg text-[14px] font-semibold text-text-muted hover:bg-white/10 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="px-4 py-2 bg-primary text-white rounded-lg text-[14px] font-semibold hover:bg-primary-hover disabled:opacity-50 transition-colors"
+              className="px-4 py-2 bg-primary text-white rounded-lg text-[14px] font-semibold hover:bg-primary-container disabled:opacity-50 transition-colors"
             >
               {saving ? "Saving…" : isEdit ? "Save Changes" : "Create Group"}
             </button>

@@ -52,8 +52,6 @@ interface HwDetailState {
 
 // ─── Custom select ────────────────────────────────────────────────────────────
 
-
-
 // ─── Add-homework popup ───────────────────────────────────────────────────────
 
 function formatHwDate(iso: string): string {
@@ -101,10 +99,15 @@ function HomeworkPopup({
       className="z-50 bg-white border border-border-light rounded-xl shadow-xl p-3 w-80"
     >
       <div className="flex items-center justify-between mb-3">
-        <span className={`text-[12px] font-semibold ${completed ? "text-success" : "text-error"}`}>
+        <span
+          className={`text-[12px] font-semibold ${completed ? "text-success" : "text-error"}`}
+        >
           {completed ? "Mark as Done" : "Mark as Missed"}
         </span>
-        <button onClick={onClose} className="text-text-muted hover:text-primary transition-colors">
+        <button
+          onClick={onClose}
+          className="text-text-muted hover:text-primary transition-colors"
+        >
           <X size={14} />
         </button>
       </div>
@@ -118,7 +121,10 @@ function HomeworkPopup({
           onChange={setHwId}
           options={[
             { value: "", label: "— No specific HW —" },
-            ...homeworks.map((hw) => ({ value: hw.id, label: `${hw.title} (${formatHwDate(hw.date)})` })),
+            ...homeworks.map((hw) => ({
+              value: hw.id,
+              label: `${hw.title} (${formatHwDate(hw.date)})`,
+            })),
           ]}
         />
       </div>
@@ -126,7 +132,9 @@ function HomeworkPopup({
       <button
         onClick={handleSubmit}
         className={`w-full py-1.5 rounded-lg text-[13px] font-semibold text-white transition-colors ${
-          completed ? "bg-success hover:bg-success/80" : "bg-error hover:bg-error/80"
+          completed
+            ? "bg-success hover:bg-success/80"
+            : "bg-error hover:bg-error/80"
         }`}
       >
         Confirm
@@ -172,8 +180,13 @@ function HomeworkListPopup({
       className="z-9999 bg-white border border-border-light rounded-xl shadow-xl w-100 overflow-hidden"
     >
       <div className="flex items-center justify-between px-4 py-3 border-b border-border-light">
-        <span className="text-[13px] font-semibold text-text-primary">Homework Records</span>
-        <button onClick={onClose} className="text-text-muted hover:text-primary transition-colors">
+        <span className="text-[13px] font-semibold text-text-primary">
+          Homework Records
+        </span>
+        <button
+          onClick={onClose}
+          className="text-text-muted hover:text-primary transition-colors"
+        >
           <X size={14} />
         </button>
       </div>
@@ -185,7 +198,10 @@ function HomeworkListPopup({
           {records.map((r) => {
             const hw = r.homework_id ? homeworkMap[r.homework_id] : null;
             return (
-              <li key={r.id} className="flex items-center gap-2 px-4 py-2.5 hover:bg-surface-gray-light group">
+              <li
+                key={r.id}
+                className="flex items-center gap-2 px-4 py-2.5 hover:bg-surface-gray-light group"
+              >
                 <button
                   className="flex-1 flex items-center gap-2 text-left min-w-0"
                   onClick={() => onSelect(r, hw)}
@@ -196,7 +212,9 @@ function HomeworkListPopup({
                   <span className="text-[13px] text-text-primary truncate">
                     {hw ? hw.title : "—"}
                   </span>
-                  <span className="text-[11px] text-text-muted shrink-0 ml-auto pl-2">{r.date}</span>
+                  <span className="text-[11px] text-text-muted shrink-0 ml-auto pl-2">
+                    {r.date}
+                  </span>
                 </button>
                 <button
                   onClick={(e) => {
@@ -241,8 +259,18 @@ function HomeworkDetailDrawer({
       const folder = encodeURIComponent(hw.title);
       try {
         const [read, write] = await Promise.all([
-          fetch(`/api/homework/github-content?folder=${folder}&file=What-to-read`).then((r) => r.json()) as Promise<{ content?: string; error?: string }>,
-          fetch(`/api/homework/github-content?folder=${folder}&file=What-to-write`).then((r) => r.json()) as Promise<{ content?: string; error?: string }>,
+          fetch(
+            `/api/homework/github-content?folder=${folder}&file=What-to-read`,
+          ).then((r) => r.json()) as Promise<{
+            content?: string;
+            error?: string;
+          }>,
+          fetch(
+            `/api/homework/github-content?folder=${folder}&file=What-to-write`,
+          ).then((r) => r.json()) as Promise<{
+            content?: string;
+            error?: string;
+          }>,
         ]);
         setReadContent(read.content ?? read.error ?? null);
         setWriteContent(write.content ?? write.error ?? null);
@@ -265,7 +293,10 @@ function HomeworkDetailDrawer({
           <h2 className="text-[16px] font-semibold text-text-primary truncate pr-4">
             {homework?.title ?? "Homework Details"}
           </h2>
-          <button onClick={onClose} className="text-text-muted hover:text-primary shrink-0 transition-colors">
+          <button
+            onClick={onClose}
+            className="text-text-muted hover:text-primary shrink-0 transition-colors"
+          >
             <X size={18} />
           </button>
         </div>
@@ -274,23 +305,33 @@ function HomeworkDetailDrawer({
         <div className="px-5 py-4 bg-surface-gray-light border-b border-border-light shrink-0">
           <div className="grid grid-cols-2 gap-3 text-[13px]">
             <div>
-              <p className="text-text-muted text-[11px] uppercase tracking-wider font-semibold mb-0.5">Date</p>
+              <p className="text-text-muted text-[11px] uppercase tracking-wider font-semibold mb-0.5">
+                Date
+              </p>
               <p className="text-text-primary font-medium">{record.date}</p>
             </div>
             <div>
-              <p className="text-text-muted text-[11px] uppercase tracking-wider font-semibold mb-0.5">Status</p>
-              <p className={`font-semibold ${record.completed ? "text-success" : "text-error"}`}>
+              <p className="text-text-muted text-[11px] uppercase tracking-wider font-semibold mb-0.5">
+                Status
+              </p>
+              <p
+                className={`font-semibold ${record.completed ? "text-success" : "text-error"}`}
+              >
                 {record.completed ? "Completed" : "Missed"}
               </p>
             </div>
             {homework && (
               <>
                 <div>
-                  <p className="text-text-muted text-[11px] uppercase tracking-wider font-semibold mb-0.5">Group</p>
+                  <p className="text-text-muted text-[11px] uppercase tracking-wider font-semibold mb-0.5">
+                    Group
+                  </p>
                   <p className="text-text-primary">{homework.group_name}</p>
                 </div>
                 <div>
-                  <p className="text-text-muted text-[11px] uppercase tracking-wider font-semibold mb-0.5">Type</p>
+                  <p className="text-text-muted text-[11px] uppercase tracking-wider font-semibold mb-0.5">
+                    Type
+                  </p>
                   <p className="text-text-primary">{homework.type}</p>
                 </div>
               </>
@@ -298,8 +339,12 @@ function HomeworkDetailDrawer({
           </div>
           {homework?.notes && (
             <div className="mt-3">
-              <p className="text-text-muted text-[11px] uppercase tracking-wider font-semibold mb-0.5">Notes</p>
-              <p className="text-[13px] text-text-secondary">{homework.notes}</p>
+              <p className="text-text-muted text-[11px] uppercase tracking-wider font-semibold mb-0.5">
+                Notes
+              </p>
+              <p className="text-[13px] text-text-secondary">
+                {homework.notes}
+              </p>
             </div>
           )}
         </div>
@@ -307,7 +352,9 @@ function HomeworkDetailDrawer({
         {/* GitHub content */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
           {!homework ? (
-            <p className="text-[13px] text-text-muted">No homework linked to this record.</p>
+            <p className="text-[13px] text-text-muted">
+              No homework linked to this record.
+            </p>
           ) : loading ? (
             <p className="text-[13px] text-text-muted">Loading content…</p>
           ) : (
@@ -369,7 +416,12 @@ interface Props {
   onEdit: (s: StudentRow) => void;
   onDelete: (id: string) => void;
   localRecords: Record<string, StudentHomeworkRecord[]>;
-  onHomeworkAdd: (id: string, completed: boolean, date: string, homeworkId: string | null) => void;
+  onHomeworkAdd: (
+    id: string,
+    completed: boolean,
+    date: string,
+    homeworkId: string | null,
+  ) => void;
   onHomeworkDelete: (studentId: string, recordId: string) => void;
   homeworks: Homework[];
 }
@@ -392,7 +444,11 @@ export default function StudentsTable({
   homeworks,
 }: Props) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [openMobileMenu, setOpenMobileMenu] = useState<{ id: string; top: number; right: number } | null>(null);
+  const [openMobileMenu, setOpenMobileMenu] = useState<{
+    id: string;
+    top: number;
+    right: number;
+  } | null>(null);
   const [hwPopup, setHwPopup] = useState<HwPopupState | null>(null);
   const [hwListPopup, setHwListPopup] = useState<HwListState | null>(null);
   const [hwDetail, setHwDetail] = useState<HwDetailState | null>(null);
@@ -418,9 +474,10 @@ export default function StudentsTable({
     const rect = e.currentTarget.getBoundingClientRect();
     const popupW = 320;
     const popupH = 180;
-    const top = window.innerHeight - rect.bottom >= popupH
-      ? rect.bottom + 4
-      : rect.top - popupH - 4;
+    const top =
+      window.innerHeight - rect.bottom >= popupH
+        ? rect.bottom + 4
+        : rect.top - popupH - 4;
     const rawLeft = rect.right - popupW;
     const left = Math.max(8, Math.min(rawLeft, window.innerWidth - popupW - 8));
     setHwPopup({ studentId, studentGroup, completed, top, left });
@@ -428,13 +485,17 @@ export default function StudentsTable({
     setOpenMenuId(null);
   }
 
-  function openHwListPopup(studentId: string, e: React.MouseEvent<HTMLButtonElement>) {
+  function openHwListPopup(
+    studentId: string,
+    e: React.MouseEvent<HTMLButtonElement>,
+  ) {
     const rect = e.currentTarget.getBoundingClientRect();
     const popupW = 400;
     const popupH = 320;
-    const top = window.innerHeight - rect.bottom >= popupH
-      ? rect.bottom + 4
-      : Math.max(8, rect.top - popupH - 4);
+    const top =
+      window.innerHeight - rect.bottom >= popupH
+        ? rect.bottom + 4
+        : Math.max(8, rect.top - popupH - 4);
     const rawLeft = rect.left;
     const left = Math.max(8, Math.min(rawLeft, window.innerWidth - popupW - 8));
     setHwListPopup({ studentId, top, left });
@@ -445,7 +506,8 @@ export default function StudentsTable({
   useEffect(() => {
     if (!openMenuId) return;
     function onClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpenMenuId(null);
+      if (menuRef.current && !menuRef.current.contains(e.target as Node))
+        setOpenMenuId(null);
     }
     document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
@@ -458,7 +520,9 @@ export default function StudentsTable({
   const listPopupStudent = hwListPopup
     ? paginated.find((s) => s.id === hwListPopup.studentId)
     : null;
-  const listPopupRecords = listPopupStudent ? effectiveRecords(listPopupStudent) : [];
+  const listPopupRecords = listPopupStudent
+    ? effectiveRecords(listPopupStudent)
+    : [];
 
   // ─── HW column cell shared ─────────────────────────────────────────────────
 
@@ -493,37 +557,52 @@ export default function StudentsTable({
     );
   }
 
-
   const openMobileMenuStudent = openMobileMenu
-    ? paginated.find((s) => s.id === openMobileMenu.id) ?? null
+    ? (paginated.find((s) => s.id === openMobileMenu.id) ?? null)
     : null;
 
   return (
     <>
       {/* Mobile card menu portal */}
-      {openMobileMenu && openMobileMenuStudent && createPortal(
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpenMobileMenu(null)} />
-          <div
-            style={{ position: "fixed", top: openMobileMenu.top, right: openMobileMenu.right, zIndex: 50 }}
-            className="bg-surface border border-border-light rounded-lg shadow-lg py-1 min-w-32"
-          >
-            <button
-              onClick={() => { onEdit(openMobileMenuStudent); setOpenMobileMenu(null); }}
-              className="w-full flex items-center gap-2 px-3 py-2 text-[14px] text-text-primary hover:bg-surface-gray-light"
+      {openMobileMenu &&
+        openMobileMenuStudent &&
+        createPortal(
+          <>
+            <div
+              className="fixed inset-0 z-40"
+              onClick={() => setOpenMobileMenu(null)}
+            />
+            <div
+              style={{
+                position: "fixed",
+                top: openMobileMenu.top,
+                right: openMobileMenu.right,
+                zIndex: 50,
+              }}
+              className="bg-surface border border-border-light rounded-lg shadow-lg py-1 min-w-32"
             >
-              <Pencil size={14} className="text-text-secondary" /> Edit
-            </button>
-            <button
-              onClick={() => { onDelete(openMobileMenuStudent.id); setOpenMobileMenu(null); }}
-              className="w-full flex items-center gap-2 px-3 py-2 text-[14px] text-error hover:bg-error-light"
-            >
-              <Trash2 size={14} /> Delete
-            </button>
-          </div>
-        </>,
-        document.body
-      )}
+              <button
+                onClick={() => {
+                  onEdit(openMobileMenuStudent);
+                  setOpenMobileMenu(null);
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-[14px] text-text-primary hover:bg-surface-gray-light"
+              >
+                <Pencil size={14} className="text-text-secondary" /> Edit
+              </button>
+              <button
+                onClick={() => {
+                  onDelete(openMobileMenuStudent.id);
+                  setOpenMobileMenu(null);
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-[14px] text-error hover:bg-error-light"
+              >
+                <Trash2 size={14} /> Delete
+              </button>
+            </div>
+          </>,
+          document.body,
+        )}
 
       {/* ── Mobile cards ───────────────────────────────────────────────────── */}
       <div className="md:hidden space-y-4">
@@ -541,26 +620,42 @@ export default function StudentsTable({
               <div className="flex items-center gap-3 px-4 py-3 border-b border-border-light">
                 <div
                   className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[12px] font-bold shrink-0"
-                  style={{ background: `linear-gradient(135deg, ${s.gradientFrom}, ${s.gradientTo})` }}
+                  style={{
+                    background: `linear-gradient(135deg, ${s.gradientFrom}, ${s.gradientTo})`,
+                  }}
                 >
                   {s.initials}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-[15px] font-bold text-text-primary truncate">{s.name}</h3>
+                  <h3 className="text-[15px] font-bold text-text-primary truncate">
+                    {s.name}
+                  </h3>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${s.groupColor}`}>{s.group}</span>
-                    <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${TYPE_COLOR[s.type] ?? "bg-gray-50 text-gray-500 border border-gray-200"}`}>{s.type}</span>
+                    <span
+                      className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${s.groupColor}`}
+                    >
+                      {s.group}
+                    </span>
+                    <span
+                      className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${TYPE_COLOR[s.type] ?? "bg-gray-50 text-gray-500 border border-gray-200 dark:bg-surface-gray-dark dark:text-text-primary dark:border-border-light"}`}
+                    >
+                      {s.type}
+                    </span>
                   </div>
                 </div>
                 <div className="shrink-0">
                   <button
                     onClick={(e) => {
                       const rect = e.currentTarget.getBoundingClientRect();
-                      setOpenMobileMenu(openMobileMenu?.id === s.id ? null : {
-                        id: s.id,
-                        top: rect.bottom + 4,
-                        right: window.innerWidth - rect.right,
-                      });
+                      setOpenMobileMenu(
+                        openMobileMenu?.id === s.id
+                          ? null
+                          : {
+                              id: s.id,
+                              top: rect.bottom + 4,
+                              right: window.innerWidth - rect.right,
+                            },
+                      );
                     }}
                     className="p-2 rounded-lg text-text-muted hover:text-primary hover:bg-surface-gray-light transition-colors"
                   >
@@ -574,44 +669,65 @@ export default function StudentsTable({
                 <div>
                   <span className="text-text-muted text-[11px]">HW Score</span>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="font-semibold text-text-primary">{s.grade}</span>
+                    <span className="font-semibold text-text-primary">
+                      {s.grade}
+                    </span>
                     <TrendIcon trend={s.gradeTrend} />
-                    <span className="text-[11px] text-text-muted">({effectiveRecords(s).length})</span>
+                    <span className="text-[11px] text-text-muted">
+                      ({effectiveRecords(s).length})
+                    </span>
                   </div>
                 </div>
                 <div>
                   <span className="text-text-muted text-[11px]">Status</span>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className={`w-2 h-2 rounded-full shrink-0 ${s.statusDot}`} />
-                    <span className={`font-semibold ${s.statusColor}`}>{s.statusLabel}</span>
+                    <span
+                      className={`w-2 h-2 rounded-full shrink-0 ${s.statusDot}`}
+                    />
+                    <span className={`font-semibold ${s.statusColor}`}>
+                      {s.statusLabel}
+                    </span>
                   </div>
                 </div>
                 <div>
                   <span className="text-text-muted text-[11px]">Started</span>
-                  <p className="text-text-primary mt-0.5">{formatDisplayDate(s.started)}</p>
+                  <p className="text-text-primary mt-0.5">
+                    {formatDisplayDate(s.started)}
+                  </p>
                 </div>
                 <div>
                   <span className="text-text-muted text-[11px]">Finished</span>
-                  <p className="text-text-primary mt-0.5">{formatDisplayDate(s.finished)}</p>
+                  <p className="text-text-primary mt-0.5">
+                    {formatDisplayDate(s.finished)}
+                  </p>
                 </div>
               </div>
 
               {/* Footer */}
               <div className="px-4 py-3 border-t border-border-light space-y-2 text-[13px] overflow-x-auto">
                 <div className="flex items-center gap-2">
-                  <span className="text-text-muted text-[11px] shrink-0">Homework</span>
+                  <span className="text-text-muted text-[11px] shrink-0">
+                    Homework
+                  </span>
                   <HwCell s={s} />
                 </div>
                 {s.contact && (
                   <div className="truncate">
-                    <span className="text-text-muted text-[11px]">Telegram </span>
+                    <span className="text-text-muted text-[11px]">
+                      Telegram{" "}
+                    </span>
                     <span className="text-text-secondary">{s.contact}</span>
                   </div>
                 )}
                 {s.githubUsername && (
                   <div className="truncate">
                     <span className="text-text-muted text-[11px]">GitHub </span>
-                    <a href={`https://github.com/${s.githubUsername}`} target="_blank" rel="noreferrer" className="text-primary hover:underline">
+                    <a
+                      href={`https://github.com/${s.githubUsername}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-primary hover:underline"
+                    >
                       {s.githubUsername}
                     </a>
                   </div>
@@ -633,26 +749,68 @@ export default function StudentsTable({
         <table className="min-w-full text-left border-collapse">
           <thead>
             <tr className="bg-surface-gray-light border-b border-border-light">
-              <SortTh label="Student Name" sortKey="name" currentKey={sortKey} dir={sortDir} onSort={onSort} />
+              <SortTh
+                label="Student Name"
+                sortKey="name"
+                currentKey={sortKey}
+                dir={sortDir}
+                onSort={onSort}
+              />
               {col("group") && (
-                <SortTh label="Group" sortKey="group" currentKey={sortKey} dir={sortDir} onSort={onSort} />
+                <SortTh
+                  label="Group"
+                  sortKey="group"
+                  currentKey={sortKey}
+                  dir={sortDir}
+                  onSort={onSort}
+                />
               )}
               {col("type") && (
-                <SortTh label="Type" sortKey="type" currentKey={sortKey} dir={sortDir} onSort={onSort} />
+                <SortTh
+                  label="Type"
+                  sortKey="type"
+                  currentKey={sortKey}
+                  dir={sortDir}
+                  onSort={onSort}
+                />
               )}
               {col("grade") && (
-                <SortTh label="HW Score" sortKey="gradeNum" currentKey={sortKey} dir={sortDir} onSort={onSort} />
+                <SortTh
+                  label="HW Score"
+                  sortKey="gradeNum"
+                  currentKey={sortKey}
+                  dir={sortDir}
+                  onSort={onSort}
+                />
               )}
               {col("hw_count") && <th className={TH_BASE}># HW</th>}
               {col("homework") && <th className={TH_BASE}>Homework</th>}
               {col("status") && (
-                <SortTh label="Status" sortKey="statusLabel" currentKey={sortKey} dir={sortDir} onSort={onSort} />
+                <SortTh
+                  label="Status"
+                  sortKey="statusLabel"
+                  currentKey={sortKey}
+                  dir={sortDir}
+                  onSort={onSort}
+                />
               )}
               {col("started") && (
-                <SortTh label="Started" sortKey="started" currentKey={sortKey} dir={sortDir} onSort={onSort} />
+                <SortTh
+                  label="Started"
+                  sortKey="started"
+                  currentKey={sortKey}
+                  dir={sortDir}
+                  onSort={onSort}
+                />
               )}
               {col("finished") && (
-                <SortTh label="Finished" sortKey="finished" currentKey={sortKey} dir={sortDir} onSort={onSort} />
+                <SortTh
+                  label="Finished"
+                  sortKey="finished"
+                  currentKey={sortKey}
+                  dir={sortDir}
+                  onSort={onSort}
+                />
               )}
               {col("github") && <th className={TH_BASE}>GitHub</th>}
               {col("exam_project") && <th className={TH_BASE}>Exam Project</th>}
@@ -663,19 +821,27 @@ export default function StudentsTable({
           <tbody className="divide-y divide-border-light">
             {paginated.length === 0 ? (
               <tr>
-                <td colSpan={totalCols} className="px-6 py-10 text-center text-[14px] text-text-muted">
+                <td
+                  colSpan={totalCols}
+                  className="px-6 py-10 text-center text-[14px] text-text-muted"
+                >
                   No students match your filters.
                 </td>
               </tr>
             ) : (
               paginated.map((s) => (
-                <tr key={s.id} className="hover:bg-surface-gray-light transition-colors">
+                <tr
+                  key={s.id}
+                  className="hover:bg-surface-gray-light transition-colors"
+                >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="relative shrink-0">
                         <div
                           className="w-10 h-10 rounded-full flex items-center justify-center text-white text-[13px] font-bold"
-                          style={{ background: `linear-gradient(135deg, ${s.gradientFrom}, ${s.gradientTo})` }}
+                          style={{
+                            background: `linear-gradient(135deg, ${s.gradientFrom}, ${s.gradientTo})`,
+                          }}
                         >
                           {s.initials}
                         </div>
@@ -684,15 +850,21 @@ export default function StudentsTable({
                         />
                       </div>
                       <div>
-                        <p className="text-[14px] font-semibold text-text-primary whitespace-nowrap">{s.name}</p>
-                        <p className="text-[12px] text-text-muted">{s.contact}</p>
+                        <p className="text-[14px] font-semibold text-text-primary whitespace-nowrap">
+                          {s.name}
+                        </p>
+                        <p className="text-[12px] text-text-muted">
+                          {s.contact}
+                        </p>
                       </div>
                     </div>
                   </td>
 
                   {col("group") && (
                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-[13px] whitespace-nowrap ${s.groupColor}`}>
+                      <span
+                        className={`px-3 py-1 rounded-full text-[13px] whitespace-nowrap ${s.groupColor}`}
+                      >
                         {s.group}
                       </span>
                     </td>
@@ -709,7 +881,9 @@ export default function StudentsTable({
                   {col("grade") && (
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <span className="text-[18px] font-semibold text-text-primary">{s.grade}</span>
+                        <span className="text-[18px] font-semibold text-text-primary">
+                          {s.grade}
+                        </span>
                         <TrendIcon trend={s.gradeTrend} />
                       </div>
                     </td>
@@ -727,8 +901,12 @@ export default function StudentsTable({
                   {col("status") && (
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5">
-                        <span className={`w-2 h-2 rounded-full shrink-0 ${s.statusDot}`} />
-                        <span className={`text-[14px] font-semibold whitespace-nowrap ${s.statusColor}`}>
+                        <span
+                          className={`w-2 h-2 rounded-full shrink-0 ${s.statusDot}`}
+                        />
+                        <span
+                          className={`text-[14px] font-semibold whitespace-nowrap ${s.statusColor}`}
+                        >
                           {s.statusLabel}
                         </span>
                       </div>
@@ -782,16 +960,24 @@ export default function StudentsTable({
                   )}
                   {col("notes") && (
                     <td className="px-6 py-4 max-w-55">
-                      <p className="text-[14px] text-text-secondary truncate" title={s.notes ?? ""}>
+                      <p
+                        className="text-[14px] text-text-secondary truncate"
+                        title={s.notes ?? ""}
+                      >
                         {s.notes ?? "—"}
                       </p>
                     </td>
                   )}
 
                   <td className="px-6 py-4 text-right">
-                    <div ref={openMenuId === s.id ? menuRef : null} className="relative inline-block">
+                    <div
+                      ref={openMenuId === s.id ? menuRef : null}
+                      className="relative inline-block"
+                    >
                       <button
-                        onClick={() => setOpenMenuId(openMenuId === s.id ? null : s.id)}
+                        onClick={() =>
+                          setOpenMenuId(openMenuId === s.id ? null : s.id)
+                        }
                         className="p-2 text-text-muted hover:text-primary transition-colors"
                       >
                         <MoreVertical size={16} />
@@ -799,13 +985,20 @@ export default function StudentsTable({
                       {openMenuId === s.id && (
                         <div className="absolute right-0 top-9 z-20 bg-white border border-border-light rounded-lg shadow-lg py-1 min-w-32.5">
                           <button
-                            onClick={() => { onEdit(s); setOpenMenuId(null); }}
+                            onClick={() => {
+                              onEdit(s);
+                              setOpenMenuId(null);
+                            }}
                             className="w-full flex items-center gap-2 px-3 py-2 text-[14px] text-text-primary hover:bg-surface-gray-light"
                           >
-                            <Pencil size={14} className="text-text-secondary" /> Edit
+                            <Pencil size={14} className="text-text-secondary" />{" "}
+                            Edit
                           </button>
                           <button
-                            onClick={() => { onDelete(s.id); setOpenMenuId(null); }}
+                            onClick={() => {
+                              onDelete(s.id);
+                              setOpenMenuId(null);
+                            }}
                             className="w-full flex items-center gap-2 px-3 py-2 text-[14px] text-error hover:bg-error-light"
                           >
                             <Trash2 size={14} /> Delete
@@ -879,7 +1072,9 @@ export default function StudentsTable({
           homeworkMap={homeworkMap}
           top={hwListPopup.top}
           left={hwListPopup.left}
-          onDelete={(recordId) => onHomeworkDelete(hwListPopup.studentId, recordId)}
+          onDelete={(recordId) =>
+            onHomeworkDelete(hwListPopup.studentId, recordId)
+          }
           onSelect={(record, homework) => {
             setHwListPopup(null);
             setHwDetail({ record, homework });

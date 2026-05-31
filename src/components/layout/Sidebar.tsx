@@ -11,7 +11,6 @@ import {
   ChevronLeft,
   PanelLeftClose,
   PanelLeftOpen,
-  Link2,
 } from "lucide-react";
 
 const navItems = [
@@ -45,7 +44,7 @@ function NavLink({
         "flex items-center rounded-lg text-[14px] transition-all duration-200 active:scale-95",
         showLabels ? "gap-3 px-4 py-3" : "justify-center px-2 py-3",
         active
-          ? "text-primary-fixed-dim bg-primary/10 border-l-4 border-primary"
+          ? "text-white dark:text-white bg-primary/10 border-l-4 border-primary"
           : "text-text-muted hover:text-on-primary-fixed-variant hover:bg-surface-gray-dark/50",
       ].join(" ")}
     >
@@ -72,8 +71,10 @@ export default function Sidebar({
   return (
     <aside
       className={[
-        "fixed left-0 top-0 h-screen bg-bg-dark border-r border-border-dark flex flex-col py-5 sm:py-6 z-50 shadow-xl transition-all duration-300",
-        mobileOpen ? "translate-x-0 md:translate-x-0" : "-translate-x-full md:translate-x-0",
+        "app-sidebar fixed left-0 top-0 h-screen bg-bg-dark border-r border-border-dark flex flex-col py-5 sm:py-6 z-50 shadow-xl transition-all duration-300",
+        mobileOpen
+          ? "translate-x-0 md:translate-x-0"
+          : "-translate-x-full md:translate-x-0",
         collapsed ? "md:w-[72px]" : "md:w-sidebar",
         "w-sidebar",
       ].join(" ")}
@@ -89,14 +90,20 @@ export default function Sidebar({
           <h1 className="text-[22px] sm:text-[24px] font-bold leading-[1.3] text-primary-fixed">
             Studento Education
           </h1>
-          <p className="text-[12px] text-text-muted mt-0.5">AI-Driven Learning</p>
+          <p className="text-[12px] text-text-muted mt-0.5">
+            AI-Driven Learning
+          </p>
         </div>
         <button
           onClick={onToggleCollapsed}
           className="hidden md:inline-flex items-center justify-center w-9 h-9 rounded-lg bg-surface-gray-dark/80 text-text-muted hover:text-white hover:bg-surface-gray-dark transition-colors shrink-0"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
-          {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+          {collapsed ? (
+            <PanelLeftOpen size={18} />
+          ) : (
+            <PanelLeftClose size={18} />
+          )}
         </button>
         <button
           onClick={onCloseMobile}
@@ -126,23 +133,6 @@ export default function Sidebar({
           />
         ))}
       </nav>
-
-      {/* Bottom section: Student Access */}
-      <div className="px-2 pt-3 mt-3 border-t border-border-dark shrink-0">
-        {showLabels && (
-          <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-widest text-text-muted">
-            Sharing
-          </p>
-        )}
-        <NavLink
-          href="/student-access"
-          label="Student Access"
-          Icon={Link2}
-          active={pathname === "/student-access"}
-          showLabels={showLabels}
-          onClick={onCloseMobile}
-        />
-      </div>
     </aside>
   );
 }
