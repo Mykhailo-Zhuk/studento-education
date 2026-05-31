@@ -72,7 +72,7 @@ export default function Sidebar({
   return (
     <aside
       className={[
-        "app-sidebar fixed left-0 top-0 h-screen bg-bg-dark border-r border-border-dark flex flex-col py-5 sm:py-6 z-50 shadow-xl transition-all duration-300",
+        "app-sidebar fixed left-0 top-0 dvh-screen bg-bg-dark border-r border-border-dark flex flex-col py-5 sm:py-6 z-50 shadow-xl transition-all duration-300",
         mobileOpen
           ? "translate-x-0 md:translate-x-0"
           : "-translate-x-full md:translate-x-0",

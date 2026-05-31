@@ -20,9 +20,22 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     window.localStorage.setItem(STORAGE_KEY, String(sidebarCollapsed));
   }, [sidebarCollapsed]);
 
+  // Set CSS variable --vh to handle mobile browser UI showing/hiding
+  useEffect(() => {
+    const setVh = () => {
+      document.documentElement.style.setProperty(
+        "--vh",
+        `${window.innerHeight * 0.01}px`
+      );
+    };
+    setVh();
+    window.addEventListener("resize", setVh);
+    return () => window.removeEventListener("resize", setVh);
+  }, []);
+
   return (
     <NotificationsProvider>
-      <div className="min-h-screen bg-surface">
+      <div className="min-dvh-screen bg-surface">
         <button
           onClick={() => setMobileOpen(true)}
           className={[
@@ -47,7 +60,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         />
         <div
           className={[
-            "min-h-screen min-w-0 transition-[margin-left] duration-300",
+            "min-dvh-screen min-w-0 transition-[margin-left] duration-300",
             sidebarCollapsed ? "md:ml-[72px]" : "md:ml-sidebar",
           ].join(" ")}
         >

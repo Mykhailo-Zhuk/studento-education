@@ -90,6 +90,16 @@ body {
   height: 100%;
 }
 
+/* Dynamic viewport height helper for mobile browsers.
+   Sets an element to the real viewport height using the --vh variable
+   which is updated via JS to account for the mobile browser chrome. */
+.dvh-screen {
+  height: calc(var(--vh, 1vh) * 100);
+}
+.min-dvh-screen {
+  min-height: calc(var(--vh, 1vh) * 100);
+}
+
 body {
   font-family: var(--font-family-sans);
   background-color: var(--color-surface);
