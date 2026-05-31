@@ -259,7 +259,7 @@ export default function TopBar({
             </button>
 
             {showNotifs && (
-              <div className="max-sm:fixed max-sm:right-4 max-sm:top-[72px] sm:absolute sm:right-0 sm:top-full sm:mt-2 w-80 max-w-[calc(100vw-2rem)] bg-surface border border-border-light rounded-2xl shadow-xl overflow-hidden z-50">
+              <div className="max-sm:fixed max-sm:right-4 max-sm:top-[72px] sm:absolute sm:right-0 sm:top-full sm:mt-2 w-80 max-w-[calc(100vw-2rem)] modal-panel border border-border-light rounded-2xl shadow-xl overflow-hidden z-[91]">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-border-light">
                   <span className="text-[13px] font-bold text-text-primary">Notifications</span>
                   {notifications.length > 0 && (
@@ -299,7 +299,7 @@ export default function TopBar({
             </button>
 
             {showAvatar && (
-              <div className="absolute right-0 top-full mt-2 w-56 bg-surface border border-border-light rounded-2xl shadow-xl overflow-hidden z-50">
+              <div className="absolute right-0 top-full mt-2 w-56 modal-panel border border-border-light rounded-2xl shadow-xl overflow-hidden z-[91]">
                 <div className="px-4 py-3 border-b border-border-light">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-linear-to-br from-primary to-secondary flex items-center justify-center text-white text-[11px] font-bold shrink-0">
