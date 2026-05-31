@@ -1,9 +1,4 @@
-import {
-  ArrowUp,
-  ArrowDown,
-  Minus,
-  ChevronsUpDown,
-} from "lucide-react";
+import { ArrowUp, ArrowDown, Minus, ChevronsUpDown } from "lucide-react";
 import type { SortKey, SortDir } from "../types";
 import type { Homework } from "@/lib/types";
 
@@ -11,8 +6,7 @@ export { CustomSelect } from "@/components/ui/CustomSelect";
 
 export function TrendIcon({ trend }: { trend: "up" | "down" | "flat" }) {
   if (trend === "up") return <ArrowUp size={14} className="text-success" />;
-  if (trend === "down")
-    return <ArrowDown size={14} className="text-error" />;
+  if (trend === "down") return <ArrowDown size={14} className="text-error" />;
   return <Minus size={14} className="text-text-muted" />;
 }
 
@@ -36,7 +30,7 @@ export function SortTh({
   return (
     <th
       onClick={() => onSort(sortKey)}
-      className={`${TH_BASE} cursor-pointer select-none group hover:bg-surface-gray-light dark:hover:bg-surface-gray-dark`}
+      className={`${TH_BASE} cursor-pointer select-none group`}
     >
       <div className="flex items-center gap-1">
         {label}
