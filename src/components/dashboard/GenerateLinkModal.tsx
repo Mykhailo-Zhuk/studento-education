@@ -83,7 +83,7 @@ export default function GenerateLinkModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-8 pt-8 pb-4 border-b border-white/10">
+        <div className="flex items-center justify-between px-8 pt-8 pb-4 border-b border-white/10 dark:bg-[#94a3b838] overflow-hidden">
           <h3 className="text-white text-[20px] font-bold">
             Generate Share Link
           </h3>

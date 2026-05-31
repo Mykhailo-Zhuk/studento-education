@@ -92,7 +92,7 @@ export default function EditStudentModal({
         className="modal-panel bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 flex flex-col max-h-[calc(90vh-5rem)]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-8 pt-8 pb-4 shrink-0 modal-header sticky top-0 z-10 border-b border-border-light bg-white">
+        <div className="flex items-center justify-between px-8 pt-8 pb-4 shrink-0 modal-header sticky top-0 z-10 border-b border-border-light bg-white dark:bg-[#94a3b838] overflow-hidden">
           <h3 className="text-[20px] font-bold text-text-primary">
             Edit Student
           </h3>

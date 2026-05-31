@@ -290,13 +290,6 @@ export default function GroupsPage() {
               onExport={handleExport}
               onImport={handleImport}
             />
-            <button
-              onClick={openCreate}
-              className="bg-primary hover:bg-primary-hover text-white px-6 py-3 rounded-lg text-[14px] font-semibold flex items-center justify-center gap-2 shadow-lg transition-colors"
-            >
-              <UserPlus size={16} />
-              Create New Group
-            </button>
           </div>
         </div>
 

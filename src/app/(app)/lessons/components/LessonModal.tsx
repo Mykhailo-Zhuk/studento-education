@@ -129,7 +129,7 @@ export default function LessonModal({
       onClick={onClose}
     >
       <div
-        className="modal-panel bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8 max-h-[90vh] overflow-y-auto"
+        className="modal-panel bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto mx-4"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center modal-header px-6 py-4 border-b border-border-light sticky top-0 bg-white z-10">
@@ -144,7 +144,7 @@ export default function LessonModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 px-6 py-4">
           <div>
             <label className="block text-[13px] font-semibold text-text-secondary mb-1">
               Title *

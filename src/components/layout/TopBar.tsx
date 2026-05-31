@@ -104,7 +104,7 @@ function SettingsModal({ onClose }: { onClose: () => void }) {
         className="modal-panel bg-bg-dark rounded-2xl shadow-2xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border-light">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border-light dark:bg-[#94a3b838]">
           <h3 className="text-[16px] font-bold text-text-primary">Settings</h3>
           <button
             onClick={onClose}
@@ -324,8 +324,8 @@ export default function TopBar({
             </button>
 
             {showNotifs && (
-              <div className="max-sm:fixed max-sm:right-4 max-sm:top-[72px] sm:absolute sm:right-0 sm:top-full sm:mt-2 w-80 max-w-[calc(100vw-2rem)] modal-panel border border-border-light rounded-2xl shadow-xl overflow-hidden z-[91]">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-border-light">
+              <div className="max-sm:fixed max-sm:right-4 max-sm:top-18 sm:absolute sm:right-0 sm:top-full sm:mt-2 w-80 max-w-[calc(100vw-2rem)] modal-panel border border-border-light rounded-2xl shadow-xl overflow-hidden z-91">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-border-light dark:bg-[#94a3b838]">
                   <span className="text-[13px] font-bold text-text-primary">
                     Notifications
                   </span>

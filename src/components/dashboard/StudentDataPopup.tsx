@@ -562,7 +562,7 @@ export default function StudentDataPopup({
       onClick={onClose}
     >
       <div
-        className={`modal-panel bg-bg-dark rounded-2xl shadow-2xl w-full ${maxW} mx-4 flex flex-col max-h-[80vh]`}
+        className={`modal-panel bg-bg-dark rounded-2xl shadow-2xl w-full ${maxW} mx-4 flex flex-col max-h-[80vh] overflow-hidden`}
         onClick={(e) => e.stopPropagation()}
       >
         {isDrillDown ? (
@@ -581,7 +581,7 @@ export default function StudentDataPopup({
                 <X size={20} />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto min-h-0 px-6 py-4">
+        <div className="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6 py-4">
               {content}
             </div>
           </>

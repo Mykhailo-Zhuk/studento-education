@@ -308,13 +308,8 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgba(128, 128, 128, 0.06);
+  background: #94a3b838 !important; /* semi-transparent gray */
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   border-bottom: 1px solid var(--color-border-light);
-}
-
-.dark .modal-panel .modal-header {
-  background: rgba(255, 255, 255, 0.03);
-  border-bottom-color: var(--color-border-dark);
 }

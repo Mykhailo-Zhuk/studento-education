@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { UserPlus } from "lucide-react";
+import { Plus, UserPlus } from "lucide-react";
 import { downloadJSON, downloadCSV, downloadExcel } from "@/lib/import-export";
 import ImportExportButtons from "@/components/ui/ImportExportButtons";
 import {
@@ -221,9 +221,11 @@ export default function StudentsClient({
 
   const activeGroups = useMemo(
     () =>
-      [...new Set(rows.filter((r) => r.statusRaw === "In progress").map((r) => r.group))].sort(
-        (a, b) => a.localeCompare(b),
-      ),
+      [
+        ...new Set(
+          rows.filter((r) => r.statusRaw === "In progress").map((r) => r.group),
+        ),
+      ].sort((a, b) => a.localeCompare(b)),
     [rows],
   );
 
@@ -289,13 +291,6 @@ export default function StudentsClient({
             onExport={handleExport}
             onImport={handleImport}
           />
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="px-4 py-3 bg-primary text-white rounded-lg text-[14px] font-semibold flex items-center justify-center gap-2 shadow-lg hover:bg-primary-hover transition-colors"
-          >
-            <UserPlus size={16} />
-            Add Student
-          </button>
         </div>
       </div>
 
@@ -346,6 +341,12 @@ export default function StudentsClient({
           onClose={() => setShowAddModal(false)}
         />
       )}
+      <button
+        onClick={() => setShowAddModal(true)}
+        className="fixed bottom-24 right-6 bg-primary text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-50"
+      >
+        <Plus size={24} />
+      </button>
       {editingStudent && (
         <EditStudentModal
           student={editingStudent}

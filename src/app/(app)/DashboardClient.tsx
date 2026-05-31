@@ -25,6 +25,8 @@ export default function DashboardClient({ students }: DashboardClientProps) {
   const [dataPopupType, setDataPopupType] = useState<
     "homework" | "lessons" | "group" | "students" | "report"
   >("homework");
+  // New state to toggle between preview (data view) and list of students view
+  const [showStudentList, setShowStudentList] = useState<boolean>(false);
 
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [selectedStudentData, setSelectedStudentData] =
@@ -81,6 +83,8 @@ export default function DashboardClient({ students }: DashboardClientProps) {
   const handleSelectStudent = (student: Student) => {
     setSelectedStudent(student);
     setShowSelectorModal(false);
+    // When a student is selected, ensure we are in preview mode
+    setShowStudentList(false);
   };
 
   const handleShowDataPopup = (
@@ -105,7 +109,7 @@ export default function DashboardClient({ students }: DashboardClientProps) {
       icon: "👥",
       count: selectedStudentData?.group ? 1 : 0,
       color: "#3b82f6",
-      pos: "right-0 top-1/2 -translate-y-1/2 translate-x-12",
+      pos: "right-[20px] top-[44%] md:right-0 md:top-1/2 -translate-y-1/2 translate-x-12",
       rotate: "0deg",
       onClick: () => handleShowDataPopup("group"),
     },
@@ -123,7 +127,7 @@ export default function DashboardClient({ students }: DashboardClientProps) {
       icon: "🎓",
       count: 1,
       color: "#10b981",
-      pos: "left-0 top-1/2 -translate-y-1/2 -translate-x-12",
+      pos: "left-[20px] top-[44%] md:left-0 md:top-1/2 -translate-y-1/2 -translate-x-12",
       rotate: "180deg",
       onClick: () => handleShowDataPopup("students"),
     },
@@ -195,9 +199,10 @@ export default function DashboardClient({ students }: DashboardClientProps) {
               {/* Generate Link Button */}
               <button
                 onClick={() => setShowGenerateLinkModal(true)}
-                className="absolute bottom-10 left-10 px-6 py-3 bg-success text-white rounded-lg hover:bg-success/80 transition-colors text-[14px] font-semibold"
+                className="absolute bottom-[28px] left-10 w-14 h-14 bg-success text-white rounded-full hover:bg-success/80 transition-all shadow-lg flex items-center justify-center text-xl"
+                title="Generate Share Link"
               >
-                Generate Share Link
+                🔗
               </button>
             </>
           ) : (

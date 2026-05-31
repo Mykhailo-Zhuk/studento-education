@@ -17,6 +17,7 @@ export default function StudentSelectorModal({
 }: StudentSelectorModalProps) {
   const [search, setSearch] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [view, setView] = useState<"list" | "preview">("list");
 
   const filtered = students.filter(
     (s) =>
@@ -41,11 +42,11 @@ export default function StudentSelectorModal({
       onClick={onClose}
     >
       <div
-        className="modal-panel bg-bg-dark rounded-2xl shadow-2xl w-full max-w-2xl mx-4 flex flex-col max-h-[90vh]"
+        className="modal-panel bg-bg-dark rounded-2xl shadow-2xl w-full max-w-2xl mx-4 flex flex-col max-h-[90vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-8 pt-8 pb-4 border-b border-white/10">
+        <div className="flex items-center justify-between px-8 pt-8 pb-4 border-b border-white/10 dark:bg-[#94a3b838]">
           <h3 className="text-white text-[20px] font-bold">Select Student</h3>
           <button
             onClick={onClose}
@@ -56,105 +57,131 @@ export default function StudentSelectorModal({
         </div>
 
         {/* Content */}
-        <div className="flex-1 flex gap-6 overflow-hidden p-8">
-          {/* Left: Search and list */}
-          <div className="flex-1 flex flex-col min-w-0">
-            <div className="relative mb-4">
-              <Search
-                size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
-              />
-              <input
-                type="text"
-                placeholder="Search by name or group..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-surface-container border border-white/10 rounded-full pl-9 pr-4 py-2 text-[14px] text-white focus:ring-2 focus:ring-primary/20 outline-none"
-              />
-            </div>
-
-            <div className="flex-1 overflow-y-auto space-y-2">
-              {filtered.length > 0 ? (
-                filtered.map((student) => (
-                  <button
-                    key={student.id}
-                    onClick={() => handleSelectStudent(student)}
-                    className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
-                      selectedStudent?.id === student.id
-                        ? "bg-primary text-white"
-                        : "bg-white/5 text-white hover:bg-white/10"
-                    }`}
-                  >
-                    <div className="font-semibold text-[14px]">
-                      {student.name}
-                    </div>
-                    <div className="text-[12px] mt-1 opacity-75">
-                      {student.group_name}
-                    </div>
-                  </button>
-                ))
-              ) : (
-                <div className="text-text-muted text-[14px] text-center py-8">
-                  No students found
-                </div>
-              )}
-            </div>
+        <div className="flex-1 flex flex-col overflow-hidden p-8">
+          {/* Mobile Toggle */}
+          <div className="flex p-1 bg-white/5 rounded-lg mb-4 lg:hidden">
+            <button
+              onClick={() => setView("list")}
+              className={`flex-1 py-2 text-[14px] font-semibold rounded-md transition-all ${
+                view === "list" ? "bg-primary text-white" : "text-text-muted hover:text-white"
+              }`}
+            >
+              List of students
+            </button>
+            <button
+              onClick={() => selectedStudent && setView("preview")}
+              disabled={!selectedStudent}
+              className={`flex-1 py-2 text-[14px] font-semibold rounded-md transition-all ${
+                view === "preview" ? "bg-primary text-white" : "text-text-muted hover:text-white disabled:opacity-50"
+              }`}
+            >
+              Preview
+            </button>
           </div>
 
-          {/* Right: Preview */}
-          {selectedStudent && (
-            <div className="w-96 border-l border-white/10 pl-6 flex flex-col">
-              <h4 className="text-white font-semibold mb-4">Preview</h4>
-              <div className="space-y-3 flex-1 overflow-y-auto">
-                <div>
-                  <p className="text-text-muted text-[12px]">Name</p>
-                  <p className="text-white font-semibold">
-                    {selectedStudent.name}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-text-muted text-[12px]">Group</p>
-                  <p className="text-white font-semibold">
-                    {selectedStudent.group_name}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-text-muted text-[12px]">Type</p>
-                  <p className="text-white font-semibold">
-                    {selectedStudent.type}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-text-muted text-[12px]">Status</p>
-                  <p className="text-white font-semibold capitalize">
-                    {selectedStudent.status}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-text-muted text-[12px]">Started</p>
-                  <p className="text-white font-semibold">
-                    {new Date(selectedStudent.started).toLocaleDateString()}
-                  </p>
-                </div>
-                {selectedStudent.telegram && (
-                  <div>
-                    <p className="text-text-muted text-[12px]">Telegram</p>
-                    <p className="text-white text-[14px]">
-                      {selectedStudent.telegram}
-                    </p>
-                  </div>
-                )}
-                {selectedStudent.notes && (
-                  <div>
-                    <p className="text-text-muted text-[12px]">Notes</p>
-                    <p className="text-white text-[14px]">
-                      {selectedStudent.notes}
-                    </p>
+          <div className="flex-1 flex gap-6 overflow-hidden">
+            {/* Left: Search and list */}
+            <div className={`flex-1 flex flex-col min-w-0 ${view === "preview" ? "hidden lg:flex" : "flex"}`}>
+              <div className="relative mb-4">
+                <Search
+                  size={16}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
+                />
+                <input
+                  type="text"
+                  placeholder="Search by name or group..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full bg-surface-container border border-white/10 rounded-full pl-9 pr-4 py-2 text-[14px] text-white focus:ring-2 focus:ring-primary/20 outline-none"
+                />
+              </div>
+
+              <div className="flex-1 overflow-y-auto space-y-2">
+                {filtered.length > 0 ? (
+                  filtered.map((student) => (
+                    <button
+                      key={student.id}
+                      onClick={() => {
+                        handleSelectStudent(student);
+                        if (window.innerWidth < 1024) setView("preview");
+                      }}
+                      className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
+                        selectedStudent?.id === student.id
+                          ? "bg-primary text-white"
+                          : "bg-white/5 text-white hover:bg-white/10"
+                      }`}
+                    >
+                      <div className="font-semibold text-[14px]">
+                        {student.name}
+                      </div>
+                      <div className="text-[12px] mt-1 opacity-75">
+                        {student.group_name}
+                      </div>
+                    </button>
+                  ))
+                ) : (
+                  <div className="text-text-muted text-[14px] text-center py-8">
+                    No students found
                   </div>
                 )}
               </div>
             </div>
-          )}
+
+            {/* Right: Preview */}
+            {selectedStudent && (
+              <div className={`w-full lg:w-96 lg:pl-6 flex flex-col ${view === "list" ? "hidden lg:flex" : "flex"}`}>
+                <h4 className="text-white font-semibold mb-4">Preview</h4>
+                <div className="space-y-3 flex-1 overflow-y-auto">
+                  <div>
+                    <p className="text-text-muted text-[12px]">Name</p>
+                    <p className="text-white font-semibold">
+                      {selectedStudent.name}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-text-muted text-[12px]">Group</p>
+                    <p className="text-white font-semibold">
+                      {selectedStudent.group_name}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-text-muted text-[12px]">Type</p>
+                    <p className="text-white font-semibold">
+                      {selectedStudent.type}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-text-muted text-[12px]">Status</p>
+                    <p className="text-white font-semibold capitalize">
+                      {selectedStudent.status}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-text-muted text-[12px]">Started</p>
+                    <p className="text-white font-semibold">
+                      {new Date(selectedStudent.started).toLocaleDateString()}
+                    </p>
+                  </div>
+                  {selectedStudent.telegram && (
+                    <div>
+                      <p className="text-text-muted text-[12px]">Telegram</p>
+                      <p className="text-white text-[14px]">
+                        {selectedStudent.telegram}
+                      </p>
+                    </div>
+                  )}
+                  {selectedStudent.notes && (
+                    <div>
+                      <p className="text-text-muted text-[12px]">Notes</p>
+                      <p className="text-white text-[14px]">
+                        {selectedStudent.notes}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Footer */}
