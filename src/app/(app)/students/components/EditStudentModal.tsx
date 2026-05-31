@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { TYPE_COLOR, type StudentRow } from "../types";
@@ -29,6 +29,20 @@ export default function EditStudentModal({ student, uniqueGroups, onClose }: Pro
     notes: student.notes ?? "",
   });
   const [saving, setSaving] = useState(false);
+
+  // Prevent body scroll while modal is open
+  useEffect(() => {
+    const prev = {
+      overflow: document.body.style.overflow,
+      overscroll: document.body.style.overscrollBehavior,
+    };
+    document.body.style.overflow = "hidden";
+    document.body.style.overscrollBehavior = "none";
+    return () => {
+      document.body.style.overflow = prev.overflow;
+      document.body.style.overscrollBehavior = prev.overscroll;
+    };
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -65,8 +79,14 @@ export default function EditStudentModal({ student, uniqueGroups, onClose }: Pro
   const label = "text-[12px] font-semibold text-text-secondary uppercase tracking-wider";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-[70] flex items-center justify-center pb-20 bg-black/95"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 flex flex-col max-h-[calc(90vh-5rem)]"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between px-8 pt-8 pb-4 shrink-0">
           <h3 className="text-[20px] font-bold text-text-primary">Edit Student</h3>
           <button onClick={onClose} className="p-1 text-text-muted hover:text-text-primary">

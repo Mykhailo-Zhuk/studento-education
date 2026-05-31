@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useNotifications } from "@/contexts/notifications";
 
@@ -13,6 +13,20 @@ export default function DeleteStudentModal({ id, onClose }: Props) {
   const router = useRouter();
   const { add: notify } = useNotifications();
   const [deleting, setDeleting] = useState(false);
+
+  // Prevent body scroll while modal is open
+  useEffect(() => {
+    const prev = {
+      overflow: document.body.style.overflow,
+      overscroll: document.body.style.overscrollBehavior,
+    };
+    document.body.style.overflow = "hidden";
+    document.body.style.overscrollBehavior = "none";
+    return () => {
+      document.body.style.overflow = prev.overflow;
+      document.body.style.overscrollBehavior = prev.overscroll;
+    };
+  }, []);
 
   async function handleDelete() {
     setDeleting(true);
@@ -29,7 +43,7 @@ export default function DeleteStudentModal({ id, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center pb-20 bg-black/95">
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4">
         <h3 className="text-[18px] font-bold text-text-primary mb-2">
           Delete student?
