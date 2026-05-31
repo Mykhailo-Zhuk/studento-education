@@ -89,22 +89,16 @@ function SettingsModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center modal-overlay"
-      onClick={onClose}
-    >
+    <div className="modal-overlay" onClick={onClose}>
       <div
-        className="modal-panel bg-surface rounded-2xl shadow-2xl w-full max-w-md mx-4"
+        className="modal-panel bg-surface rounded-2xl shadow-2xl w-full max-w-md mx-4 z-[91] max-h-[calc(90vh-5rem)] pb-6"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-border-light">
           <h3 className="text-[16px] font-bold text-text-primary">Settings</h3>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-surface-container text-text-muted"
-          >
-            <X size={18} />
-          </button>
+            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-container text-text-muted">
+              <X size={18} />
+            </button>
         </div>
 
         <div className="px-6 py-5 flex flex-col gap-6">
@@ -317,8 +311,10 @@ export default function TopBar({
             </button>
 
             {showNotifs && (
-              <div className="max-sm:fixed max-sm:right-4 max-sm:top-[72px] sm:absolute sm:right-0 sm:top-full sm:mt-2 w-80 max-w-[calc(100vw-2rem)] bg-surface border border-border-light rounded-2xl shadow-xl overflow-hidden z-50">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-border-light">
+              <>
+                <div className="fixed inset-0 z-[90] hidden max-sm:block modal-overlay" onClick={() => setShowNotifs(false)} />
+                <div className="max-sm:fixed max-sm:right-4 max-sm:top-18 sm:absolute sm:right-0 sm:top-full sm:mt-2 w-80 max-w-[calc(100vw-2rem)] bg-surface border border-border-light rounded-2xl shadow-xl overflow-hidden z-[91]">
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-border-light">
                   <span className="text-[13px] font-bold text-text-primary">
                     Notifications
                   </span>
@@ -375,7 +371,9 @@ export default function TopBar({
             </button>
 
             {showAvatar && (
-              <div className="absolute right-0 top-full mt-2 w-56 bg-surface border border-border-light rounded-2xl shadow-xl overflow-hidden z-50">
+              <>
+                <div className="fixed inset-0 z-[90] hidden max-sm:block modal-overlay" onClick={() => setShowAvatar(false)} />
+                <div className="absolute right-0 top-full mt-2 w-56 bg-surface border border-border-light rounded-2xl shadow-xl overflow-hidden z-[91]">
                 <div className="px-4 py-3 border-b border-border-light">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-linear-to-br from-primary to-secondary flex items-center justify-center text-white text-[11px] font-bold shrink-0">
