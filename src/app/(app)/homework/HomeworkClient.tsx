@@ -1172,6 +1172,7 @@ export default function HomeworkClient({
     sortByDateDesc(initialHomework),
   );
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
   const [search, setSearch] = useState("");
   const [groupFilter, setGroupFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -1443,16 +1444,17 @@ export default function HomeworkClient({
           </div>
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button
-              onClick={refreshHomework}
+              onClick={() => {
+                setIsSpinning(true);
+                setTimeout(() => window.location.reload(), 600);
+              }}
               type="button"
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border-light text-[13px] text-text-secondary hover:bg-surface-gray-light transition-colors"
-              disabled={isRefreshing}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border-light text-[13px] text-text-secondary hover:bg-surface-gray-light transition-colors active:scale-95"
             >
-              {isRefreshing ? (
-                <Loader2 size={14} className="animate-spin" />
-              ) : (
-                <RefreshCcw size={14} />
-              )}
+              <RefreshCcw
+                size={14}
+                className={isSpinning ? "animate-spin" : ""}
+              />
               Refresh
             </button>
             <ImportExportButtons

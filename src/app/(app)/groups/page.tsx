@@ -134,11 +134,14 @@ export default function GroupsPage() {
       setMenuAnchor(null);
       return;
     }
-    const rect = e.currentTarget.getBoundingClientRect();
+    const button = e.currentTarget;
+    const rect = button.getBoundingClientRect();
+    const section = button.closest("section");
+    const sectionRect = section?.getBoundingClientRect() ?? { top: 0, right: window.innerWidth };
     setMenuAnchor({
       group: g,
-      top: rect.bottom + 4,
-      right: window.innerWidth - rect.right,
+      top: rect.bottom - sectionRect.top + 4,
+      right: sectionRect.right - rect.right,
     });
   }
 
@@ -265,7 +268,7 @@ export default function GroupsPage() {
     <div className="min-h-screen bg-surface">
       <TopBar onSearch={() => {}} />
 
-      <section className="p-4 sm:p-6 lg:p-10">
+      <section className="relative p-4 sm:p-6 lg:p-10">
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-end mb-6 sm:mb-8 gap-4">
           <div>
             <h2 className="text-[26px] sm:text-[32px] font-bold text-text-primary tracking-tight">
@@ -308,6 +311,16 @@ export default function GroupsPage() {
           onShowTooltip={showCellTooltip}
           onHideTooltip={hideCellTooltip}
         />
+
+        <GroupActionMenu
+          anchor={menuAnchor}
+          onEdit={openEdit}
+          onDelete={(group) => {
+            setConfirmDelete(group);
+            setMenuAnchor(null);
+          }}
+          onClose={() => setMenuAnchor(null)}
+        />
       </section>
 
       <button
@@ -316,16 +329,6 @@ export default function GroupsPage() {
       >
         <Plus size={24} />
       </button>
-
-      <GroupActionMenu
-        anchor={menuAnchor}
-        onEdit={openEdit}
-        onDelete={(group) => {
-          setConfirmDelete(group);
-          setMenuAnchor(null);
-        }}
-        onClose={() => setMenuAnchor(null)}
-      />
 
       <GroupTooltip
         tooltip={cellTooltip}

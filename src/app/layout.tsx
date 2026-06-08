@@ -19,13 +19,13 @@ export default function RootLayout({
             __html: `(function(){try{if(localStorage.getItem('studento.theme')==='dark')document.documentElement.classList.add('dark')}catch(e){}})();`,
           }}
         />
-      </head>
         <script
           async
           dangerouslySetInnerHTML={{
             __html: `if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); }); }`,
           }}
         />
+      </head>
       <body className="h-full">{children}</body>
     </html>
   );

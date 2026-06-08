@@ -1,6 +1,5 @@
 "use client";
 
-import { createPortal } from "react-dom";
 import { Pencil, Trash2 } from "lucide-react";
 import type { MenuAnchor } from "../types";
 
@@ -19,17 +18,17 @@ export default function GroupActionMenu({
 }: Props) {
   if (!anchor) return null;
 
-  return createPortal(
+  return (
     <>
       <div className="fixed inset-0 z-40" onClick={onClose} />
       <div
         style={{
-          position: "fixed",
+          position: "absolute",
           top: anchor.top,
           right: anchor.right,
           zIndex: 50,
         }}
-        className="bg-white border border-border-light rounded-xl shadow-lg py-1 w-36"
+        className="bg-white border border-border-light rounded-xl shadow-lg py-1 w-36 modal-panel"
       >
         <button
           onClick={() => onEdit(anchor.group)}
@@ -46,7 +45,6 @@ export default function GroupActionMenu({
           Delete
         </button>
       </div>
-    </>,
-    document.body,
+    </>
   );
 }

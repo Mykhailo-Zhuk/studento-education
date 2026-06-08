@@ -219,7 +219,6 @@ export default function GroupModal({ group, onClose, onSaved }: Props) {
               className="mt-1 w-full px-3 py-2 border border-border-light rounded-lg text-[14px] outline-none focus:border-primary resize-none"
             />
           </div>
-        </form>
         <div className="flex gap-3 px-8 py-6 shrink-0 border-t border-border-light">
           <button
             type="button"
@@ -236,6 +235,7 @@ export default function GroupModal({ group, onClose, onSaved }: Props) {
             {saving ? "Saving…" : isEdit ? "Save Changes" : "Create Group"}
           </button>
         </div>
+        </form>
       </div>
     </div>
   );
