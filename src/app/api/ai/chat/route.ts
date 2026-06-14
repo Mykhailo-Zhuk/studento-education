@@ -17,10 +17,10 @@ const YOUTUBE_FILE_NAME = "youtube-description.md";
 
 function resolveBasePath(type: string): string {
   const t = type.toLowerCase();
-  if (t.includes("react")) return "Studento/React/Homeworks";
+  if (t.includes("react")) return "studento/react/homeworks";
   if (t.includes("web") && t.includes("workshop"))
-    return "Studento/Web-Workshop-HTML-CSS/Homeworks";
-  return "Studento/Front-End-Course-Content/Homeworks";
+    return "studento/web-workshop-html-css/homeworks";
+  return "studento/front-end-course-content/homeworks";
 }
 
 function deriveFolder(titleSlug: string, typeSlug: string): string | null {
