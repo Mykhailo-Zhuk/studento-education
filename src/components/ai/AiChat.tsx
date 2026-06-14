@@ -134,7 +134,7 @@ const mdComponents: Components = {
   code: ({ className, children }) => {
     if (className) {
       return (
-        <code className="font-mono text-[11px] text-white">{children}</code>
+        <code className="bg-transparent font-mono text-[11px] text-white">{children}</code>
       );
     }
     return (

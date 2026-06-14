@@ -214,8 +214,15 @@ body {
 }
 .dark pre,
 .dark code {
-  color: #e2e8f0 !important;
-  background-color: rgba(0, 0, 0, 0.48) !important;
+  color: #d35d38 !important;
+  background-color: #040404 !important;
+}
+
+/* Light mode code blocks */
+pre,
+code {
+  color: #334155;
+  background-color: #f1f5f9;
 }
 .dark .bg-slate-100,
 .dark .bg-white\/5,
