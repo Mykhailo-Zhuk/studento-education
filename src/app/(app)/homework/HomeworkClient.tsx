@@ -538,7 +538,7 @@ function parseInline(text: string): React.ReactNode {
       return (
         <code
           key={i}
-          className="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[12px] font-mono"
+          className="bg-slate-100 px-1.5 py-0.5 rounded text-[12px] font-mono"
         >
           {part.slice(1, -1)}
         </code>
