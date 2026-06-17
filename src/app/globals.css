@@ -214,14 +214,14 @@ body {
 }
 .dark pre,
 .dark code {
-  color: #d35d38 !important;
+  color: var(--color-primary) !important;
   background-color: #040404 !important;
 }
 
 /* Light mode code blocks */
 pre,
 code {
-  color: #d35d38;
+  color: var(--color-primary);
   background-color: #f1f5f9;
 }
 .dark .bg-slate-100,
