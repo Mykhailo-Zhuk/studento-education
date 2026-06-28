@@ -104,6 +104,7 @@ export default function DashboardClient({ students }: DashboardClientProps) {
       color: "#be185d",
       pos: "top-0 left-1/2 -translate-x-1/2 -translate-y-12",
       rotate: "-90deg",
+      badgeLeft: false,
       onClick: () => handleShowDataPopup("homework"),
     },
     {
@@ -113,6 +114,7 @@ export default function DashboardClient({ students }: DashboardClientProps) {
       color: "#3b82f6",
       pos: "right-[8px] top-[44%] md:right-0 md:top-1/2 -translate-y-1/2 translate-x-16 md:translate-x-12",
       rotate: "0deg",
+      badgeLeft: true,
       onClick: () => handleShowDataPopup("group"),
     },
     {
@@ -122,6 +124,7 @@ export default function DashboardClient({ students }: DashboardClientProps) {
       color: "#f59e0b",
       pos: "bottom-0 left-1/2 -translate-x-1/2 translate-y-12",
       rotate: "90deg",
+      badgeLeft: false,
       onClick: () => handleShowDataPopup("lessons"),
     },
     {
@@ -131,6 +134,7 @@ export default function DashboardClient({ students }: DashboardClientProps) {
       color: "#10b981",
       pos: "left-[8px] top-[44%] md:left-0 md:top-1/2 -translate-y-1/2 -translate-x-16 md:-translate-x-12",
       rotate: "180deg",
+      badgeLeft: false,
       onClick: () => handleShowDataPopup("students"),
     },
   ];
@@ -205,7 +209,7 @@ export default function DashboardClient({ students }: DashboardClientProps) {
                       className="relative z-10 w-24 h-24 bg-surface-gray-dark border border-white/10 rounded-2xl flex flex-col items-center justify-center shadow-2xl hover:scale-105 transition-transform cursor-pointer"
                     >
                       <div
-                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px] font-bold shadow-lg"
+                        className={`absolute -top-2 ${node.badgeLeft ? "-left-2" : "-right-2"} w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px] font-bold shadow-lg`}
                         style={{ backgroundColor: node.color }}
                       >
                         {loadingData ? (

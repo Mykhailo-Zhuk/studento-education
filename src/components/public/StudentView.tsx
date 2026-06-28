@@ -10,11 +10,11 @@ export default function StudentView(data: StudentBundle) {
   const { student, group, lessons, homework } = data;
   const [popupType, setPopupType] = useState<PopupType | null>(null);
 
-  const orbitNodes: { label: string; icon: string; count: number; color: string; pos: string; rotate: string; type: PopupType }[] = [
-    { label: "Homework", icon: "📋", count: homework.length, color: "#be185d", pos: "top-0 left-1/2 -translate-x-1/2 -translate-y-12", rotate: "-90deg", type: "homework" },
-    { label: "Group",    icon: "👥", count: group ? 1 : 0,   color: "#3b82f6", pos: "right-[8px] top-[44%] translate-y-0 translate-x-16 md:right-0 md:top-1/2 md:-translate-y-1/2 md:translate-x-12",  rotate: "0deg",   type: "group"    },
-    { label: "Lessons",  icon: "📅", count: lessons.length,   color: "#f59e0b", pos: "bottom-0 left-1/2 -translate-x-1/2 translate-y-12", rotate: "90deg",  type: "lessons"  },
-    { label: "Student",  icon: "🎓", count: 1,                color: "#10b981", pos: "left-[8px] top-[44%] translate-y-0 -translate-x-16 md:left-0 md:top-1/2 md:-translate-y-1/2 md:-translate-x-12",  rotate: "180deg", type: "students" },
+  const orbitNodes: { label: string; icon: string; count: number; color: string; pos: string; rotate: string; badgeLeft: boolean; type: PopupType }[] = [
+    { label: "Homework", icon: "📋", count: homework.length, color: "#be185d", pos: "top-0 left-1/2 -translate-x-1/2 -translate-y-12", rotate: "-90deg", badgeLeft: false, type: "homework" },
+    { label: "Group",    icon: "👥", count: group ? 1 : 0,   color: "#3b82f6", pos: "right-[8px] top-[44%] translate-y-0 translate-x-16 md:right-0 md:top-1/2 md:-translate-y-1/2 md:translate-x-12",  rotate: "0deg",   badgeLeft: true, type: "group"    },
+    { label: "Lessons",  icon: "📅", count: lessons.length,   color: "#f59e0b", pos: "bottom-0 left-1/2 -translate-x-1/2 translate-y-12", rotate: "90deg",  badgeLeft: false, type: "lessons"  },
+    { label: "Student",  icon: "🎓", count: 1,                color: "#10b981", pos: "left-[8px] top-[44%] translate-y-0 -translate-x-16 md:left-0 md:top-1/2 md:-translate-y-1/2 md:-translate-x-12",  rotate: "180deg", badgeLeft: false, type: "students" },
   ];
 
   return (
@@ -49,7 +49,7 @@ export default function StudentView(data: StudentBundle) {
               className="relative z-10 w-24 h-24 bg-surface-gray-dark border border-white/10 rounded-2xl flex flex-col items-center justify-center shadow-2xl hover:scale-105 transition-transform cursor-pointer"
             >
               <div
-                className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px] font-bold shadow-lg"
+                className={`absolute -top-2 ${node.badgeLeft ? "-left-2" : "-right-2"} w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px] font-bold shadow-lg`}
                 style={{ backgroundColor: node.color }}
               >
                 {node.count}
