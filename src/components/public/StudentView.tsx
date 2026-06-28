@@ -12,9 +12,9 @@ export default function StudentView(data: StudentBundle) {
 
   const orbitNodes: { label: string; icon: string; count: number; color: string; pos: string; rotate: string; type: PopupType }[] = [
     { label: "Homework", icon: "📋", count: homework.length, color: "#be185d", pos: "top-0 left-1/2 -translate-x-1/2 -translate-y-12", rotate: "-90deg", type: "homework" },
-    { label: "Group",    icon: "👥", count: group ? 1 : 0,   color: "#3b82f6", pos: "right-[20px] top-[44%] translate-y-0 translate-x-0 md:right-0 md:top-1/2 md:-translate-y-1/2 md:translate-x-12",  rotate: "0deg",   type: "group"    },
+    { label: "Group",    icon: "👥", count: group ? 1 : 0,   color: "#3b82f6", pos: "right-[8px] top-[44%] translate-y-0 translate-x-16 md:right-0 md:top-1/2 md:-translate-y-1/2 md:translate-x-12",  rotate: "0deg",   type: "group"    },
     { label: "Lessons",  icon: "📅", count: lessons.length,   color: "#f59e0b", pos: "bottom-0 left-1/2 -translate-x-1/2 translate-y-12", rotate: "90deg",  type: "lessons"  },
-    { label: "Student",  icon: "🎓", count: 1,                color: "#10b981", pos: "left-[20px] top-[44%] translate-y-0 translate-x-0 md:left-0 md:top-1/2 md:-translate-y-1/2 md:-translate-x-12",  rotate: "180deg", type: "students" },
+    { label: "Student",  icon: "🎓", count: 1,                color: "#10b981", pos: "left-[8px] top-[44%] translate-y-0 -translate-x-16 md:left-0 md:top-1/2 md:-translate-y-1/2 md:-translate-x-12",  rotate: "180deg", type: "students" },
   ];
 
   return (
