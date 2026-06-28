@@ -35,21 +35,14 @@ export default function DashboardClient({ students }: DashboardClientProps) {
   useEffect(() => {
     if (!selectedStudent) return;
     const student = selectedStudent;
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
     async function fetchStudentData() {
       try {
         const [groups, lessons, homework, records] = await Promise.all([
-          fetch(`${baseUrl}/api/groups`).then((r) => r.json()) as Promise<
-            Group[]
-          >,
-          fetch(`${baseUrl}/api/lessons`).then((r) => r.json()) as Promise<
-            Lesson[]
-          >,
-          fetch(`${baseUrl}/api/homework`).then((r) => r.json()) as Promise<
-            Homework[]
-          >,
-          fetch(`${baseUrl}/api/students/${student.id}/homework`).then((r) =>
+          fetch("/api/groups").then((r) => r.json()) as Promise<Group[]>,
+          fetch("/api/lessons").then((r) => r.json()) as Promise<Lesson[]>,
+          fetch("/api/homework").then((r) => r.json()) as Promise<Homework[]>,
+          fetch(`/api/students/${student.id}/homework`).then((r) =>
             r.json(),
           ) as Promise<StudentHomeworkRecord[]>,
         ]);

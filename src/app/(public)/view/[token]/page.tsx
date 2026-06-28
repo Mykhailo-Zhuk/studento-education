@@ -9,8 +9,7 @@ interface Params {
 
 async function fetchData(token: string): Promise<StudentBundle | GroupBundle | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/view/${token}`, { cache: "no-store" });
+    const res = await fetch(`/api/view/${token}`, { cache: "no-store" });
     if (!res.ok) return null;
     return res.json();
   } catch {
@@ -39,10 +38,13 @@ export default async function ViewPage({ params }: Params) {
   }
 
   const isGroup = "type" in data && (data as GroupBundle).type === "group";
+  const expiresAt = isGroup
+    ? (data as GroupBundle).expiresAt
+    : (data as StudentBundle).expiresAt;
 
   return (
     <div className="min-h-screen bg-bg-dark flex flex-col">
-      <PublicTopBar />
+      <PublicTopBar expiresAt={expiresAt} />
       {isGroup ? (
         <GroupView token={token} data={data as GroupBundle} />
       ) : (

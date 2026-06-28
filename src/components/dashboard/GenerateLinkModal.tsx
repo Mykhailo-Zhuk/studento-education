@@ -4,6 +4,7 @@ import { useState } from "react";
 import { X, Copy, Check } from "lucide-react";
 import type { Student } from "@/lib/types";
 import { useNotifications } from "@/contexts/notifications";
+import CountdownTimer from "@/components/public/CountdownTimer";
 
 interface GenerateLinkModalProps {
   student: Student;
@@ -24,6 +25,7 @@ export default function GenerateLinkModal({
   const [selectedDuration, setSelectedDuration] = useState<number | null>(null);
   const [customHours, setCustomHours] = useState("");
   const [generatedLink, setGeneratedLink] = useState<string | null>(null);
+  const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +57,7 @@ export default function GenerateLinkModal({
 
       const data = await response.json();
       setGeneratedLink(data.share_link);
+      setExpiresAt(data.expires_at);
       notify(`Share link generated for ${student.name}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "An error occurred";
@@ -162,6 +165,12 @@ export default function GenerateLinkModal({
                   <p className="text-white text-[12px]">{generatedLink}</p>
                 </div>
               </div>
+              {expiresAt && (
+                <div className="mb-4 flex items-center gap-2 px-3 py-2 bg-white/5 rounded-lg">
+                  <span className="text-text-muted text-[12px]">⏳</span>
+                  <CountdownTimer expiresAt={expiresAt} />
+                </div>
+              )}
               <p className="text-text-muted text-[12px]">
                 The link will be valid until the expiration time.
               </p>

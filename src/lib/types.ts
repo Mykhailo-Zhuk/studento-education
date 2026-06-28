@@ -76,6 +76,7 @@ export interface StudentBundle {
   lessons: Lesson[];
   homework: Homework[];
   studentHomeworkRecords: StudentHomeworkRecord[];
+  expiresAt?: string;
 }
 
 export interface PublicStudentInfo {

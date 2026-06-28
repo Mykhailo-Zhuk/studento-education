@@ -157,6 +157,7 @@ export async function GET(req: Request, { params }: Params) {
         lessons: lessonsRes.data ?? [],
         homework: studentHomework,
         studentHomeworkRecords: records,
+        expiresAt: tokenData.expires_at,
       },
       { status: 200 },
     );
