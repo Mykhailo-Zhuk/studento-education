@@ -31,12 +31,15 @@ export default function DashboardClient({ students }: DashboardClientProps) {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [selectedStudentData, setSelectedStudentData] =
     useState<StudentBundle | null>(null);
+  const [loadingData, setLoadingData] = useState(false);
 
   useEffect(() => {
     if (!selectedStudent) return;
     const student = selectedStudent;
 
     async function fetchStudentData() {
+      setLoadingData(true);
+      setSelectedStudentData(null);
       try {
         const [groups, lessons, homework, records] = await Promise.all([
           fetch("/api/groups").then((r) => r.json()) as Promise<Group[]>,
@@ -67,6 +70,8 @@ export default function DashboardClient({ students }: DashboardClientProps) {
         });
       } catch (error) {
         console.error("Failed to fetch student data:", error);
+      } finally {
+        setLoadingData(false);
       }
     }
 
@@ -78,6 +83,10 @@ export default function DashboardClient({ students }: DashboardClientProps) {
     setShowSelectorModal(false);
     // When a student is selected, ensure we are in preview mode
     setShowStudentList(false);
+  };
+
+  const handleChangeStudent = () => {
+    setShowSelectorModal(true);
   };
 
   const handleShowDataPopup = (
@@ -146,7 +155,7 @@ export default function DashboardClient({ students }: DashboardClientProps) {
 
                 {/* Center node */}
                 <button
-                  onClick={() => handleShowDataPopup("report")}
+                  onClick={() => selectedStudentData && handleShowDataPopup("report")}
                   className="relative z-20 flex flex-col items-center justify-center cursor-pointer group hover:scale-110 transition-transform"
                 >
                   <div className="w-32 h-32 rounded-full bg-linear-to-tr from-primary to-primary-container shadow-[0_0_40px_rgba(99,14,212,0.6)] flex items-center justify-center border-4 border-white/20 group-hover:shadow-[0_0_60px_rgba(99,14,212,0.8)] transition-all">
@@ -156,10 +165,31 @@ export default function DashboardClient({ students }: DashboardClientProps) {
                     <h2 className="text-white text-[24px] font-bold tracking-tight">
                       {selectedStudent.name}
                     </h2>
-                    <span className="inline-flex items-center gap-1.5 bg-success/20 text-success text-[12px] px-3 py-0.5 rounded-full border border-success/30 mt-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                      Active
-                    </span>
+                    <div className="flex items-center justify-center gap-2 mt-1">
+                      {loadingData ? (
+                        <span className="inline-flex items-center gap-1.5 bg-primary/20 text-primary text-[12px] px-3 py-0.5 rounded-full border border-primary/30">
+                          <svg className="animate-spin w-3 h-3" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          Loading...
+                        </span>
+                      ) : (
+                        <>
+                          <span className="inline-flex items-center gap-1.5 bg-success/20 text-success text-[12px] px-3 py-0.5 rounded-full border border-success/30">
+                            <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+                            Active
+                          </span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleChangeStudent(); }}
+                            className="text-[12px] text-text-muted hover:text-white px-2 py-0.5 rounded-md hover:bg-white/10 transition-colors"
+                            title="Change student"
+                          >
+                            ✕
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </button>
 
@@ -184,6 +214,14 @@ export default function DashboardClient({ students }: DashboardClientProps) {
                       <span className="text-white text-[12px] font-semibold tracking-wide">
                         {node.label}
                       </span>
+                      {loadingData && (
+                        <div className="absolute inset-0 bg-surface-gray-dark/60 rounded-2xl flex items-center justify-center">
+                          <svg className="animate-spin w-5 h-5 text-white/60" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                        </div>
+                      )}
                     </button>
                   </div>
                 ))}
