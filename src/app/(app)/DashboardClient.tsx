@@ -180,9 +180,17 @@ export default function DashboardClient({ students }: DashboardClientProps) {
                         </span>
                       ) : (
                         <>
-                          <span className="inline-flex items-center gap-1.5 bg-success/20 text-success text-[12px] px-3 py-0.5 rounded-full border border-success/30">
-                            <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                            Active
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full border text-[12px] ${
+                              selectedStudent.status === "active"
+                                ? "bg-success/20 text-success border-success/30"
+                                : "bg-white/10 text-text-muted border-white/20"
+                            }`}
+                          >
+                            {selectedStudent.status === "active" && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+                            )}
+                            {selectedStudent.status.charAt(0).toUpperCase() + selectedStudent.status.slice(1)}
                           </span>
                           <button
                             onClick={(e) => { e.stopPropagation(); handleChangeStudent(); }}
