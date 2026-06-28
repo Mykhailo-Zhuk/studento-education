@@ -172,7 +172,7 @@ export default function DashboardClient({ students }: DashboardClientProps) {
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                           </svg>
-                          Loading...
+                          Loading
                         </span>
                       ) : (
                         <>
@@ -208,20 +208,19 @@ export default function DashboardClient({ students }: DashboardClientProps) {
                         className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px] font-bold shadow-lg"
                         style={{ backgroundColor: node.color }}
                       >
-                        {node.count}
+                        {loadingData ? (
+                          <svg className="animate-spin w-3 h-3" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                        ) : (
+                          node.count
+                        )}
                       </div>
                       <span className="text-2xl mb-1">{node.icon}</span>
                       <span className="text-white text-[12px] font-semibold tracking-wide">
                         {node.label}
                       </span>
-                      {loadingData && (
-                        <div className="absolute inset-0 bg-surface-gray-dark/60 rounded-2xl flex items-center justify-center">
-                          <svg className="animate-spin w-5 h-5 text-white/60" viewBox="0 0 24 24" fill="none">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                          </svg>
-                        </div>
-                      )}
                     </button>
                   </div>
                 ))}
