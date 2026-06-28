@@ -5,6 +5,64 @@ const REPO = "my-obsidian-vaults";
 const KNOWN_FILES = ["what-to-read.md", "what-to-write.md", "youtube-description.md"];
 const ALLOWED_PATH_PREFIX = "studento/";
 
+/**
+ * Strip Obsidian metadata from markdown content for display purposes only.
+ * Does not modify the original file.
+ */
+function sanitizeObsidianContent(content: string): string {
+  const lines = content.split("\n");
+
+  // 1. Strip YAML frontmatter (--- ... --- at the very start)
+  let startIdx = 0;
+  if (lines.length > 0 && lines[0].trim() === "---") {
+    for (let i = 1; i < lines.length; i++) {
+      if (lines[i].trim() === "---") {
+        startIdx = i + 1; // skip closing --- too
+        break;
+      }
+    }
+  }
+
+  // 2. Process remaining lines: skip wiki-link-only list items, unwrap [[links]]
+  const result: string[] = [];
+  let inConnections = false;
+
+  for (let i = startIdx; i < lines.length; i++) {
+    let line = lines[i];
+
+    // Detect "Зв'язки" / "Connections" heading
+    if (/^#+\s*(Зв'язки|Connections)/i.test(line.trim())) {
+      inConnections = true;
+      continue; // skip the heading
+    }
+
+    // Inside a connections section, skip bullet items that are just wiki-links
+    if (inConnections && /^[-*•]\s*\[\[.+\]\]/.test(line.trim())) {
+      continue;
+    }
+
+    // Reset connections flag on any non-empty, non-list line or next heading
+    if (inConnections && line.trim() !== "" && !/^[-*•]\s/.test(line.trim())) {
+      inConnections = false;
+    }
+
+    // If we were in connections and hit another heading, reset
+    if (/^#+\s/.test(line.trim())) {
+      inConnections = false;
+    }
+
+    // Unwrap wiki-links: [[link|text]] → text, [[link]] → link
+    line = line.replace(/\[\[([^\]]+)\]\]/g, (_match, inner: string) => {
+      const pipeIdx = inner.indexOf("|");
+      return pipeIdx !== -1 ? inner.slice(pipeIdx + 1) : inner;
+    });
+
+    result.push(line);
+  }
+
+  return result.join("\n").trim();
+}
+
 function resolveBasePath(type: string): string {
   const t = type.toLowerCase();
   if (t.includes("react")) return "studento/react/homeworks";
@@ -126,7 +184,9 @@ export async function GET(req: Request) {
       const res = await fetch(fileUrl, { headers, cache: "no-store" });
       if (!res.ok) return null;
       const data = (await res.json()) as { content: string; sha: string };
-      const content = Buffer.from(data.content.replace(/\n/g, ""), "base64").toString("utf-8");
+      const content = sanitizeObsidianContent(
+        Buffer.from(data.content.replace(/\n/g, ""), "base64").toString("utf-8"),
+      );
       return { name: fileName, content, sha: data.sha };
     }),
   );
