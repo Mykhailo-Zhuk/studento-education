@@ -2,6 +2,7 @@ import PublicTopBar from "@/components/public/PublicTopBar";
 import StudentView from "@/components/public/StudentView";
 import GroupView from "@/components/public/GroupView";
 import type { StudentBundle, GroupBundle } from "@/lib/types";
+import { headers } from "next/headers";
 
 interface Params {
   params: Promise<{ token: string }>;
@@ -9,7 +10,10 @@ interface Params {
 
 async function fetchData(token: string): Promise<StudentBundle | GroupBundle | null> {
   try {
-    const res = await fetch(`/api/view/${token}`, { cache: "no-store" });
+    const h = await headers();
+    const host = h.get("host") ?? "localhost:3000";
+    const proto = h.get("x-forwarded-proto") ?? "http";
+    const res = await fetch(`${proto}://${host}/api/view/${token}`, { cache: "no-store" });
     if (!res.ok) return null;
     return res.json();
   } catch {
